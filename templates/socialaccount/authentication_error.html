@@ -1,0 +1,20 @@
+{% extends "layouts/auth_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Google Sign In Failed{% endblock %}
+
+{% block auth_content %}
+  <header class="auth-card-header text-center">
+    <a href="{% url 'core:index' %}">
+      <img src="{% static 'assets/images/gabsweb-cashflow-logo.png' %}" alt="Gabsweb CashFlow Logo" class="brand-logo mx-auto size-10 sm:size-16" />
+      <h1>Google Sign In Failed</h1>
+    </a>
+    <p>We could not complete Google sign-in. The request may have expired, already been used, or been interrupted.</p>
+  </header>
+
+  <p class="auth-guidance">For your security, no account changes were made. Please return and try again.</p>
+
+  <p class="auth-footer">
+    <a href="{% url 'core:login' %}">Return to sign in</a>
+  </p>
+{% endblock %}

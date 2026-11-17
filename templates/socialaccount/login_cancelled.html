@@ -1,0 +1,18 @@
+{% extends "layouts/auth_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Google Sign In Cancelled{% endblock %}
+
+{% block auth_content %}
+  <header class="auth-card-header text-center">
+    <a href="{% url 'core:index' %}">
+      <img src="{% static 'assets/images/gabsweb-cashflow-logo.png' %}" alt="Gabsweb CashFlow Logo" class="brand-logo mx-auto size-10 sm:size-16" />
+      <h1>Google Sign In Cancelled</h1>
+    </a>
+    <p>No Google sign-in took place. You can try again or use your Gabsweb CashFlow email and password.</p>
+  </header>
+
+  <p class="auth-footer">
+    <a href="{% url 'core:login' %}">Return to sign in</a>
+  </p>
+{% endblock %}

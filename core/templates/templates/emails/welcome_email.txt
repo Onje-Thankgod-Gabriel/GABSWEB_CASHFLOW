@@ -1,0 +1,16 @@
+Gabsweb CashFlow
+
+Welcome to Gabsweb CashFlow
+
+Hello {{ first_name }},
+
+Your Gabsweb CashFlow account has been created successfully.
+
+You can now set up your personal financial dashboard, track accounts, plan budgets, manage savings and goals, and keep your daily plans in one place.
+
+Sign in here:
+{{ login_url }}
+
+Gabsweb CashFlow
+Manage your finances and stay on top of your plans.
+Official account notification

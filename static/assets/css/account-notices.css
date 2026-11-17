@@ -1,0 +1,312 @@
+.app-notices {
+  width: 100%;
+  max-width: 1624px;
+  margin: 0 auto;
+  padding: 12px 12px 0;
+}
+
+.app-notices > * + * {
+  margin-top: 10px;
+}
+
+.app-notices-messages {
+  display: grid;
+  gap: 8px;
+  max-width: 720px;
+}
+
+.app-notices-message {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--glass);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.app-pending-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, #6366f1 26%, var(--border));
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      118deg,
+      color-mix(in srgb, #6366f1 9%, var(--panel)) 0%,
+      var(--panel) 62%
+    );
+  color: var(--text);
+}
+
+.app-pending-icon {
+  display: flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 5px 12px rgba(99, 102, 241, 0.2);
+  color: #ffffff;
+}
+
+.app-pending-icon svg {
+  width: 17px;
+  height: 17px;
+  color: #ffffff;
+}
+
+.app-pending-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.app-pending-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-pending-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.app-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.app-pending-copy {
+  margin: 5px 0 0;
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.82;
+}
+
+.app-pending-help {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .app-notices {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .app-pending-notice {
+    gap: 10px;
+    padding: 13px 14px;
+  }
+
+  .app-pending-icon {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .app-pending-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-pending-notice {
+    padding: 12px;
+  }
+
+  .app-pending-heading {
+    gap: 6px;
+  }
+}
+
+/* Unified message cards */
+.app-message-card.app-message-card {
+  --app-message-accent: #6366f1;
+  --app-message-border: color-mix(in srgb, #6366f1 26%, var(--border));
+  --app-message-surface: color-mix(in srgb, #6366f1 8%, var(--panel));
+  --app-message-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--app-message-border);
+  border-radius: 13px;
+  background: var(--app-message-surface);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 550;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.app-message-card.app-message-card::before {
+  content: "";
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  background: var(--app-message-accent);
+  -webkit-mask: var(--app-message-icon) center / contain no-repeat;
+  mask: var(--app-message-icon) center / contain no-repeat;
+}
+
+.app-message-card--error {
+  --app-message-accent: #ef4444;
+  --app-message-border: color-mix(in srgb, #ef4444 28%, var(--border));
+  --app-message-surface: color-mix(in srgb, #ef4444 8%, var(--panel));
+  --app-message-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E");
+}
+
+.app-message-card--warning {
+  --app-message-accent: #d97706;
+  --app-message-border: color-mix(in srgb, #f59e0b 34%, var(--border));
+  --app-message-surface: color-mix(in srgb, #f59e0b 9%, var(--panel));
+  --app-message-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+}
+
+.app-message-card--success {
+  --app-message-accent: #059669;
+  --app-message-border: color-mix(in srgb, #10b981 28%, var(--border));
+  --app-message-surface: color-mix(in srgb, #10b981 8%, var(--panel));
+  --app-message-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E");
+}
+
+.app-message-card--has-icon.app-message-card--has-icon::before {
+  display: none;
+}
+
+.app-message-card--form.app-message-card--form {
+  display: none;
+}
+
+.app-message-card--form.app-message-card--form.is-visible {
+  display: flex;
+}
+
+.app-message-card--has-icon > i,
+.app-message-card--has-icon > svg {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  color: var(--app-message-accent);
+}
+
+.app-message-card__body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.gl-purchase-note.app-message-card > div {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.gl-purchase-note.app-message-card strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.gl-purchase-note.app-message-card span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.app-message-card__title {
+  display: block;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.app-message-card__copy {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.bd-form-error,
+.mf-form-error,
+.gl-form-error,
+.sv-form-error,
+.ws-form-error {
+  color: var(--text);
+}
+
+.bd-period-warning,
+.ws-details-warning,
+.gl-purchase-note.is-warning {
+  color: var(--text);
+}
+
+.bd-period-warning::before,
+.ws-details-warning::before,
+.gl-purchase-note.is-warning::before {
+  background: var(--app-message-accent);
+}
+
+.dark .app-message-card--error {
+  --app-message-border: color-mix(in srgb, #f87171 34%, var(--border));
+  --app-message-surface: color-mix(in srgb, #ef4444 12%, var(--panel));
+}
+
+.dark .app-message-card--warning {
+  --app-message-border: color-mix(in srgb, #fbbf24 34%, var(--border));
+  --app-message-surface: color-mix(in srgb, #f59e0b 12%, var(--panel));
+}
+
+.dark .app-message-card--success {
+  --app-message-border: color-mix(in srgb, #34d399 32%, var(--border));
+  --app-message-surface: color-mix(in srgb, #10b981 12%, var(--panel));
+}
+
+@media (max-width: 720px) {
+  .app-message-card.app-message-card {
+    gap: 9px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    font-size: 0.74rem;
+  }
+}

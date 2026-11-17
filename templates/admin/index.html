@@ -1,0 +1,88 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_filters log admin_ui %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}" {% csp_nonce_attr %}>{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard gabs-dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<section class="gabs-hero">
+  <div class="gabs-hero__content">
+    <p class="gabs-eyebrow">Control center · {% now "j F Y" %}</p>
+    <h1>Gabsweb CashFlow</h1>
+    <p class="gabs-hero__copy">Manage members, finances, planning and workplace records from one secure workspace.</p>
+  </div>
+  <span class="gabs-hero__glow" aria-hidden="true"></span>
+</section>
+
+{% gabs_dashboard_stats %}
+
+<div class="gabs-section-head">
+  <div>
+    <h2>Administration</h2>
+    <p>Open a workspace area to review and manage its records.</p>
+  </div>
+</div>
+
+<div id="content-main" class="gabs-dashboard-grid">
+  <div class="app-list gabs-app-list gabs-app-list--primary">
+    {% include "admin/app_list.html" with app_list=app_list|apps_not_in:"auth,account,socialaccount" show_changelinks=True %}
+  </div>
+  <aside class="app-list gabs-app-list gabs-app-aside" aria-label="Accounts and authorization">
+    {% include "admin/app_list.html" with app_list=app_list|apps_in:"auth,account,socialaccount" show_changelinks=True %}
+  </aside>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related" class="gabs-sidebar">
+  <div class="module gabs-quick-links">
+    <h2>Quick access</h2>
+    <ul>
+      <li><a href="{% url 'admin:core_user_pending' %}">Pending verifications</a></li>
+      <li><a href="{% url 'admin:core_user_changelist' %}">Members</a></li>
+      <li><a href="{% url 'admin:core_account_changelist' %}">Accounts</a></li>
+      <li><a href="{% url 'admin:core_transaction_changelist' %}">Transactions</a></li>
+    </ul>
+  </div>
+
+  <div class="module" id="recent-actions-module">
+    <h2>Recent actions</h2>
+    <h3>My actions</h3>
+    {% get_admin_log 10 as admin_log for_user user %}
+    {% if not admin_log %}
+      <p>None available</p>
+    {% else %}
+      <ul class="actionlist">
+        {% for entry in admin_log %}
+          <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+            <span class="visually-hidden">{% if entry.is_addition %}Added:{% elif entry.is_change %}Changed:{% elif entry.is_deletion %}Deleted:{% endif %}</span>
+            <span class="gabs-action-row">
+              <span class="gabs-action-label">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                  {{ entry.object_repr|to_object_display_value }}
+                {% else %}
+                  <a href="{{ entry.get_admin_url }}">{{ entry.object_repr|to_object_display_value }}</a>
+                {% endif %}
+              </span>
+              {% if entry.content_type %}
+                <span class="mini quiet gabs-action-meta">{{ entry.content_type.name|capfirst }}</span>
+              {% else %}
+                <span class="mini quiet gabs-action-meta">Unknown content</span>
+              {% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

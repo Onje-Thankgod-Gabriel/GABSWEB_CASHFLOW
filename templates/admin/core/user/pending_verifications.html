@@ -1,0 +1,107 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Pending verifications | {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">Home</a></li>
+  <li><a href="{% url 'admin:core_user_changelist' %}">Users</a></li>
+  <li aria-current="page">Pending verifications</li>
+</ol>
+{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div id="content-main" class="gabs-pending">
+  <div class="gabs-pending__header">
+    <div>
+      <p class="gabs-eyebrow">Workplace access</p>
+      <h1>Pending verifications</h1>
+      <p class="gabs-pending__lede">Review members waiting for GCTN or Apex Pay workplace access. Approval is silent and only changes membership status.</p>
+    </div>
+    <p class="gabs-pending__count"><strong>{{ pending_total }}</strong> pending application{{ pending_total|pluralize }}</p>
+  </div>
+
+  <form method="get" class="gabs-pending__filters" role="search">
+    <label class="visually-hidden" for="pending-search">Search pending members</label>
+    <input type="text" id="pending-search" name="q" value="{{ query }}" placeholder="Search name, email or role" autocomplete="off">
+    <label class="visually-hidden" for="pending-workplace">Filter by workplace</label>
+    <select id="pending-workplace" name="workplace">
+      <option value="">All workplaces</option>
+      {% for value, label in workplace_choices %}
+        <option value="{{ value }}"{% if selected_workplace == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="button">Search</button>
+    {% if query or selected_workplace %}
+      <a class="gabs-pending__clear" href="{% url 'admin:core_user_pending' %}">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="module gabs-pending__module">
+    {% if page_obj.object_list %}
+      <table class="gabs-pending__table">
+        <thead>
+          <tr>
+            <th scope="col">Member</th>
+            <th scope="col">Workplace</th>
+            <th scope="col">Joined</th>
+            <th scope="col">Requested role</th>
+            <th scope="col" class="gabs-pending__actions-heading">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in page_obj %}
+            <tr>
+              <td>
+                <strong>{{ member.get_full_name|default:member.email }}</strong>
+                <span class="gabs-pending__email">{{ member.email }}</span>
+              </td>
+              <td data-label="Workplace">
+                {% if member.workplace_company %}
+                  {{ member.get_workplace_company_display }}
+                {% else %}
+                  <span class="gabs-pending__blocked">Not recorded</span>
+                {% endif %}
+              </td>
+              <td class="gabs-pending__date" data-label="Joined">{{ member.date_joined|date:"j M Y" }}</td>
+              <td data-label="Requested role">{{ member.professional_role|default:"—" }}</td>
+              <td data-label="Actions">
+                <div class="gabs-pending__actions">
+                  {% if member.workplace_company %}
+                    <form method="post" action="{% url 'admin:core_user_approve_pending' member.pk %}">
+                      {% csrf_token %}
+                      <button type="submit" class="button gabs-pending__approve">Approve</button>
+                    </form>
+                  {% else %}
+                    <span class="gabs-pending__blocked">Workplace required</span>
+                  {% endif %}
+                  <a class="button gabs-pending__return" href="{% url 'admin:core_user_return_pending' member.pk %}">Return to General</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="gabs-pending__empty">
+        <p>No pending applications match this view.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if page_obj.has_other_pages %}
+    <nav class="gabs-pending__pagination" aria-label="Pending applications pages">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if selected_workplace %}&amp;workplace={{ selected_workplace|urlencode }}{% endif %}">Previous</a>
+      {% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if selected_workplace %}&amp;workplace={{ selected_workplace|urlencode }}{% endif %}">Next</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

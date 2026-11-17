@@ -1,0 +1,222 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow · Savings{% endblock %}
+
+{% block body_id %}id="root-body" {% endblock %}
+{% block data_page %}Savings{% endblock %}
+
+{% block page_title %}Savings{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/savings.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}sv-page px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}
+
+{% block app_content %}
+        <input type="hidden" id="sv-csrf-token" value="{{ csrf_token }}" />
+        <div class="sv-breadcrumb">
+          <a href="{% url 'core:index' %}">Home</a>
+          <span>/</span>
+          <span aria-current="page">Savings</span>
+          <span id="sv-storage-chip" class="sv-storage-chip" role="status">
+            <span class="sv-storage-dot" aria-hidden="true"></span>
+            <span id="sv-storage-label">Loading…</span>
+          </span>
+        </div>
+
+        <div id="sv-page-status" class="sv-page-status" role="status" aria-live="polite"></div>
+
+        <header class="sv-page-header">
+          <div class="sv-heading">
+            <span class="sv-eyebrow">
+              <i data-lucide="vault" class="w-4 h-4"></i>
+              Money set aside
+            </span>
+            <h1 class="sv-title">Savings</h1>
+            <p class="sv-subtitle">
+              Track the money you set aside and manage withdrawals from your savings.
+            </p>
+          </div>
+          <div class="sv-header-actions">
+            <button type="button" class="sv-btn sv-btn-primary" id="sv-withdraw-open">
+              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              <span>Withdraw money</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="sv-summary-grid" aria-label="Savings summary">
+          <article class="sv-summary-card is-current">
+            <div class="sv-summary-top">
+              <span class="sv-summary-icon is-current">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+              </span>
+              <span class="sv-summary-badge is-current">Available now</span>
+            </div>
+            <p class="sv-summary-label">Current savings</p>
+            <strong class="sv-summary-value is-positive" id="sv-current-balance">₦0.00</strong>
+            <p class="sv-summary-note" id="sv-current-balance-note">Total saved minus withdrawals</p>
+          </article>
+
+          <article class="sv-summary-card">
+            <div class="sv-summary-top">
+              <span class="sv-summary-icon is-saved">
+                <i data-lucide="coins" class="w-4 h-4"></i>
+              </span>
+              <span class="sv-summary-badge is-saved">From Budget</span>
+            </div>
+            <p class="sv-summary-label">Total saved</p>
+            <strong class="sv-summary-value" id="sv-total-saved">₦0.00</strong>
+            <p class="sv-summary-note" id="sv-total-saved-note">Sum of your monthly Savings allocations</p>
+          </article>
+
+          <article class="sv-summary-card">
+            <div class="sv-summary-top">
+              <span class="sv-summary-icon is-withdrawn">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </span>
+              <span class="sv-summary-badge is-withdrawn">All time</span>
+            </div>
+            <p class="sv-summary-label">Total withdrawn</p>
+            <strong class="sv-summary-value" id="sv-total-withdrawn">₦0.00</strong>
+            <p class="sv-summary-note" id="sv-total-withdrawn-note">Money taken out of savings</p>
+          </article>
+        </section>
+
+        <section class="sv-month-panel" aria-labelledby="sv-month-title">
+          <div class="sv-panel-head">
+            <div>
+              <span class="sv-section-kicker">Monthly summary</span>
+              <h2 id="sv-month-title">Savings this month</h2>
+              <p>The amount saved is read automatically from that month's Budget Savings allocation.</p>
+            </div>
+            <label class="sv-month-picker" for="sv-month-select">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>Month</span>
+              <select id="sv-month-select" aria-label="Select savings month"></select>
+            </label>
+          </div>
+
+          <div class="sv-month-grid">
+            <article class="sv-month-item">
+              <span class="sv-month-label">Saved this month</span>
+              <strong class="sv-month-value" id="sv-month-saved">₦0.00</strong>
+              <span class="sv-month-note" id="sv-month-saved-note">No Savings allocation for this month</span>
+            </article>
+            <article class="sv-month-item">
+              <span class="sv-month-label">Withdrawn this month</span>
+              <strong class="sv-month-value is-withdrawn" id="sv-month-withdrawn">₦0.00</strong>
+              <span class="sv-month-note" id="sv-month-withdrawn-note">No withdrawals this month</span>
+            </article>
+            <article class="sv-month-item">
+              <span class="sv-month-label">Net savings this month</span>
+              <strong class="sv-month-value" id="sv-month-net">₦0.00</strong>
+              <span class="sv-month-note" id="sv-month-net-note">Saved minus withdrawn this month</span>
+            </article>
+          </div>
+
+          <p class="sv-panel-note">
+            <i data-lucide="info" class="w-4 h-4"></i>
+            <span>Allocating money to Savings in Budget does not create an expense or move money between accounts.</span>
+          </p>
+        </section>
+
+        <section class="sv-history" aria-labelledby="sv-history-title">
+          <div class="sv-panel-head">
+            <div>
+              <span class="sv-section-kicker">Savings activity</span>
+              <h2 id="sv-history-title">Savings history</h2>
+              <p id="sv-history-summary">Monthly Budget savings and recorded withdrawals.</p>
+            </div>
+          </div>
+          <div id="sv-history-list" class="sv-history-list"></div>
+        </section>
+      {% endblock %}
+
+{% block after_nav %}
+
+    <div id="sv-withdraw-modal" class="modal">
+      <div class="modal-content sv-modal-content">
+        <div class="sv-modal-header">
+          <div>
+            <h3 id="sv-withdraw-title">Withdraw money</h3>
+            <p>Record money taken out of your accumulated savings.</p>
+          </div>
+          <button type="button" class="sv-icon-button" data-sv-close="sv-withdraw-modal" aria-label="Close withdrawal form">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="sv-available-chip">
+          <span>Available savings</span>
+          <strong id="sv-withdraw-available">₦0.00</strong>
+        </div>
+
+        <form id="sv-withdraw-form" class="sv-form" novalidate>
+          <div class="sv-form-grid">
+            <div class="sv-field">
+              <label for="sv-withdraw-amount">Amount</label>
+              <input type="number" id="sv-withdraw-amount" class="form-input" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required />
+              <span class="sv-field-hint">Must be greater than zero and not more than your current savings.</span>
+            </div>
+            <div class="sv-field">
+              <label for="sv-withdraw-date">Withdrawal date</label>
+              <input type="date" id="sv-withdraw-date" class="form-input" required />
+            </div>
+            <div class="sv-field is-span-2">
+              <label for="sv-withdraw-reason">Reason</label>
+              <textarea id="sv-withdraw-reason" class="form-input" rows="3" maxlength="300" placeholder="e.g. Laptop repair" required></textarea>
+              <span class="sv-field-hint">What did you use the withdrawn money for?</span>
+            </div>
+          </div>
+
+          <p class="sv-panel-note">
+            <i data-lucide="info" class="w-4 h-4"></i>
+            <span>This withdrawal only changes your savings balance. It does not create an income or expense transaction or change an account balance.</span>
+          </p>
+
+          <div id="sv-withdraw-error" class="sv-form-error app-message-card app-message-card--error app-message-card--form" role="alert"></div>
+
+          <div class="sv-modal-actions">
+            <button type="button" class="sv-btn sv-btn-ghost" data-sv-close="sv-withdraw-modal">Cancel</button>
+            <button type="submit" class="sv-btn sv-btn-primary" id="sv-withdraw-submit">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span id="sv-withdraw-submit-label">Record withdrawal</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="sv-confirm-modal" class="modal">
+      <div class="modal-content sv-modal-content is-small">
+        <div class="sv-modal-header">
+          <div>
+            <h3 id="sv-confirm-title">Confirm action</h3>
+            <p id="sv-confirm-subtitle">This action needs your confirmation.</p>
+          </div>
+          <button type="button" class="sv-icon-button" data-sv-close="sv-confirm-modal" aria-label="Close confirmation">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="sv-confirm-copy" id="sv-confirm-copy"></p>
+        <div class="sv-modal-actions">
+          <button type="button" class="sv-btn sv-btn-ghost" data-sv-close="sv-confirm-modal">Cancel</button>
+          <button type="button" class="sv-btn sv-btn-danger" id="sv-confirm-action">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast sv-toast" role="status" aria-live="polite">
+      <div class="flex items-center gap-3">
+        <div id="toast-icon" class="sv-toast-icon is-success flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[14px] font-semibold text-text" id="toast-title">Success</span>
+          <span class="text-[12px] text-muted" id="toast-message">Action completed successfully</span>
+        </div>
+      </div>
+    </div>{% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/savings.js' %}"></script>{% endblock %}

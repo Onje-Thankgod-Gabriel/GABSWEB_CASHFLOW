@@ -1,0 +1,18 @@
+{% load i18n %}
+<details class="gabs-filter{% for choice in choices %}{% if choice.selected and not forloop.first %} gabs-filter--active{% endif %}{% endfor %}" data-filter-title="{{ title }}">
+  <summary>
+    <span class="gabs-filter__text">
+      <span class="gabs-filter__label">{{ title|capfirst }}</span>
+      {% for choice in choices %}
+        {% if choice.selected and not forloop.first %}<span class="gabs-filter__value">{{ choice.display }}</span>{% endif %}
+      {% endfor %}
+    </span>
+    <span class="gabs-filter__chevron" aria-hidden="true"></span>
+  </summary>
+  <ul>
+  {% for choice in choices %}
+    <li{% if choice.selected %} class="selected"{% endif %}>
+    <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a></li>
+  {% endfor %}
+  </ul>
+</details>

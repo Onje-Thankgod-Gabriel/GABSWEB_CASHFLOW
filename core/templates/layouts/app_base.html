@@ -1,0 +1,83 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block theme_scripts %}<script src="{% static 'assets/js/theme-loader.js' %}"></script>{% endblock %}
+
+{% block extra_head %}<meta name="csrf-token" content="{{ csrf_token }}" /><meta name="gabsweb-user-id" content="{{ user.pk }}" /><script src="{% static 'assets/js/balance-visibility.js' %}"></script>{% endblock %}
+
+{% block body_attributes %} {% block body_id %}{% endblock %}data-page="{% block data_page %}{% endblock %}" data-user-id="{{ user.pk }}" data-user-first-name="{{ user.get_first_display_name }}" data-user-two-part-name="{{ user.get_two_part_name }}" data-user-full-name="{{ user.get_full_name }}" data-user-email="{{ user.email }}" data-user-professional-role="{{ user.professional_role }}" data-user-account-status="{{ user.account_status }}" data-user-workplace-company="{{ user.workplace_company }}" data-user-workplace-label="{{ user.workplace_label }}" data-user-has-workplace-access="{% if user.has_approved_workplace_access %}true{% else %}false{% endif %}" data-user-works-shifts="{% if user.works_shifts %}true{% else %}false{% endif %}" data-user-avatar-url="{{ user.effective_profile_image_url_versioned }}" class="bg-bg text-text"{% endblock %}
+
+{% block page_styles %}{% block app_styles %}{% endblock %}<link href="{% static 'assets/css/notifications.css' %}" rel="stylesheet" /><link href="{% static 'assets/css/account-notices.css' %}" rel="stylesheet" /><link href="{% static 'assets/css/balance-visibility.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block body %}
+  {% include "partials/app_sidebar.html" %}
+
+  <script>
+    (function () {
+      const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+      document.querySelectorAll(".nav-item").forEach(function (link) {
+        const href = link.getAttribute("href");
+        if (!href) return;
+        const destination = href.replace(/\/$/, "") || "/";
+        link.classList.toggle("active", destination === currentPath);
+      });
+
+      const userBtn = document.getElementById("user-button");
+      const userDropdown = document.getElementById("user-dropdown");
+      const dropdownArrow = document.getElementById("dropdown-arrow");
+      if (userBtn && userDropdown && dropdownArrow) {
+        userBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          userDropdown.classList.toggle("hidden");
+          dropdownArrow.classList.toggle("rotate-180");
+        });
+        document.addEventListener("click", function () {
+          if (!userDropdown.classList.contains("hidden")) {
+            userDropdown.classList.add("hidden");
+            dropdownArrow.classList.remove("rotate-180");
+          }
+        });
+      }
+    })();
+  </script>
+
+  <div id="main-div" class="ml-0 xl:ml-72 transition-all duration-300">
+    <div id="overlay" class="hidden fixed inset-0 backdrop-blur-sm z-50"></div>
+
+    <header class="app-header sticky top-0 glass border-b border-border px-6 py-4 flex items-center justify-between z-30">
+      <div class="flex items-center gap-4">
+        <div>
+          <h2 id="page-title" class="text-sm md:text-xl font-bold text-text">{% block page_title %}Dashboard{% endblock %}</h2>
+          <p id="{% block header_subtitle_id %}header-welcome{% endblock %}" class="text-[10px] md:text-sm text-muted">{% block page_subtitle %}Welcome back, {{ user.get_first_display_name }}!{% endblock %}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 md:gap-3">
+        {% include "partials/app_header_controls.html" %}
+        {% block header_actions %}{% endblock %}
+      </div>
+    </header>
+
+    {% include "partials/app_account_notices.html" %}
+
+    <main id="main-content" class="{% block main_classes %}px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}">
+      {% block app_content %}{% endblock %}
+    </main>
+  </div>
+
+  {% include "partials/app_bottom_nav.html" %}
+  {% include "partials/pwa_install.html" %}
+  {% block after_nav %}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+  <script>window.GABSWEB_WORKPLACE_ACCESS = {{ can_access_workplace_schedule|yesno:"true,false" }};</script>
+  <script src="{% static 'assets/js/cashflow-data.js' %}"></script>
+  <script src="{% static 'assets/js/user-identity.js' %}"></script>
+  <script src="{% static 'assets/js/api-client.js' %}"></script>
+  {% block page_scripts %}{% endblock %}
+  <script src="{% static 'assets/js/sidebar-balance.js' %}"></script>
+  <script defer src="{% static 'assets/js/index.js' %}"></script>
+  <script src="{% static 'assets/js/notifications.js' %}"></script>
+  <script src="{% static 'assets/js/global-navigation.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow · Goals{% endblock %}
+
+{% block body_id %}id="root-body" {% endblock %}
+{% block data_page %}Goals{% endblock %}
+
+{% block page_title %}Goals{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/goals.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}gl-page px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}
+
+{% block app_content %}
+        <input type="hidden" id="gl-csrf-token" value="{{ csrf_token }}" />
+        <div class="gl-breadcrumb">
+          <a href="{% url 'core:index' %}">Home</a>
+          <span>/</span>
+          <span aria-current="page">Goals</span>
+          <span id="gl-storage-chip" class="gl-storage-chip" role="status">
+            <span class="gl-storage-dot" aria-hidden="true"></span>
+            <span id="gl-storage-label">Loading…</span>
+          </span>
+        </div>
+
+        <div id="gl-page-status" class="gl-page-status" role="status" aria-live="polite"></div>
+
+        <header class="gl-page-header">
+          <div class="gl-heading">
+            <span class="gl-eyebrow">
+              <i data-lucide="target" class="w-4 h-4"></i>
+              Plan with purpose
+            </span>
+            <h1 class="gl-title">Goals</h1>
+            <p class="gl-subtitle">
+              Plan what you want to buy or save for, then assign money from your Budget Goals allocation.
+            </p>
+          </div>
+          <div class="gl-header-actions">
+            <button type="button" class="gl-btn gl-btn-primary" id="gl-add-goal">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Add goal</span>
+            </button>
+          </div>
+        </header>
+
+        <section aria-labelledby="gl-overview-title">
+          <div class="gl-overview-head">
+            <div>
+              <h2 id="gl-overview-title">Goal overview</h2>
+              <p>Available funding comes from your Budget Goals allocations and carries forward every month.</p>
+            </div>
+          </div>
+
+          <div class="gl-overview-grid">
+            <article class="gl-stat-card">
+              <div class="gl-stat-top">
+                <span class="gl-stat-icon is-income">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                </span>
+                <span class="gl-stat-badge is-income">From Budget</span>
+              </div>
+              <p class="gl-stat-label">Available to assign</p>
+              <strong class="gl-stat-value is-positive" id="gl-available-funding">₦0.00</strong>
+              <p class="gl-stat-note" id="gl-available-note">Goals funding not yet assigned</p>
+            </article>
+
+            <article class="gl-stat-card">
+              <div class="gl-stat-top">
+                <span class="gl-stat-icon is-transfer">
+                  <i data-lucide="target" class="w-4 h-4"></i>
+                </span>
+                <span class="gl-stat-badge is-transfer">Assigned</span>
+              </div>
+              <p class="gl-stat-label">Reserved for goals</p>
+              <strong class="gl-stat-value" id="gl-total-assigned">₦0.00</strong>
+              <p class="gl-stat-note" id="gl-assigned-note">No money reserved yet</p>
+            </article>
+
+            <article class="gl-stat-card">
+              <div class="gl-stat-top">
+                <span class="gl-stat-icon is-purple">
+                  <i data-lucide="flag" class="w-4 h-4"></i>
+                </span>
+                <span class="gl-stat-badge is-purple">Targets</span>
+              </div>
+              <p class="gl-stat-label">Total target</p>
+              <strong class="gl-stat-value" id="gl-total-target">₦0.00</strong>
+              <p class="gl-stat-note" id="gl-target-note">No goals yet</p>
+            </article>
+
+            <article class="gl-stat-card">
+              <div class="gl-stat-top">
+                <span class="gl-stat-icon is-warning">
+                  <i data-lucide="activity" class="w-4 h-4"></i>
+                </span>
+                <span class="gl-stat-badge is-warning">Remaining</span>
+              </div>
+              <p class="gl-stat-label">Remaining to reach targets</p>
+              <strong class="gl-stat-value" id="gl-remaining-target">₦0.00</strong>
+              <p class="gl-stat-note" id="gl-remaining-note">Add a goal to start planning</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="gl-section" aria-labelledby="gl-goals-title">
+          <div class="gl-section-head">
+            <div class="gl-section-copy">
+              <span class="gl-section-kicker">Your plans</span>
+              <h2 id="gl-goals-title">Your goals</h2>
+              <p id="gl-goal-summary">No goals yet.</p>
+            </div>
+          </div>
+
+          <div id="gl-goal-grid" class="gl-goal-grid"></div>
+        </section>
+
+        <section class="gl-section" aria-labelledby="gl-history-title">
+          <div class="gl-section-head">
+            <div class="gl-section-copy">
+              <span class="gl-section-kicker">Completed plans</span>
+              <h2 id="gl-history-title">Goal history</h2>
+              <p>Fully funded goals and recorded purchases. Targets, assignments and purchase amounts stay visible here.</p>
+            </div>
+          </div>
+
+          <div id="gl-goal-history-grid" class="gl-goal-grid"></div>
+        </section>
+      {% endblock %}
+
+{% block after_nav %}
+
+    <div id="gl-goal-modal" class="modal">
+      <div class="modal-content gl-modal-content">
+        <div class="gl-modal-header">
+          <div>
+            <h3 id="gl-modal-title">Add goal</h3>
+            <p id="gl-modal-subtitle">Create something you want to save towards.</p>
+          </div>
+          <button type="button" class="gl-icon-button" data-gl-close="gl-goal-modal" aria-label="Close goal form">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form id="gl-goal-form" class="gl-form" novalidate>
+          <div class="gl-form-grid">
+            <div class="gl-field is-span-2">
+              <label for="gl-form-name">Goal name</label>
+              <input type="text" id="gl-form-name" class="form-input" maxlength="80" placeholder="e.g. Buy a laptop" required />
+              <span class="gl-field-hint">A short name you will recognise.</span>
+              <span class="gl-field-error" data-gl-field-error="name"></span>
+            </div>
+
+            <div class="gl-field">
+              <label for="gl-form-target">Target amount</label>
+              <input type="number" id="gl-form-target" class="form-input" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required />
+              <span class="gl-field-hint">How much this goal will cost.</span>
+              <span class="gl-field-error" data-gl-field-error="target_amount"></span>
+            </div>
+
+            <div class="gl-field">
+              <label for="gl-form-date">Target date (optional)</label>
+              <input type="date" id="gl-form-date" class="form-input" />
+              <span class="gl-field-hint">Leave blank if you do not have a date in mind.</span>
+              <span class="gl-field-error" data-gl-field-error="target_date"></span>
+            </div>
+
+            <div class="gl-field is-span-2">
+              <label for="gl-form-description">Description (optional)</label>
+              <textarea id="gl-form-description" class="form-input" rows="3" maxlength="300" placeholder="What is this goal for?"></textarea>
+              <span class="gl-field-error" data-gl-field-error="description"></span>
+            </div>
+          </div>
+
+          <div id="gl-form-error" class="gl-form-error app-message-card app-message-card--error app-message-card--form" role="alert"></div>
+
+          <div class="gl-modal-actions">
+            <button type="button" class="gl-btn gl-btn-ghost" data-gl-close="gl-goal-modal">Cancel</button>
+            <button type="submit" class="gl-btn gl-btn-primary" id="gl-form-submit">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span id="gl-form-submit-label">Create goal</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="gl-funds-modal" class="modal">
+      <div class="modal-content gl-modal-content">
+        <div class="gl-modal-header">
+          <div>
+            <h3 id="gl-funds-title">Assign money</h3>
+            <p id="gl-funds-subtitle">Move available Goals funding towards this goal.</p>
+          </div>
+          <button type="button" class="gl-icon-button" data-gl-close="gl-funds-modal" aria-label="Close assign money form">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="gl-funds-summary">
+          <div>
+            <span>Available to assign</span>
+            <strong id="gl-funds-available">₦0.00</strong>
+          </div>
+          <div>
+            <span>Goal</span>
+            <strong id="gl-funds-goal-name">—</strong>
+          </div>
+        </div>
+
+        <form id="gl-funds-form" class="gl-form" novalidate>
+          <div class="gl-form-grid">
+            <div class="gl-field is-span-2">
+              <label for="gl-funds-amount">Amount to assign</label>
+              <input type="number" id="gl-funds-amount" class="form-input" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required />
+              <span class="gl-field-hint">Assign only money that is currently available for your Goals.</span>
+              <span class="gl-field-error" data-gl-field-error="amount"></span>
+            </div>
+          </div>
+
+          <p class="gl-panel-note">
+            <i data-lucide="info" class="w-4 h-4"></i>
+            <span>Assigning money does not create a transaction, change an account balance or count as Savings.</span>
+          </p>
+
+          <div id="gl-funds-error" class="gl-form-error app-message-card app-message-card--error app-message-card--form" role="alert"></div>
+
+          <div class="gl-modal-actions">
+            <button type="button" class="gl-btn gl-btn-ghost" data-gl-close="gl-funds-modal">Cancel</button>
+            <button type="submit" class="gl-btn gl-btn-primary" id="gl-funds-submit">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Assign money</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="gl-confirm-modal" class="modal">
+      <div class="modal-content gl-modal-content is-small">
+        <div class="gl-modal-header">
+          <div>
+            <h3 id="gl-confirm-title">Confirm action</h3>
+            <p id="gl-confirm-subtitle">This action needs your confirmation.</p>
+          </div>
+          <button type="button" class="gl-icon-button" data-gl-close="gl-confirm-modal" aria-label="Close confirmation">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="gl-confirm-copy" id="gl-confirm-copy"></p>
+        <div class="gl-modal-actions">
+          <button type="button" class="gl-btn gl-btn-ghost" data-gl-close="gl-confirm-modal">Cancel</button>
+          <button type="button" class="gl-btn gl-btn-danger" id="gl-confirm-action">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast gl-toast" role="status" aria-live="polite">
+      <div class="flex items-center gap-3">
+        <div id="toast-icon" class="gl-toast-icon is-success flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[14px] font-semibold text-text" id="toast-title">Success</span>
+          <span class="text-[12px] text-muted" id="toast-message">Action completed successfully</span>
+        </div>
+      </div>
+    </div>{% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/goals.js' %}"></script>{% endblock %}

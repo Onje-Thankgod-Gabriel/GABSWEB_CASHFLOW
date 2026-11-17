@@ -1,0 +1,345 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow · Reports &amp; Insights{% endblock %}
+
+{% block vendor_scripts %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>{% endblock %}
+
+{% block body_id %}id="root-body" {% endblock %}
+{% block data_page %}Reports &amp; Insights{% endblock %}
+
+{% block page_title %}Reports &amp; Insights{% endblock %}
+{% block header_subtitle_id %}ri-header-subtitle{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/insights.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}ri-page px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}
+
+{% block app_content %}
+        <div class="ri-breadcrumb">
+          <a href="{% url 'core:index' %}">Home</a>
+          <span>/</span>
+          <span aria-current="page">Reports &amp; Insights</span>
+          <span id="ri-storage-chip" class="ri-storage-chip" role="status">
+            <span class="ri-storage-dot" aria-hidden="true"></span>
+            <span id="ri-storage-label">Loading…</span>
+          </span>
+        </div>
+
+        <header class="ri-page-header">
+          <div class="ri-heading">
+            <span class="ri-eyebrow">
+              <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+              Financial reporting
+            </span>
+            <h1 class="ri-title">Reports &amp; Insights</h1>
+            <p class="ri-subtitle">
+              Understand where your money comes from, where it goes, and how your plans,
+              savings and spending compare over time.
+            </p>
+          </div>
+        </header>
+
+        <section class="ri-controls-card" aria-label="Reporting period controls">
+          <div class="ri-controls-head">
+            <div class="ri-control-copy">
+              <span class="ri-control-label">Reporting period</span>
+              <strong id="ri-range-label">—</strong>
+              <p id="ri-compare-label">Compared with —</p>
+            </div>
+            <div class="ri-control-actions">
+              <button type="button" id="ri-pdf-btn" class="ri-btn ri-btn-ghost">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Download PDF</span>
+              </button>
+              <button type="button" id="ri-reset-btn" class="ri-btn ri-btn-ghost">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ri-controls-grid">
+            <div class="ri-preset-group" id="ri-mode-group" role="group" aria-label="Reporting mode">
+              <button type="button" class="ri-preset-btn is-active" data-mode="month">Monthly</button>
+              <button type="button" class="ri-preset-btn" data-mode="year">Yearly</button>
+            </div>
+
+            <div class="ri-custom-range">
+              <label class="ri-date-field" id="ri-month-field">
+                <span>Month</span>
+                <input type="month" id="ri-period-month" />
+              </label>
+              <label class="ri-date-field" id="ri-year-field" hidden>
+                <span>Year</span>
+                <input type="number" id="ri-period-year" min="1900" max="2200" step="1" inputmode="numeric" />
+              </label>
+              <button type="button" id="ri-apply-range" class="ri-btn ri-btn-primary">Apply</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-overview-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Period totals</span>
+              <h2 id="ri-overview-title">Financial overview</h2>
+              <p>Actual income and expenses only. Transfers and savings movements are not counted as income or expenses.</p>
+            </div>
+          </div>
+          <div id="ri-overview-grid" class="ri-stat-grid"></div>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-analysis-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Movement over time</span>
+              <h2 id="ri-analysis-title">Income &amp; expense analysis</h2>
+              <p>Actual income, expenses and net income across the selected reporting period.</p>
+            </div>
+            <span id="ri-analysis-caption" class="ri-section-caption">—</span>
+          </div>
+          <article class="ri-panel ri-panel-chart">
+            <div class="ri-panel-head">
+              <div>
+                <h3>Cash flow over time</h3>
+                <p id="ri-analysis-note">Income and expenses are shown in the same buckets as the selected period.</p>
+              </div>
+              <div class="ri-chart-legend" aria-hidden="true">
+                <span><i class="ri-dot is-income"></i>Income</span>
+                <span><i class="ri-dot is-expense"></i>Expenses</span>
+                <span><i class="ri-dot is-net"></i>Net income</span>
+              </div>
+            </div>
+            <div class="ri-chart-wrap ri-chart-wrap-main">
+              <canvas id="ri-cashflow-chart"></canvas>
+              <div id="ri-cashflow-empty" class="ri-chart-empty" hidden>
+                <i data-lucide="bar-chart-3"></i>
+                <strong>No income or expenses in this period</strong>
+                <p>Add transactions in My Finances or choose another reporting period.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-transfer-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Account movement</span>
+              <h2 id="ri-transfer-title">Transfers</h2>
+              <p>Internal transfers move money between your accounts. They are never counted as income or expenses.</p>
+            </div>
+          </div>
+          <div id="ri-transfer-stats" class="ri-mini-stat-grid"></div>
+          <article class="ri-panel">
+            <div id="ri-transfer-table" class="ri-table-wrap"></div>
+          </article>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-category-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Category breakdown</span>
+              <h2 id="ri-category-title">Where the money moves</h2>
+              <p>Income sources and expense categories with their share of the relevant period total.</p>
+            </div>
+          </div>
+
+          <div class="ri-category-grid">
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Expense distribution</h3>
+                  <p>Share of actual expenses in this period.</p>
+                </div>
+                <span class="ri-panel-icon"><i data-lucide="pie-chart" class="w-4 h-4"></i></span>
+              </div>
+              <div class="ri-chart-wrap ri-chart-wrap-doughnut">
+                <canvas id="ri-expense-category-chart"></canvas>
+                <div class="ri-doughnut-center">
+                  <strong id="ri-doughnut-total">₦0.00</strong>
+                  <span>Total expenses</span>
+                </div>
+                <div id="ri-expense-category-empty" class="ri-chart-empty" hidden>
+                  <i data-lucide="pie-chart"></i>
+                  <strong>No expense categories yet</strong>
+                  <p>Expense categories will appear here once expenses are recorded.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Expense categories</h3>
+                  <p>Actual amounts, share and previous-period comparison.</p>
+                </div>
+                <label class="ri-select-field">
+                  <span>Focus</span>
+                  <select id="ri-category-focus" aria-label="Filter expense categories">
+                    <option value="all">All categories</option>
+                  </select>
+                </label>
+              </div>
+              <div id="ri-expense-category-table" class="ri-table-wrap"></div>
+            </article>
+
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Income sources</h3>
+                  <p>Actual income amounts and share of period income.</p>
+                </div>
+                <span class="ri-panel-icon is-income"><i data-lucide="trending-up" class="w-4 h-4"></i></span>
+              </div>
+              <div id="ri-income-category-table" class="ri-table-wrap"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-allocation-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Plans versus actual</span>
+              <h2 id="ri-allocation-title">Budget &amp; allocation performance</h2>
+              <p>Planned allocations are plans. Actual allocation spending comes only from expenses explicitly linked to an allocation.</p>
+            </div>
+          </div>
+
+          <div id="ri-allocation-stats" class="ri-mini-stat-grid"></div>
+
+          <article class="ri-panel ri-panel-table">
+            <div class="ri-panel-head">
+              <div>
+                <h3>Allocation performance</h3>
+                <p id="ri-allocation-caption">—</p>
+              </div>
+            </div>
+            <div id="ri-allocation-table" class="ri-table-wrap"></div>
+            <p id="ri-allocation-note" class="ri-limit-note"></p>
+          </article>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-savings-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Set aside</span>
+              <h2 id="ri-savings-title">Savings analysis</h2>
+              <p>Monthly savings come from Budget Savings allocations and withdrawals change the balance only. They are not counted as income or expenses.</p>
+            </div>
+          </div>
+
+          <div id="ri-savings-stats" class="ri-mini-stat-grid"></div>
+
+          <div class="ri-two-col">
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Savings history</h3>
+                  <p>Monthly Budget savings and withdrawals by month.</p>
+                </div>
+                <span class="ri-panel-icon is-savings"><i data-lucide="coins" class="w-4 h-4"></i></span>
+              </div>
+              <div id="ri-savings-history" class="ri-plan-list"></div>
+            </article>
+
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Savings withdrawals</h3>
+                  <p>Withdrawals recorded in this period.</p>
+                </div>
+              </div>
+              <div id="ri-savings-activity" class="ri-table-wrap"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-goals-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Funding plans</span>
+              <h2 id="ri-goals-title">Goals</h2>
+              <p>Goals are funded from cumulative Budget Goals allocations. Assignments reserve funding and recorded purchases consume it.</p>
+            </div>
+            <span id="ri-goals-caption" class="ri-section-caption">—</span>
+          </div>
+          <div id="ri-goals-stats" class="ri-mini-stat-grid"></div>
+          <article class="ri-panel">
+            <div class="ri-panel-head">
+              <div>
+                <h3>Goal progress</h3>
+                <p>Assigned funding, purchase consumption and progress at the end of this period.</p>
+              </div>
+            </div>
+            <div id="ri-goals-table" class="ri-table-wrap"></div>
+          </article>
+          <article class="ri-panel">
+            <div class="ri-panel-head">
+              <div>
+                <h3>Goal purchases this period</h3>
+                <p>Actual Goal-linked expenses recorded in this period.</p>
+              </div>
+            </div>
+            <div id="ri-goals-activity" class="ri-table-wrap"></div>
+          </article>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-comparison-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">Period comparison</span>
+              <h2 id="ri-comparison-title">How this period compares</h2>
+              <p>Compared with the immediately preceding period of the same length.</p>
+            </div>
+            <span id="ri-comparison-caption" class="ri-section-caption">—</span>
+          </div>
+
+          <div class="ri-two-col">
+            <article class="ri-panel ri-panel-chart">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Current versus previous</h3>
+                  <p>Income, expenses, net income and savings set aside.</p>
+                </div>
+              </div>
+              <div class="ri-chart-wrap ri-chart-wrap-compare">
+                <canvas id="ri-comparison-chart"></canvas>
+                <div id="ri-comparison-empty" class="ri-chart-empty" hidden>
+                  <i data-lucide="git-compare"></i>
+                  <strong>No comparison data yet</strong>
+                  <p>Both periods are empty, so there is nothing to compare.</p>
+                </div>
+              </div>
+            </article>
+
+            <article class="ri-panel">
+              <div class="ri-panel-head">
+                <div>
+                  <h3>Period changes</h3>
+                  <p>Key totals and expense category movement versus the previous period.</p>
+                </div>
+              </div>
+              <div id="ri-category-changes" class="ri-table-wrap"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="ri-section" aria-labelledby="ri-insights-title">
+          <div class="ri-section-head">
+            <div class="ri-section-copy">
+              <span class="ri-section-kicker">From your records</span>
+              <h2 id="ri-insights-title">Useful insights</h2>
+              <p>Every insight below is derived only from stored records in this period and is hidden when the data does not support it.</p>
+            </div>
+          </div>
+          <div id="ri-insights-grid" class="ri-insight-grid"></div>
+        </section>
+
+        <p class="ri-footnote">
+          <i data-lucide="database" class="w-4 h-4"></i>
+          All report figures come from your saved Gabsweb CashFlow records.
+        </p>
+      {% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/insights.js' %}"></script>{% endblock %}

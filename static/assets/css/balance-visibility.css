@@ -1,0 +1,51 @@
+.sidebar-balance-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.sidebar-balance-toggle:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.sidebar-balance-toggle:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.sidebar-balance-toggle i,
+.sidebar-balance-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.db-balance-hidden #sidebar-total-balance,
+.db-balance-hidden #sidebar-balance-note,
+.db-balance-hidden .db-hero-total,
+.db-balance-hidden .db-hero-split strong,
+.db-balance-hidden #db-hero-note {
+  filter: blur(7px);
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #sidebar-total-balance,
+  #sidebar-balance-note,
+  .db-hero-total,
+  .db-hero-split strong,
+  #db-hero-note {
+    transition: filter 180ms ease;
+  }
+}

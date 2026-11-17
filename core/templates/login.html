@@ -1,0 +1,50 @@
+{% extends "layouts/auth_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Sign In{% endblock %}
+
+{% block auth_card_class %}auth-card-login{% endblock %}
+
+{% block auth_content %}
+      <header class="auth-card-header text-center">
+        <a href="{% url 'core:index' %}">
+          <img src="{% static 'assets/images/gabsweb-cashflow-logo.png' %}" alt="Gabsweb CashFlow Logo" class="brand-logo mx-auto size-10 sm:size-16" />
+          <h1>Welcome Back</h1>
+        </a>
+        <p>Sign in to your Gabsweb CashFlow account to manage your finances and stay on top of your plans.</p>
+        <p class="mt-2">Don't have an account? <a class="auth-inline-link" href="{% url 'core:register' %}">Create an account.</a></p>
+      </header>
+
+      {% include 'partials/google_auth_button.html' %}
+      <div class="auth-divider">or</div>
+
+      <form class="auth-form" data-auth-form="login" method="post" action="{% url 'core:login' %}" novalidate>
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+        <div class="auth-field">
+          <label for="email">Email address</label>
+          <div class="auth-control">
+            <i data-lucide="mail" class="auth-icon w-4 h-4" aria-hidden="true"></i>
+            <input id="email" name="email" type="email" value="{{ form.email.value|default:'' }}" placeholder="Enter your email" autocomplete="email" required />
+          </div>
+          {% if form.email.errors %}<p class="auth-status" role="alert">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <div class="auth-control">
+            <i data-lucide="lock" class="auth-icon w-4 h-4" aria-hidden="true"></i>
+            <input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+            <button type="button" class="auth-toggle" data-password-toggle aria-controls="password" aria-label="Show password">
+              <i data-lucide="eye" class="w-4 h-4" aria-hidden="true"></i>
+            </button>
+          </div>
+          {% if form.password.errors %}<p class="auth-status" role="alert">{{ form.password.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="auth-options">
+          <label class="auth-check"><input type="checkbox" id="remember-me" name="remember_me" {% if form.remember_me.value %}checked{% endif %} /> <span>Remember me</span></label>
+          <a href="{% url 'core:password_reset' %}" id="forgot-password">Forgot password?</a>
+        </div>
+        <button type="submit" class="auth-submit btn-primary transition">Sign In</button>
+        <p id="auth-status" class="auth-status" role="status" aria-live="polite">{% if form.non_field_errors %}{{ form.non_field_errors.0 }}{% endif %}</p>
+      </form>
+    {% endblock %}

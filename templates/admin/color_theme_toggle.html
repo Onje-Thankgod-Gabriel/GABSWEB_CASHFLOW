@@ -1,0 +1,16 @@
+{% load i18n %}
+<button type="button" class="theme-toggle gabs-theme-toggle" title="{% translate 'Toggle theme' %}">
+  <span class="gabs-theme-toggle__icon" aria-hidden="true">
+    <svg class="theme-icon-when-auto"><use xlink:href="#icon-auto" /></svg>
+    <svg class="theme-icon-when-dark"><use xlink:href="#icon-moon" /></svg>
+    <svg class="theme-icon-when-light"><use xlink:href="#icon-sun" /></svg>
+  </span>
+  <span class="gabs-theme-toggle__text" aria-hidden="true">
+    <span class="gabs-theme-label gabs-theme-label--auto">Auto</span>
+    <span class="gabs-theme-label gabs-theme-label--light">Light</span>
+    <span class="gabs-theme-label gabs-theme-label--dark">Dark</span>
+  </span>
+  <span class="visually-hidden theme-label-when-auto">{% translate 'Toggle theme (current theme: auto)' %}</span>
+  <span class="visually-hidden theme-label-when-light">{% translate 'Toggle theme (current theme: light)' %}</span>
+  <span class="visually-hidden theme-label-when-dark">{% translate 'Toggle theme (current theme: dark)' %}</span>
+</button>

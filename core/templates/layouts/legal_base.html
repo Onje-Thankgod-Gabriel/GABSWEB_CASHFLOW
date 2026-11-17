@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block theme_scripts %}<script src="{% static 'assets/js/theme-loader.js' %}"></script>{% endblock %}
+
+{% block page_styles %}<link href="{% static 'assets/css/terms.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block body_attributes %} class="terms-page"{% endblock %}
+
+{% block body %}
+  <button id="theme-toggle" class="terms-theme-toggle" type="button" aria-label="Switch to light mode" aria-pressed="false">
+    <i data-lucide="sun" aria-hidden="true"></i>
+  </button>
+
+  <main class="terms-shell">
+    {% block legal_content %}{% endblock %}
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'assets/js/terms.js' %}"></script>
+  <script>if (window.lucide) window.lucide.createIcons();</script>
+{% endblock %}

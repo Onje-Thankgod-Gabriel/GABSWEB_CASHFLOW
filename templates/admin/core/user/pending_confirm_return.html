@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Return to General | {{ block.super }}{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumbs">
+  <li><a href="{% url 'admin:index' %}">Home</a></li>
+  <li><a href="{% url 'admin:core_user_changelist' %}">Users</a></li>
+  <li><a href="{% url 'admin:core_user_pending' %}">Pending verifications</a></li>
+  <li aria-current="page">Return to General</li>
+</ol>
+{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div id="content-main" class="gabs-pending gabs-pending__confirm">
+  <p class="gabs-eyebrow">Workplace access</p>
+  <h1>Return to General</h1>
+
+  <div class="module gabs-pending__confirm-card">
+    <p>Return <strong>{{ pending_user.email }}</strong> to General?</p>
+    <p class="gabs-pending__lede">This removes workplace access but preserves all recorded workplace data. It does not reject the account, and no notification is sent.</p>
+
+    <dl class="gabs-pending__details">
+      <dt>Member</dt>
+      <dd>{{ pending_user.get_full_name|default:pending_user.email }}</dd>
+      <dt>Workplace</dt>
+      <dd>{{ pending_user.get_workplace_company_display|default:"Not recorded" }}</dd>
+      <dt>Current status</dt>
+      <dd>{{ pending_user.get_account_status_display }}</dd>
+    </dl>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="submit-row">
+        <input type="submit" value="Return to General" class="default">
+        <a href="{% url 'admin:core_user_pending' %}" class="button cancel-link">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

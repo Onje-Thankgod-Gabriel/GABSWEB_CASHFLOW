@@ -1,0 +1,18 @@
+Gabsweb CashFlow
+
+Application Approved
+
+Hello {{ first_name }},
+
+Your {{ membership_label }} membership application has been approved.
+
+You can now sign in to Gabsweb CashFlow and access the available workplace features.
+
+Sign in here:
+{{ login_url }}
+
+If you were not expecting this message, you can safely ignore it.
+
+Gabsweb CashFlow
+Manage your finances and stay on top of your plans.
+Official account notification

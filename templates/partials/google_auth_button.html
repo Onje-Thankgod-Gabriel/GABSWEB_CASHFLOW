@@ -1,0 +1,22 @@
+{% load socialaccount %}
+{% if google_oauth_configured %}
+  <a href="{% provider_login_url 'google' process='login' next=next %}" class="auth-google btn-secondary flex items-center justify-center gap-2 transition" data-google-auth>
+    <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.9 29.5 4.9 24 4.9 12.4 4.9 3 14.3 3 25.9s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.8-.4-4.4z" />
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16.1 18.9 13.9 24 13.9c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.9 29.5 4.9 24 4.9c-7.7 0-14.3 3.9-17.7 9.8z" />
+      <path fill="#4CAF50" d="M24 46.9c5.2 0 10.1-2 13.7-5.2l-6.3-4.9c-2.1 1.6-4.9 2.6-7.7 2.6-5.3 0-9.7-3.4-11.3-8L6.3 32c3.3 6 9.9 10 17.7 10z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.4 4.4-4.5 5.9l-.1.1 6.3 4.9c-.4.4 7-4.4 7-13.9 0-1.4-.1-2.8-.4-4.4z" />
+    </svg>
+    <span data-google-label>Continue with Google</span>
+  </a>
+{% else %}
+  <button type="button" class="auth-google btn-secondary flex items-center justify-center gap-2 transition" disabled aria-disabled="true" title="Google sign-in is not configured yet.">
+    <svg class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.9 29.5 4.9 24 4.9 12.4 4.9 3 14.3 3 25.9s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.8-.4-4.4z" />
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16.1 18.9 13.9 24 13.9c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.3 6.9 29.5 4.9 24 4.9c-7.7 0-14.3 3.9-17.7 9.8z" />
+      <path fill="#4CAF50" d="M24 46.9c5.2 0 10.1-2 13.7-5.2l-6.3-4.9c-2.1 1.6-4.9 2.6-7.7 2.6-5.3 0-9.7-3.4-11.3-8L6.3 32c3.3 6 9.9 10 17.7 10z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.4 4.4-4.5 5.9l-.1.1 6.3 4.9c-.4.4 7-4.4 7-13.9 0-1.4-.1-2.8-.4-4.4z" />
+    </svg>
+    <span>Google sign-in unavailable</span>
+  </button>
+{% endif %}

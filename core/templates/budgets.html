@@ -1,0 +1,360 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow · Budget &amp; Money Allocation{% endblock %}
+
+{% block body_id %}id="root-body" {% endblock %}
+{% block data_page %}Budget &amp; Money Allocation{% endblock %}
+
+{% block page_title %}Budget &amp; Money Allocation{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/budgets.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}bd-page px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}
+
+{% block app_content %}
+        <input type="hidden" id="bd-csrf-token" value="{{ csrf_token }}" />
+        <div class="bd-breadcrumb">
+          <a href="{% url 'core:index' %}">Home</a>
+          <span>/</span>
+          <span aria-current="page">Budget &amp; Money Allocation</span>
+          <span id="bd-storage-chip" class="bd-storage-chip" role="status">
+            <span class="bd-storage-dot" aria-hidden="true"></span>
+            <span id="bd-storage-label">Loading…</span>
+          </span>
+        </div>
+
+        <header class="bd-page-header">
+          <div class="bd-heading">
+            <span class="bd-eyebrow">
+              <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              Plan before you spend
+            </span>
+            <h1 class="bd-title">Budget &amp; Money Allocation</h1>
+            <p class="bd-subtitle">
+              Divide your income into planned financial purposes, then track each plan
+              against the real expenses you record in My Finances.
+            </p>
+          </div>
+          <div class="bd-header-actions">
+            <label class="bd-month-control" for="bd-month-select">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span class="bd-month-control-label">Financial month</span>
+              <select id="bd-month-select" aria-label="Select financial month"></select>
+            </label>
+            <button type="button" class="bd-btn bd-btn-ghost" id="bd-manage-categories">
+              <i data-lucide="tags" class="w-4 h-4"></i>
+              <span>Categories</span>
+            </button>
+            <button type="button" class="bd-btn bd-btn-primary" id="bd-add-allocation">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Add allocation</span>
+            </button>
+          </div>
+        </header>
+
+        <section aria-labelledby="bd-overview-title">
+          <div class="bd-overview-head">
+            <div>
+              <h2 id="bd-overview-title">Monthly financial overview</h2>
+              <p id="bd-overview-month-label">—</p>
+            </div>
+            <span class="bd-overview-note">
+              <i data-lucide="info" class="w-4 h-4"></i>
+              Allocations are plans. Only linked expenses count as spending.
+            </span>
+          </div>
+
+          <div class="bd-overview-grid">
+            <article class="bd-stat-card">
+              <div class="bd-stat-top">
+                <span class="bd-stat-icon is-income">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                </span>
+                <span class="bd-stat-badge is-income">Received</span>
+              </div>
+              <p class="bd-stat-label">Monthly income</p>
+              <strong class="bd-stat-value" id="bd-total-income">₦0.00</strong>
+              <p class="bd-stat-note" id="bd-income-note">No income recorded this month</p>
+            </article>
+
+            <article class="bd-stat-card">
+              <div class="bd-stat-top">
+                <span class="bd-stat-icon is-transfer">
+                  <i data-lucide="layers" class="w-4 h-4"></i>
+                </span>
+                <span class="bd-stat-badge is-transfer" id="bd-allocated-badge">0 allocations</span>
+              </div>
+              <p class="bd-stat-label">Total allocated</p>
+              <strong class="bd-stat-value" id="bd-total-allocated">₦0.00</strong>
+              <p class="bd-stat-note" id="bd-allocated-note">No allocations planned yet</p>
+            </article>
+
+            <article class="bd-stat-card" id="bd-unallocated-card">
+              <div class="bd-stat-top">
+                <span class="bd-stat-icon is-warning">
+                  <i data-lucide="coins" class="w-4 h-4"></i>
+                </span>
+                <span class="bd-stat-badge is-warning" id="bd-unallocated-badge">To assign</span>
+              </div>
+              <p class="bd-stat-label">Unallocated funds</p>
+              <strong class="bd-stat-value" id="bd-unallocated">₦0.00</strong>
+              <p class="bd-stat-note" id="bd-unallocated-note">Income minus total allocated</p>
+            </article>
+
+            <article class="bd-stat-card">
+              <div class="bd-stat-top">
+                <span class="bd-stat-icon is-expense">
+                  <i data-lucide="receipt" class="w-4 h-4"></i>
+                </span>
+                <span class="bd-stat-badge is-expense" id="bd-spending-badge">Linked only</span>
+              </div>
+              <p class="bd-stat-label">Actual spending</p>
+              <strong class="bd-stat-value" id="bd-actual-spending">₦0.00</strong>
+              <p class="bd-stat-note" id="bd-spending-note">No linked expenses yet</p>
+            </article>
+          </div>
+
+          <div id="bd-overallocation-banner" class="bd-overallocation" role="status" hidden>
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            <p>
+              Planned allocations exceed available income by
+              <strong id="bd-overallocated-amount">₦0.00</strong>. Unallocated funds stay at ₦0.00;
+              reduce an allocation or record the missing income.
+            </p>
+          </div>
+        </section>
+
+        <section class="bd-section" aria-labelledby="bd-allocations-title">
+          <div class="bd-section-head">
+            <div class="bd-section-copy">
+              <span class="bd-section-kicker">Allocation breakdown</span>
+              <h2 id="bd-allocations-title">Your allocations</h2>
+              <p id="bd-allocation-summary-line">No allocations for this month yet.</p>
+            </div>
+            <div class="bd-filters">
+              <div class="bd-search">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <input type="search" id="bd-search" placeholder="Search allocations" aria-label="Search allocations" />
+              </div>
+              <div class="bd-status-filters" id="bd-status-filters" role="group" aria-label="Filter allocations by status">
+                <button type="button" class="bd-filter-chip active" data-bd-status="all">All</button>
+                <button type="button" class="bd-filter-chip" data-bd-status="active">Active</button>
+                <button type="button" class="bd-filter-chip" data-bd-status="planned">Planned</button>
+                <button type="button" class="bd-filter-chip" data-bd-status="completed">Completed</button>
+                <button type="button" class="bd-filter-chip" data-bd-status="cancelled">Cancelled</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="bd-allocation-grid" class="bd-allocation-grid"></div>
+        </section>
+
+        <section class="bd-lower-grid" aria-label="Allocation history and unlinked expenses">
+          <article class="bd-panel">
+            <div class="bd-panel-head">
+              <div>
+                <span class="bd-section-kicker">History</span>
+                <h2>Allocation history</h2>
+                <p>Review planned and actual spending across financial months.</p>
+              </div>
+              <span class="bd-panel-icon">
+                <i data-lucide="history" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div id="bd-history-list" class="bd-history-list"></div>
+          </article>
+
+          <article class="bd-panel">
+            <div class="bd-panel-head">
+              <div>
+                <span class="bd-section-kicker">Unassigned</span>
+                <h2>Unlinked expenses</h2>
+                <p id="bd-unlinked-month">—</p>
+              </div>
+              <span class="bd-panel-icon is-warning">
+                <i data-lucide="unlink" class="w-4 h-4"></i>
+              </span>
+            </div>
+            <div id="bd-unlinked-list" class="bd-unlinked-list"></div>
+            <a class="bd-panel-link" href="{% url 'core:transaction' %}">
+              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              Record expenses in My Finances
+            </a>
+          </article>
+        </section>
+      {% endblock %}
+
+{% block after_nav %}
+
+    <!-- Add / Edit Allocation Modal -->
+    <div id="bd-allocation-modal" class="modal bd-overlay-modal">
+      <div class="modal-content bd-modal-content">
+        <div class="bd-modal-header">
+          <div>
+            <h3 id="bd-modal-title">Add allocation</h3>
+            <p id="bd-modal-subtitle">Create a planned use of income for a financial month.</p>
+          </div>
+          <button type="button" class="bd-icon-button" data-bd-close="bd-allocation-modal" aria-label="Close allocation form">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form id="bd-allocation-form" class="bd-form" novalidate>
+          <div class="bd-form-grid">
+            <div class="bd-field">
+              <label for="bd-form-month">Financial month</label>
+              <input type="month" id="bd-form-month" class="form-input" required />
+              <span class="bd-field-hint">The month this plan belongs to.</span>
+              <span class="bd-field-error" data-bd-field-error="month"></span>
+            </div>
+
+            <div class="bd-field">
+              <label for="bd-form-status">Status</label>
+              <select id="bd-form-status" class="form-select">
+                <option value="planned">Planned</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <span class="bd-field-hint">Cancelled plans are excluded from totals.</span>
+              <span class="bd-field-error" data-bd-field-error="status"></span>
+            </div>
+
+            <div class="bd-field is-span-2">
+              <label for="bd-form-name">Allocation name</label>
+              <input type="text" id="bd-form-name" class="form-input" maxlength="80" placeholder="e.g. Feeding" autocomplete="off" required />
+              <span class="bd-field-error" data-bd-field-error="name"></span>
+            </div>
+
+            <div class="bd-field">
+              <label for="bd-form-purpose">Category</label>
+              <input type="text" id="bd-form-purpose" class="form-input" list="bd-purpose-options" maxlength="80" placeholder="Choose or type a category" autocomplete="off" required />
+              <datalist id="bd-purpose-options">
+                <option value="Feeding"></option>
+                <option value="Transportation"></option>
+                <option value="Rent"></option>
+                <option value="Family support"></option>
+                <option value="Personal expenses"></option>
+                <option value="Utilities"></option>
+                <option value="Emergency fund"></option>
+                <option value="Savings"></option>
+                <option value="Education"></option>
+                <option value="Health"></option>
+                <option value="Goals"></option>
+                <option value="Other"></option>
+              </datalist>
+              <span class="bd-field-hint">Reusable across months. Type a new name to add a category.</span>
+              <span class="bd-field-error" data-bd-field-error="purpose"></span>
+            </div>
+
+            <div class="bd-field">
+              <label for="bd-form-amount">Planned amount</label>
+              <input type="number" id="bd-form-amount" class="form-input" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required />
+              <span class="bd-field-hint">Must be greater than zero.</span>
+              <span class="bd-field-error" data-bd-field-error="amount"></span>
+            </div>
+
+            <div class="bd-field is-span-2">
+              <label for="bd-form-description">Description or notes (optional)</label>
+              <textarea id="bd-form-description" class="form-input" rows="3" maxlength="300" placeholder="Add context for this allocation…"></textarea>
+              <span class="bd-field-error" data-bd-field-error="description"></span>
+            </div>
+          </div>
+
+          <div id="bd-form-error" class="bd-form-error app-message-card app-message-card--error app-message-card--form" role="alert"></div>
+
+          <div class="bd-modal-actions">
+            <button type="button" class="bd-btn bd-btn-ghost" data-bd-close="bd-allocation-modal">Cancel</button>
+            <button type="submit" class="bd-btn bd-btn-primary" id="bd-form-submit">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Create allocation</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Category Management Modal -->
+    <div id="bd-categories-modal" class="modal bd-overlay-modal">
+      <div class="modal-content bd-modal-content">
+        <div class="bd-modal-header">
+          <div>
+            <h3 id="bd-categories-title">Budget categories</h3>
+            <p>Reuse categories across months, rename them or remove unused ones.</p>
+          </div>
+          <button type="button" class="bd-icon-button" data-bd-close="bd-categories-modal" aria-label="Close category management">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="bd-category-list" class="bd-category-list"></div>
+
+        <form id="bd-category-form" class="bd-form bd-category-form">
+          <div class="bd-field">
+            <label for="bd-category-name">Category name</label>
+            <input type="text" id="bd-category-name" class="form-input" maxlength="80" placeholder="e.g. Feeding" autocomplete="off" required />
+            <span class="bd-field-hint">Categories are shared across your monthly budgets.</span>
+          </div>
+          <div id="bd-category-error" class="bd-form-error app-message-card app-message-card--error app-message-card--form" role="alert"></div>
+          <div class="bd-modal-actions">
+            <button type="button" class="bd-btn bd-btn-ghost" id="bd-category-cancel">Clear</button>
+            <button type="submit" class="bd-btn bd-btn-primary" id="bd-category-submit">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Add category</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Allocation Details Modal -->
+    <div id="bd-details-modal" class="modal bd-overlay-modal">
+      <div class="modal-content bd-modal-content">
+        <div class="bd-modal-header">
+          <div>
+            <h3 id="bd-details-title">Allocation details</h3>
+            <p id="bd-details-subtitle">Planned amount, actual spending and linked expenses.</p>
+          </div>
+          <button type="button" class="bd-icon-button" data-bd-close="bd-details-modal" aria-label="Close allocation details">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div id="bd-details-body"></div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="bd-confirm-modal" class="modal bd-overlay-modal">
+      <div class="modal-content bd-modal-content is-small">
+        <div class="bd-modal-header">
+          <div>
+            <h3 id="bd-confirm-title">Confirm action</h3>
+            <p id="bd-confirm-subtitle">This action needs your confirmation.</p>
+          </div>
+          <button type="button" class="bd-icon-button" data-bd-close="bd-confirm-modal" aria-label="Close confirmation">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <p class="bd-confirm-copy" id="bd-confirm-copy"></p>
+        <div class="bd-modal-actions">
+          <button type="button" class="bd-btn bd-btn-ghost" data-bd-close="bd-confirm-modal">Cancel</button>
+          <button type="button" class="bd-btn bd-btn-danger" id="bd-confirm-action">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bd-toast" role="status" aria-live="polite">
+      <div class="flex items-center gap-3">
+        <div id="toast-icon" class="bd-toast-icon is-success flex items-center justify-center flex-shrink-0">
+          <i data-lucide="check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-[14px] font-semibold text-text" id="toast-title">Success</span>
+          <span class="text-[12px] text-muted" id="toast-message">Action completed successfully</span>
+        </div>
+      </div>
+    </div>{% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/budgets.js' %}"></script>{% endblock %}

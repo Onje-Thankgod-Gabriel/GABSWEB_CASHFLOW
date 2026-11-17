@@ -1,0 +1,70 @@
+{% extends "layouts/auth_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Finish Google Sign Up{% endblock %}
+
+{% block auth_card_class %}auth-card-register{% endblock %}
+
+{% block auth_content %}
+  <header class="auth-card-header text-center">
+    <a href="{% url 'core:index' %}">
+      <img src="{% static 'assets/images/gabsweb-cashflow-logo.png' %}" alt="Gabsweb CashFlow Logo" class="brand-logo mx-auto size-10 sm:size-16" />
+      <h1>Finish Your Account</h1>
+    </a>
+    <p>Google confirmed your identity. Complete the same workplace question used for every Gabsweb CashFlow account.</p>
+  </header>
+
+  <form class="auth-form" method="post" action="{% url 'socialaccount_signup' %}" data-oauth-form>
+    {% csrf_token %}
+    <div class="auth-field">
+      <label for="social-email">Google email</label>
+      <div class="auth-control">
+        <i data-lucide="mail" class="auth-icon w-4 h-4" aria-hidden="true"></i>
+        <input id="social-email" name="email" type="email" value="{{ form.email.value|default:'' }}" disabled />
+      </div>
+      {% if form.email.errors %}<p class="auth-status" role="alert">{{ form.email.errors.0 }}</p>{% endif %}
+      <p class="auth-password-hint">This verified Google email is used for your account. You can sign in with Google without creating a password.</p>
+    </div>
+
+    {% if account.extra_data.name %}
+      <div class="auth-field">
+        <label>Name from Google</label>
+        <div class="auth-control">
+          <i data-lucide="user-round" class="auth-icon w-4 h-4" aria-hidden="true"></i>
+          <input type="text" value="{{ account.extra_data.name }}" disabled />
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="auth-field">
+      <span class="block text-sm font-medium text-text">Do you work at GCTN or Apex Pay? <span class="auth-required">*</span></span>
+      <div class="flex items-center gap-6 mt-2">
+        <label class="auth-check"><input type="radio" name="workplace_access" value="no" {% if form.workplace_access.value == 'no' %}checked{% endif %} required /> <span>No</span></label>
+        <label class="auth-check"><input type="radio" name="workplace_access" value="yes" {% if form.workplace_access.value == 'yes' %}checked{% endif %} /> <span>Yes</span></label>
+      </div>
+      {% if form.workplace_access.errors %}<p class="auth-status" role="alert">{{ form.workplace_access.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="auth-field">
+      <label for="workplace-company">If yes, which company?</label>
+      <div class="auth-control">
+        <i data-lucide="briefcase" class="auth-icon w-4 h-4" aria-hidden="true"></i>
+        <select id="workplace-company" name="workplace_company" style="width:100%;border:0;background:transparent;color:inherit;font:inherit;outline:none;">
+          <option value="">Select a company</option>
+          <option value="GCTN" {% if form.workplace_company.value == 'GCTN' %}selected{% endif %}>GCTN</option>
+          <option value="APEX" {% if form.workplace_company.value == 'APEX' %}selected{% endif %}>Apex Pay</option>
+        </select>
+      </div>
+      {% if form.workplace_company.errors %}<p class="auth-status" role="alert">{{ form.workplace_company.errors.0 }}</p>{% endif %}
+    </div>
+
+    <label class="auth-check auth-terms"><input type="checkbox" id="social-terms" name="terms" {% if form.terms.value %}checked{% endif %} required /> <span>I agree to the <a class="auth-inline-link" href="{% url 'core:terms' %}">terms and conditions</a>.</span></label>
+    {% if form.terms.errors %}<p class="auth-status" role="alert">{{ form.terms.errors.0 }}</p>{% endif %}
+
+    <button type="submit" class="auth-submit btn-primary transition">Create Account with Google</button>
+    <p id="auth-status" class="auth-status" role="status" aria-live="polite">{% if form.non_field_errors %}{{ form.non_field_errors.0 }}{% endif %}</p>
+  </form>
+
+  <p class="auth-footer">
+    <a href="{% url 'core:login' %}">Back to sign in</a>
+  </p>
+{% endblock %}

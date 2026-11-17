@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{% if title %}{{ title }} | {% endif %}Gabsweb CashFlow Admin{% endblock %}
+
+{% block responsive %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin_ui/css/gabs_admin.css' %}" {% csp_nonce_attr %}>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="icon" type="image/png" sizes="256x256" href="{% static 'assets/images/fav.png' %}?v=20261115i">
+<link rel="apple-touch-icon" sizes="1254x1254" href="{% static 'assets/icons/gabsweb_PWA_Maskable_Icon.png' %}?v=20261115d">
+<script src="{% static 'admin_ui/js/gabs_admin.js' %}" defer {% csp_nonce_attr %}></script>
+{% endblock %}
+
+{% block branding %}
+<a class="gabs-brand" href="{% url 'admin:index' %}">
+  <span class="gabs-brand__mark" aria-hidden="true">
+    <img src="{% static 'admin_ui/img/gabsweb-cashflow-logo.png' %}" alt="">
+  </span>
+  <span class="gabs-brand__text">
+    <strong>Gabsweb CashFlow</strong>
+    <span>Administration</span>
+  </span>
+</a>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} gabs-admin{% endblock %}

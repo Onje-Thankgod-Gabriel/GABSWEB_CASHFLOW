@@ -1,0 +1,34 @@
+{% load static %}<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{% block title %}Gabsweb CashFlow{% endblock %}</title>
+    <meta name="theme-color" content="#0c0d11" />
+    {% block theme_scripts %}{% endblock %}
+    <script src="{% static 'assets/js/theme-color.js' %}"></script>
+    <meta name="application-name" content="Gabsweb CashFlow" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Gabsweb CashFlow" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
+    <link rel="apple-touch-icon" sizes="1254x1254" href="{% static 'assets/icons/gabsweb_PWA_Maskable_Icon.png' %}?v=20261115d" />
+    <link rel="icon" type="image/png" sizes="256x256" href="{% static 'assets/images/fav.png' %}?v=20261115i" />
+    <script src="https://unpkg.com/lucide@1.64.0/dist/umd/lucide.js"></script>
+    <script defer src="{% static 'assets/js/pwa.js' %}"></script>
+    {% block vendor_scripts %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="{% static 'assets/css/index.css' %}" rel="stylesheet" />
+    {% block page_styles %}{% endblock %}
+    <link href="{% static 'assets/css/typography.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/pwa.css' %}" rel="stylesheet" />
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body{% block body_attributes %} class="bg-bg text-text"{% endblock %}>
+    {% block body %}{% endblock %}
+    {% include "partials/pwa_update.html" %}
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

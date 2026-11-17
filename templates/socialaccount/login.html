@@ -1,0 +1,42 @@
+{% extends "layouts/auth_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Continue with Google{% endblock %}
+
+{% block auth_content %}
+  <header class="auth-card-header text-center">
+    <a href="{% url 'core:index' %}">
+      <img src="{% static 'assets/images/gabsweb-cashflow-logo.png' %}" alt="Gabsweb CashFlow Logo" class="brand-logo mx-auto size-10 sm:size-16" />
+      {% if process == "connect" %}
+        <h1>Connect Google</h1>
+      {% else %}
+        <h1>Continue with Google</h1>
+      {% endif %}
+    </a>
+    {% if process == "connect" %}
+      <p>You are signed in as {{ request.user.email }}. Connecting Google lets you use it to sign in to this same account from now on.</p>
+    {% else %}
+      <p>Google will confirm your identity and email address, then return you to Gabsweb CashFlow.</p>
+    {% endif %}
+  </header>
+
+  <form class="auth-form" method="post" data-oauth-form>
+    {% csrf_token %}
+    <p class="auth-guidance">
+      {% if process == "connect" %}
+        Only continue if this Google account belongs to you. Your existing password and workplace status will not change.
+      {% else %}
+        We request only your name, email address and profile image. We never post to Google on your behalf.
+      {% endif %}
+    </p>
+    <button type="submit" class="auth-submit btn-primary transition">
+      {% if process == "connect" %}Connect with Google{% else %}Continue to Google{% endif %}
+    </button>
+  </form>
+
+  <p class="auth-footer">
+    <a href="{% if process == 'connect' %}{% url 'core:settings' %}{% else %}{% url 'core:login' %}{% endif %}">
+      {% if process == "connect" %}Back to settings{% else %}Back to sign in{% endif %}
+    </a>
+  </p>
+{% endblock %}

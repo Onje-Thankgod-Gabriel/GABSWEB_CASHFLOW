@@ -1,0 +1,795 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow - Settings{% endblock %}
+
+{% block body_id %}{% endblock %}
+{% block data_page %}Settings{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/settings.css?v=20261113' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}gs-page px-3 pt-3 xl:mb-4{% endblock %}
+
+{% block app_content %}
+        <nav class="gs-breadcrumb" aria-label="Breadcrumb">
+          <a href="{% url 'core:index' %}">Home</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Settings</span>
+        </nav>
+
+        <header class="gs-page-header">
+          <div class="gs-page-heading">
+            <span class="gs-eyebrow"><i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Account &amp; preferences</span>
+            <h1 class="gs-title">Settings</h1>
+            <p class="gs-description">Manage the details and defaults that shape your Gabsweb CashFlow experience.</p>
+          </div>
+          <div id="settings-storage-chip" class="gs-storage-chip" role="status">
+            <span class="gs-storage-dot" aria-hidden="true"></span>
+            <span class="gs-storage-copy">
+              <strong id="settings-storage-title">Settings saved</strong>
+              <small id="settings-storage-copy">Your preferences are stored in your account</small>
+            </span>
+          </div>
+        </header>
+
+        <div class="gs-shell">
+          <aside class="gs-nav-card" aria-label="Settings sections">
+            <div class="gs-nav-heading">
+              <span>Preferences</span>
+              <p>Choose a section to manage.</p>
+            </div>
+            <nav class="gs-nav" role="tablist" aria-label="Settings categories">
+              <button type="button" class="gs-nav-btn active" id="settings-tab-profile" data-settings-target="profile" role="tab" aria-selected="true" aria-controls="settings-profile">
+                <span class="gs-nav-icon"><i data-lucide="user" class="w-4 h-4"></i></span>
+                <span class="gs-nav-label"><strong>Personal profile</strong><small>Name and email</small></span>
+                <i data-lucide="chevron-right" class="gs-nav-arrow w-4 h-4"></i>
+              </button>
+              <button type="button" class="gs-nav-btn" id="settings-tab-financial" data-settings-target="financial" role="tab" aria-selected="false" aria-controls="settings-financial">
+                <span class="gs-nav-icon"><i data-lucide="wallet" class="w-4 h-4"></i></span>
+                <span class="gs-nav-label"><strong>Financial preferences</strong><small>Currency and month</small></span>
+                <i data-lucide="chevron-right" class="gs-nav-arrow w-4 h-4"></i>
+              </button>
+              <button type="button" class="gs-nav-btn" id="settings-tab-work" data-settings-target="work" role="tab" aria-selected="false" aria-controls="settings-work">
+                <span class="gs-nav-icon"><i data-lucide="briefcase" class="w-4 h-4"></i></span>
+                <span class="gs-nav-label"><strong>Work preferences</strong><small>Team and shifts</small></span>
+                <i data-lucide="chevron-right" class="gs-nav-arrow w-4 h-4"></i>
+              </button>
+              <button type="button" class="gs-nav-btn" id="settings-tab-appearance" data-settings-target="appearance" role="tab" aria-selected="false" aria-controls="settings-appearance">
+                <span class="gs-nav-icon"><i data-lucide="palette" class="w-4 h-4"></i></span>
+                <span class="gs-nav-label"><strong>Appearance</strong><small>Dark and light mode</small></span>
+                <i data-lucide="chevron-right" class="gs-nav-arrow w-4 h-4"></i>
+              </button>
+            </nav>
+          </aside>
+
+          <div class="gs-content">
+            <section class="gs-panel active" id="settings-profile" data-settings-panel="profile" data-profile-url="{% url 'core:profile_api' %}" role="tabpanel" aria-labelledby="settings-tab-profile">
+              <div class="gs-panel-heading">
+                <div>
+                  <span class="gs-section-number">01</span>
+                  <h2>Personal profile</h2>
+                  <p>Keep the identity attached to your financial workspace accurate.</p>
+                </div>
+                <span class="gs-panel-tag"><i data-lucide="user" class="w-3.5 h-3.5"></i> Identity</span>
+              </div>
+
+              <div class="gs-profile-hero">
+                <div class="gs-avatar" id="profile-avatar" aria-hidden="true">
+                  <img id="profile-avatar-image" alt="" src="{% if user.effective_profile_image_url_versioned %}{{ user.effective_profile_image_url_versioned }}{% else %}{% static 'assets/images/profiles/gabsweb-default-avatar.png' %}{% endif %}" />
+                  <span id="profile-avatar-initials" hidden>--</span>
+                </div>
+                <div class="gs-profile-identity">
+                  <span>Your profile</span>
+                  <h3 id="profile-display-name">Not set</h3>
+                  <p id="profile-display-email">No email saved</p>
+                </div>
+              </div>
+
+              <div class="gs-profile-grid">
+                <div class="gs-card gs-profile-view-card" id="profile-view-card">
+                  <div class="gs-card-heading">
+                    <span class="gs-icon-box"><i data-lucide="user" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Profile details</h3>
+                      <p>The information saved for your CashFlow profile.</p>
+                    </div>
+                  </div>
+
+                  <div class="gs-profile-detail-list">
+                    <div class="gs-profile-detail-row">
+                      <span>Full name</span>
+                      <strong id="profile-detail-name">Not set</strong>
+                    </div>
+                    <div class="gs-profile-detail-row">
+                      <span>Email address</span>
+                      <strong id="profile-detail-email">Not set</strong>
+                    </div>
+                    <div class="gs-profile-detail-row">
+                      <span>Professional role</span>
+                      <strong id="profile-detail-role">Not set</strong>
+                    </div>
+                    <div class="gs-profile-detail-row">
+                      <span>Work team</span>
+                      <strong id="profile-detail-team">Not set</strong>
+                    </div>
+                    <div class="gs-profile-detail-row">
+                      <span>Supervisor</span>
+                      <strong id="profile-detail-supervisor">Not set</strong>
+                    </div>
+                    <div class="gs-profile-detail-row">
+                      <span>Preferred shift</span>
+                      <strong id="profile-detail-shift">Not set</strong>
+                    </div>
+                  </div>
+
+                  <div class="gs-form-actions">
+                    <button type="button" class="gs-btn gs-btn-primary" id="edit-profile-btn">
+                      <i data-lucide="pencil" class="w-4 h-4"></i>
+                      Edit profile
+                    </button>
+                  </div>
+                </div>
+
+                <form class="gs-card gs-form-card" id="profile-form" data-update-url="{% url 'core:update_profile' %}" novalidate hidden>
+                  {% csrf_token %}
+                  <div class="gs-card-heading">
+                    <span class="gs-icon-box"><i data-lucide="user" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Edit profile</h3>
+                      <p>Update the details shown on your profile.</p>
+                    </div>
+                  </div>
+
+                  <div class="gs-image-editor">
+                    <div class="gs-avatar gs-avatar-edit" id="profile-image-preview" aria-hidden="true">
+                      <img id="profile-image-preview-img" alt="" src="{% if user.effective_profile_image_url_versioned %}{{ user.effective_profile_image_url_versioned }}{% else %}{% static 'assets/images/profiles/gabsweb-default-avatar.png' %}{% endif %}" />
+                      <span id="profile-image-preview-initials" hidden>--</span>
+                    </div>
+                    <div class="gs-image-copy">
+                      <span class="gs-label">Profile image</span>
+                      <p class="gs-hint">JPG, PNG or WebP up to 8 MB. Square images work best.</p>
+                      <div class="gs-image-actions">
+                        <label class="gs-btn gs-btn-secondary gs-upload-btn" for="profile-image-input">
+                          <i data-lucide="image-plus" class="w-4 h-4"></i>
+                          Choose image
+                        </label>
+                        <input type="file" id="profile-image-input" class="gs-file-input" accept="image/png,image/jpeg,image/webp" aria-describedby="profile-image-error" />
+                        <button type="button" class="gs-btn gs-btn-ghost" id="remove-profile-image-btn">Remove</button>
+                      </div>
+                      <p class="gs-field-error" id="profile-image-error" role="alert"></p>
+                    </div>
+                  </div>
+
+                  <div class="gs-form-grid">
+                    <div class="gs-field" id="profile-name-field">
+                      <label class="gs-label" for="profile-name">Full name <span class="gs-required" aria-hidden="true">*</span></label>
+                      <input type="text" id="profile-name" class="form-input" placeholder="Enter your full name" autocomplete="name" required aria-describedby="profile-name-error" />
+                      <p class="gs-field-error" id="profile-name-error" role="alert"></p>
+                    </div>
+                    <div class="gs-field" id="profile-email-field">
+                      <label class="gs-label" for="profile-email">Email address <span class="gs-required" aria-hidden="true">*</span></label>
+                      <input type="email" id="profile-email" class="form-input" placeholder="you@example.com" autocomplete="email" required aria-describedby="profile-email-error" />
+                      <p class="gs-field-error" id="profile-email-error" role="alert"></p>
+                    </div>
+                    <div class="gs-field gs-field-wide" id="profile-role-field">
+                      <label class="gs-label" for="profile-role">Professional role <span class="gs-optional">Optional</span></label>
+                      <input type="text" id="profile-role" class="form-input" placeholder="e.g. Accountant, Software Developer, Student" autocomplete="organization-title" maxlength="80" aria-describedby="profile-role-error" />
+                      <p class="gs-field-error" id="profile-role-error" role="alert"></p>
+                    </div>
+                  </div>
+
+                  <div class="gs-form-actions">
+                    <button type="button" class="gs-btn gs-btn-secondary" id="reset-profile-btn">Cancel</button>
+                    <button type="submit" class="gs-btn gs-btn-primary" id="save-profile-btn">
+                      <i data-lucide="check" class="w-4 h-4"></i>
+                      <span id="save-profile-label">Save changes</span>
+                    </button>
+                  </div>
+                </form>
+
+                <aside class="gs-card gs-snapshot" aria-label="Profile summary">
+                  <div class="gs-snapshot-heading">
+                    <span class="gs-icon-box"><i data-lucide="id-card" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Profile at a glance</h3>
+                      <p>Your saved identity details.</p>
+                    </div>
+                  </div>
+                  <div class="gs-snapshot-list">
+                    <div class="gs-snapshot-row">
+                      <span>Display name</span>
+                      <strong id="profile-summary-name">Not set</strong>
+                    </div>
+                    <div class="gs-snapshot-row">
+                      <span>Email</span>
+                      <strong id="profile-summary-email">Not set</strong>
+                    </div>
+                    <div class="gs-snapshot-row">
+                      <span>Initials</span>
+                      <strong id="profile-summary-initials">--</strong>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+
+              <div class="gs-card gs-google-account">
+                <div class="gs-card-heading">
+                  <span class="gs-icon-box"><i data-lucide="key-round" class="w-5 h-5"></i></span>
+                  <div>
+                    <h3>Google sign-in</h3>
+                    <p>Use your Google account to sign in to this profile.</p>
+                  </div>
+                </div>
+
+                <div class="gs-google-account-row">
+                  <div>
+                    <span class="gs-soft-badge">{% if google_account %}Connected{% else %}Not connected{% endif %}</span>
+                    <p class="gs-hint">
+                      {% if google_account %}
+                        {{ google_account.extra_data.email|default:request.user.email }}
+                      {% elif google_oauth_configured %}
+                        Connecting Google is optional. Your password and workplace status stay unchanged.
+                      {% else %}
+                        Google sign-in is not configured for this environment.
+                      {% endif %}
+                    </p>
+                  </div>
+
+                  {% if not google_account and google_oauth_configured %}
+                    <form method="post" action="{% url 'core:google_connect' %}">
+                      {% csrf_token %}
+                      <button type="submit" class="gs-btn gs-btn-secondary">
+                        <i data-lucide="link" class="w-4 h-4"></i>
+                        Connect Google
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+
+            <section class="gs-panel" id="settings-financial" data-settings-panel="financial" role="tabpanel" aria-labelledby="settings-tab-financial" hidden>
+              <div class="gs-panel-heading">
+                <div>
+                  <span class="gs-section-number">02</span>
+                  <h2>Financial preferences</h2>
+                  <p>Set the defaults used to present money and monthly summaries.</p>
+                </div>
+                <span class="gs-panel-tag"><i data-lucide="wallet" class="w-3.5 h-3.5"></i> Money</span>
+              </div>
+
+              <div class="gs-currency-hero">
+                <div class="gs-currency-mark" aria-hidden="true">₦</div>
+                <div class="gs-currency-copy">
+                  <span>Default currency</span>
+                  <h3>Nigerian Naira</h3>
+                  <p>NGN · displayed as ₦ across financial views</p>
+                </div>
+                <span class="gs-soft-badge">NGN</span>
+              </div>
+
+              <form class="gs-card gs-form-card" id="financial-preferences-form" novalidate>
+                <div class="gs-card-heading">
+                  <span class="gs-icon-box"><i data-lucide="settings-2" class="w-5 h-5"></i></span>
+                  <div>
+                    <h3>Money display</h3>
+                    <p>These preferences affect how financial information is formatted and organised.</p>
+                  </div>
+                </div>
+
+                <div class="gs-setting-list">
+                  <div class="gs-setting-row">
+                    <div class="gs-setting-copy">
+                      <label class="gs-label" for="settings-currency">Currency</label>
+                      <p>The currency used for balances, transactions and reports.</p>
+                    </div>
+                    <div class="gs-setting-control">
+                      <select id="settings-currency" class="form-select gs-select" aria-describedby="currency-hint">
+                        <option value="NGN">NGN — Nigerian Naira (₦)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="gs-setting-row">
+                    <div class="gs-setting-copy">
+                      <span class="gs-label">Financial month</span>
+                      <p>Monthly summaries use a standard calendar cycle.</p>
+                    </div>
+                    <div class="gs-setting-control">
+                      <span class="gs-locked-value"><i data-lucide="calendar" class="w-4 h-4"></i> Calendar month</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="gs-inline-note" id="currency-hint">
+                  <i data-lucide="calendar" class="w-4 h-4"></i>
+                  <p>Monthly summaries run from the 1st to the last day of the month.</p>
+                </div>
+
+                <input type="hidden" id="settings-financial-month" value="calendar" />
+                <div class="gs-form-actions">
+                  <button type="submit" class="gs-btn gs-btn-primary" id="save-financial-preferences-btn">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Save financial preferences
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="gs-panel" id="settings-work" data-settings-panel="work" role="tabpanel" aria-labelledby="settings-tab-work" hidden>
+              <div class="gs-panel-heading">
+                <div>
+                  <span class="gs-section-number">03</span>
+                  <h2>Work preferences</h2>
+                  <p>Keep your shift-based work context close to your financial plan.</p>
+                </div>
+                <span class="gs-panel-tag"><i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Work</span>
+              </div>
+
+              <div class="gs-role-card">
+                <span class="gs-role-icon"><i data-lucide="briefcase" class="w-6 h-6"></i></span>
+                <div class="gs-role-copy">
+                  <span>Professional role</span>
+                  <h3 id="work-role-title">Not set</h3>
+                  <p>You can update this from your personal profile.</p>
+                </div>
+                <span class="gs-soft-badge" id="work-role-badge">Confirmed</span>
+              </div>
+
+              <div id="work-pending-section" hidden>
+                <div class="gs-inline-note">
+                  <i data-lucide="clock" class="w-4 h-4"></i>
+                  <p><strong>Workplace access is pending approval.</strong> Work team, joining details, supervisors and GCTN/Apex Pay shifts become available once your membership is approved by an administrator.</p>
+                </div>
+              </div>
+
+              <div id="work-approved-section" hidden>
+                <div class="gs-shift-block">
+                  <div class="gs-block-heading">
+                    <div>
+                      <h3 id="work-shift-heading">Shift sequence</h3>
+                      <p id="work-shift-copy">Morning → Afternoon → Night → repeat.</p>
+                    </div>
+                    <span class="gs-mini-label" id="work-shift-label">GCTN/Apex Pay</span>
+                  </div>
+                  <div class="gs-shift-grid" id="work-shift-grid">
+                    <div class="gs-shift-card">
+                      <span class="gs-shift-step">1</span>
+                      <span class="gs-shift-icon gs-shift-morning"><i data-lucide="sun" class="w-4 h-4"></i></span>
+                      <strong>Morning</strong>
+                      <small>7:00 AM – 1:00 PM</small>
+                    </div>
+                    <div class="gs-shift-card">
+                      <span class="gs-shift-step">2</span>
+                      <span class="gs-shift-icon gs-shift-afternoon"><i data-lucide="cloud-sun" class="w-4 h-4"></i></span>
+                      <strong>Afternoon</strong>
+                      <small>1:00 PM – 7:00 PM</small>
+                    </div>
+                    <div class="gs-shift-card">
+                      <span class="gs-shift-step">3</span>
+                      <span class="gs-shift-icon gs-shift-night"><i data-lucide="moon" class="w-4 h-4"></i></span>
+                      <strong>Night</strong>
+                      <small>7:00 PM – 7:00 AM</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="gs-join-card">
+                  <span class="gs-join-icon"><i data-lucide="calendar" class="w-5 h-5"></i></span>
+                  <div>
+                    <span>Joining shift</span>
+                    <strong id="work-joining-summary">Not set</strong>
+                  </div>
+                  <span class="gs-soft-badge" id="work-joining-badge">Optional</span>
+                </div>
+
+                <form class="gs-card gs-form-card" id="work-preferences-form" data-url="{% url 'core:work_profile_api' %}" novalidate>
+                  {% csrf_token %}
+                  <div class="gs-card-heading">
+                    <span class="gs-icon-box"><i data-lucide="briefcase" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Work details</h3>
+                      <p>Your team, joining shift and workplace schedule preference.</p>
+                    </div>
+                  </div>
+
+                  <div class="gs-form-grid">
+                    <div class="gs-field">
+                      <label class="gs-label" for="work-team">Work team <span class="gs-optional">Optional</span></label>
+                      <input type="text" id="work-team" class="form-input" placeholder="Enter your team" autocomplete="organization-title" maxlength="80" />
+                      <p class="gs-error" id="work-team-error"></p>
+                    </div>
+                    <div class="gs-field">
+                      <label class="gs-label" for="work-joining-date">Joining date <span class="gs-optional">Optional</span></label>
+                      <input type="date" id="work-joining-date" class="form-input" />
+                      <p class="gs-error" id="work-joining_date-error"></p>
+                    </div>
+                    <div class="gs-field gs-field-wide">
+                      <label class="gs-label" for="work-joining-arrangement">Joining shift <span class="gs-optional">Optional</span></label>
+                      <input type="text" id="work-joining-arrangement" class="form-input" placeholder="e.g. Afternoon shift" autocomplete="off" maxlength="120" />
+                      <p class="gs-error" id="work-joining_arrangement-error"></p>
+                    </div>
+                    <label class="gs-check-row gs-field-wide" for="work-works-shifts">
+                      <input type="checkbox" id="work-works-shifts" />
+                      <span>
+                        <strong>I work shifts</strong>
+                        <small>Show the shift sequence for your workplace.</small>
+                      </span>
+                    </label>
+                  </div>
+
+                  <div class="gs-form-actions">
+                    <button type="submit" class="gs-btn gs-btn-primary" id="save-work-preferences-btn">
+                      <i data-lucide="check" class="w-4 h-4"></i>
+                      Save work preferences
+                    </button>
+                  </div>
+                </form>
+
+                <div class="gs-card gs-form-card">
+                  <div class="gs-card-heading">
+                    <span class="gs-icon-box"><i data-lucide="users" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Supervisors</h3>
+                      <p>Only you can see and manage the supervisors saved here.</p>
+                    </div>
+                  </div>
+                  <ul class="gs-manager-list" id="supervisors-list" aria-live="polite"></ul>
+                  <p class="gs-manager-empty" id="supervisors-empty">No supervisors added yet.</p>
+                  <form class="gs-manager-form" id="supervisor-form" data-url="{% url 'core:supervisors_api' %}" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" id="supervisor-id" value="" />
+                    <div class="gs-field">
+                      <label class="gs-label" for="supervisor-name">Supervisor name</label>
+                      <input type="text" id="supervisor-name" class="form-input" placeholder="Enter supervisor name" autocomplete="off" maxlength="80" />
+                      <p class="gs-error" id="supervisor-name-error"></p>
+                    </div>
+                    <div class="gs-manager-actions">
+                      <button type="submit" class="gs-btn gs-btn-secondary" id="save-supervisor-btn">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Add supervisor
+                      </button>
+                      <button type="button" class="gs-btn gs-btn-ghost" id="cancel-supervisor-btn" hidden>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div id="work-general-section" hidden>
+                <div class="gs-general-note">
+                  <span class="gs-icon-box"><i data-lucide="info" class="w-5 h-5"></i></span>
+                  <div class="gs-general-note-copy">
+                    <h3>Personal workspace</h3>
+                    <p>Your account is not linked to GCTN or Apex Pay. You can still define and manage your own personal shifts below.</p>
+                  </div>
+                </div>
+
+                <div class="gs-card gs-form-card">
+                  <div class="gs-card-heading">
+                    <span class="gs-icon-box"><i data-lucide="clock" class="w-5 h-5"></i></span>
+                    <div>
+                      <h3>Your personal shifts</h3>
+                      <p>Define the shifts that match your own schedule. These are private to your account.</p>
+                    </div>
+                  </div>
+                  <ul class="gs-manager-list" id="personal-shifts-list" aria-live="polite"></ul>
+                  <p class="gs-manager-empty" id="personal-shifts-empty">No personal shifts added yet.</p>
+                  <form class="gs-manager-form" id="personal-shift-form" data-url="{% url 'core:personal_shifts_api' %}" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" id="personal-shift-id" value="" />
+                    <div class="gs-manager-grid">
+                      <div class="gs-field gs-field-wide">
+                        <label class="gs-label" for="personal-shift-name">Shift name</label>
+                        <input type="text" id="personal-shift-name" class="form-input" placeholder="e.g. Morning" autocomplete="off" maxlength="40" />
+                        <p class="gs-error" id="personal-shift-name-error"></p>
+                      </div>
+                      <div class="gs-field">
+                        <label class="gs-label" for="personal-shift-start">Start time</label>
+                        <input type="time" id="personal-shift-start" class="form-input" />
+                        <p class="gs-error" id="personal-shift-start_time-error"></p>
+                      </div>
+                      <div class="gs-field">
+                        <label class="gs-label" for="personal-shift-end">End time</label>
+                        <input type="time" id="personal-shift-end" class="form-input" />
+                        <p class="gs-error" id="personal-shift-end_time-error"></p>
+                      </div>
+                      <label class="gs-check-row gs-field-wide" for="personal-shift-active">
+                        <input type="checkbox" id="personal-shift-active" checked />
+                        <span><strong>Active</strong><small>Include this shift in your schedule.</small></span>
+                      </label>
+                    </div>
+                    <div class="gs-manager-actions">
+                      <button type="submit" class="gs-btn gs-btn-secondary" id="save-personal-shift-btn">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Add shift
+                      </button>
+                      <button type="button" class="gs-btn gs-btn-ghost" id="cancel-personal-shift-btn" hidden>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </section>
+
+            <section class="gs-panel" id="settings-appearance" data-settings-panel="appearance" role="tabpanel" aria-labelledby="settings-tab-appearance" hidden>
+              <div class="gs-panel-heading">
+                <div>
+                  <span class="gs-section-number">04</span>
+                  <h2>Appearance</h2>
+                  <p>Choose the theme that feels best for your workspace.</p>
+                </div>
+                <span class="gs-panel-tag"><i data-lucide="palette" class="w-3.5 h-3.5"></i> Theme</span>
+              </div>
+
+              <div class="gs-theme-grid">
+                <button type="button" class="gs-theme-option" data-theme-option="dark" aria-pressed="false">
+                  <span class="gs-theme-preview gs-preview-dark" aria-hidden="true">
+                    <span class="gs-preview-side"></span>
+                    <span class="gs-preview-canvas">
+                      <span class="gs-preview-bar"></span>
+                      <span class="gs-preview-cards"><i></i><i></i></span>
+                      <span class="gs-preview-line"></span>
+                    </span>
+                  </span>
+                  <span class="gs-theme-meta">
+                    <span class="gs-theme-icon"><i data-lucide="moon" class="w-4 h-4"></i></span>
+                    <span class="gs-theme-copy"><strong>Dark mode</strong><small>Low-light, high contrast</small></span>
+                    <span class="gs-theme-check"><i data-lucide="check" class="w-4 h-4"></i></span>
+                  </span>
+                </button>
+
+                <button type="button" class="gs-theme-option" data-theme-option="light" aria-pressed="false">
+                  <span class="gs-theme-preview gs-preview-light" aria-hidden="true">
+                    <span class="gs-preview-side"></span>
+                    <span class="gs-preview-canvas">
+                      <span class="gs-preview-bar"></span>
+                      <span class="gs-preview-cards"><i></i><i></i></span>
+                      <span class="gs-preview-line"></span>
+                    </span>
+                  </span>
+                  <span class="gs-theme-meta">
+                    <span class="gs-theme-icon"><i data-lucide="sun" class="w-4 h-4"></i></span>
+                    <span class="gs-theme-copy"><strong>Light mode</strong><small>Bright, clean and focused</small></span>
+                    <span class="gs-theme-check"><i data-lucide="check" class="w-4 h-4"></i></span>
+                  </span>
+                </button>
+              </div>
+
+              <div class="gs-theme-status">
+                <span class="gs-status-pulse" aria-hidden="true"></span>
+                <p>Current theme: <strong id="current-theme-label">Dark</strong>. Changes apply immediately and are saved automatically.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      {% endblock %}
+
+{% block after_nav %}
+
+
+    <!-- Delete Account Modal -->
+    <div id="delete-account-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-all duration-300">
+      <div class="modal-content bg-bg rounded-2xl shadow-xl w-[90%] max-w-md relative overflow-hidden translate-y-4 transition-all duration-300">
+        <!-- Close Button -->
+        <button onclick="closeModal('delete-account-modal')" class="absolute top-4 right-4 p-2 rounded-lg hover:bg-bg transition" aria-label="Close">
+          <i data-lucide="x" class="w-5 h-5 text-text"></i>
+        </button>
+
+        <!-- Header Section -->
+        <div class="text-center px-6 pt-8 pb-4">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="alert-triangle" class="w-9 h-9 text-text"></i>
+          </div>
+
+          <h3 class="mb-1">Delete Account?</h3>
+          <p class="text-[10px] sm:text-xs md:text-sm text-muted">This action cannot be undone. All your data will be permanently deleted.</p>
+        </div>
+
+        <!-- Body Section -->
+        <div class="modal-body p-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+          <div class="bg-red-500/10 p-4 rounded-xl mb-6">
+            <p class="font-semibold text-text text-sm mb-2">You will lose:</p>
+
+            <ul class="space-y-2">
+              <li class="flex items-center gap-2 text-muted text-xs sm:text-sm"><i data-lucide="x" class="w-4 h-4 text-red-500"></i> All transaction history</li>
+              <li class="flex items-center gap-2 text-muted text-xs sm:text-sm"><i data-lucide="x" class="w-4 h-4 text-red-500"></i> Your savings goals and badges</li>
+              <li class="flex items-center gap-2 text-muted text-xs sm:text-sm"><i data-lucide="x" class="w-4 h-4 text-red-500"></i> Connected accounts and apps</li>
+              <li class="flex items-center gap-2 text-muted text-xs sm:text-sm"><i data-lucide="x" class="w-4 h-4 text-red-500"></i> Premium subscription benefits</li>
+            </ul>
+          </div>
+
+          <!-- Confirm Input -->
+          <div class="mb-6">
+            <label class="form-label block text-xs font-medium mb-1">Type "DELETE" to confirm</label>
+            <input type="text" id="delete-confirm-input" class="form-input w-full" placeholder="Type DELETE" />
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <button onclick="closeModal('delete-account-modal')" class="btn-secondary rounded-lg font-medium">Cancel</button>
+            <button onclick="confirmDelete()" class="btn-danger text-sm rounded-lg font-medium">Delete Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Email Modal -->
+    <!-- Add Payment Method Modal -->
+    <div id="add-payment-method-modal" class="modal">
+      <div class="modal-content custom-scrollbar">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="mb-1">Add Payment Method</h3>
+          <button onclick="closeModal('add-payment-method-modal')" class="p-2 rounded-xl text-muted hover:bg-bg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="modal-body custom-scrollbar">
+          <!-- FORM -->
+          <form id="payment-method-form" class="flex flex-col gap-5">
+            <!-- Card Type -->
+            <div>
+              <label class="form-label">Card Type</label>
+              <select class="select-custom w-full !bg-panel" id="card-type-input">
+                <option value="visa">Visa</option>
+                <option value="mastercard">Mastercard</option>
+                <option value="amex">American Express</option>
+                <option value="paypal">PayPal</option>
+              </select>
+            </div>
+
+            <!-- Card Number -->
+            <div>
+              <label class="form-label">Card Number</label>
+              <input type="number" class="amount-input" id="card-number-input" placeholder="1234 5678 9012 3456" />
+            </div>
+
+            <!-- Expire + CVV -->
+            <div>
+              <label class="block text-sm font-semibold text-text mb-2">Expiration</label>
+              <div class="relative w-full">
+                <input type="date" id="date-input" class="amount-input w-full pr-10 custom-date" />
+                <button type="button" id="date-btn" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-text">
+                  <i data-lucide="calendar" class="w-5 h-5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Default Toggle -->
+            <div class="flex items-center justify-between border rounded-xl p-3 cursor-pointer border-border transition" onclick="document.getElementById('default-checkbox').checked = !document.getElementById('default-checkbox').checked">
+              <p class="font-semibold text-xs sm:text-sm text-text">Set as default payment</p>
+              <input type="checkbox" id="default-checkbox" class="w-5 h-5 accent-primary border-border bg-bg" />
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3 pt-3">
+              <button type="button" onclick="closeModal('add-payment-method-modal')" class="btn-secondary flex-1">Cancel</button>
+              <button type="submit" class="btn-primary flex justify-center text-center flex-1 items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Save</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="generate-token-modal" class="modal">
+      <!-- Modal Content -->
+      <div class="modal-content p-3 sm:p-6 rounded-2xl bg-background text-text">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-base sm:text-lg md:text-xl font-bold text-text">Generate New API Token</h2>
+          <button onclick="closeModal('generate-token-modal')" class="text-muted hover:text-text">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Body Scroll for Small Screens -->
+        <div class="modal-body max-h-[65vh] overflow-y-auto custom-scrollbar">
+          <p class="text-sm text-muted mb-6">A new secure token will be generated. You can assign a name and permission level.</p>
+
+          <!-- Token Name -->
+          <div class="mb-5">
+            <label class="text-sm text-text font-medium mb-1 block">Token Name</label>
+            <input id="tokenName" type="text" placeholder="e.g. Work laptop" class="w-full rounded-lg bg-panel border border-border p-2.5 text-sm outline-none focus:border-primary transition" />
+          </div>
+
+          <!-- Permission Level -->
+          <div class="mb-6">
+            <label class="text-sm text-text font-medium mb-1 block">Permissions</label>
+            <select id="tokenPermission" class="select-custom w-full rounded-lg !bg-panel border border-border p-2.5 text-sm outline-none focus:border-primary transition">
+              <option value="read">Read Only</option>
+              <option value="write">Read & Write</option>
+              <option value="admin">Admin Access</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6">
+          <button onclick="closeModal('generate-token-modal')" class="btn-secendary w-full sm:w-auto px-4 py-2 rounded-lg border border-border text-muted hover:text-text hover:bg-bg-dark transition">Cancel</button>
+
+          <button onclick="closeModal('generate-token-modal')" class="w-full sm:w-auto btn-primary px-4 py-2 rounded-lg bg-blue-500 text-text hover:opacity-90 transition">Generate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Storage Modal -->
+    <div id="manage-storage-modal" class="modal">
+      <div class="modal-content w-full max-w-md mx-auto p-6 bg-bg rounded-2xl shadow-xl">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm sm:text-lg font-bold text-text">Manage Storage</h2>
+          <button onclick="closeModal('manage-storage-modal')" class="text-text transition cursor-pointer">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="modal-body custom-scrollbar">
+          <!-- Storage Info -->
+          <div class="mb-6">
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">Used: 7.2 GB</span>
+              <span class="text-gray-600 dark:text-gray-400">Total: 10 GB</span>
+            </div>
+            <div class="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-500 rounded-full w-[72%]"></div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              You’ve used
+              <span class="font-semibold text-blue-500">72%</span> of your available storage.
+            </p>
+          </div>
+
+          <!-- Manage Options -->
+          <div class="space-y-3">
+            <button class="btn-secondary w-full flex items-center justify-between px-4 py-3 rounded-xl border hover:bg-bg transition">
+              <span class="flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                Clear Cached Files
+              </span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+
+            <button class="btn-secondary w-full flex items-center justify-between px-4 py-3 rounded-xl border hover:bg-bg transition">
+              <span class="flex items-center gap-2">
+                <i data-lucide="image" class="w-4 h-4"></i>
+                Remove Large Media Files
+              </span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+
+            <button class="btn-secondary w-full flex items-center justify-between px-4 py-3 rounded-xl border hover:bg-bg transition">
+              <span class="flex items-center gap-2">
+                <i data-lucide="cloud-off" class="w-4 h-4"></i>
+                Disconnect Cloud Backup
+              </span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Footer -->
+          <div class="mt-6 text-right">
+            <button onclick="closeModal('manage-storage-modal')" class="btn-primary">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+          <i data-lucide="check" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-text" id="toast-title">Success</p>
+          <p class="text-xs text-muted" id="toast-message">Action completed successfully</p>
+        </div>
+      </div>
+    </div>{% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/settings.js' %}?v=20261113"></script>{% endblock %}

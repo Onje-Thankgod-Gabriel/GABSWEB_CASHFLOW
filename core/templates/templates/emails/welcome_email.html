@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Gabsweb CashFlow</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f1f5f9;color:#0f172a;font-family:Arial,Helvetica,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f1f5f9;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:20px;">
+            <tr>
+              <td align="center" style="padding:32px 32px 24px;">
+                {% if email_logo_url %}<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto;"><tr><td width="64" height="64" align="center" valign="middle" style="width:64px;height:64px;border-radius:16px;background-color:#6366f1;background-image:linear-gradient(135deg,#6366f1,#8b5cf6);text-align:center;vertical-align:middle;"><img src="{{ email_logo_url }}" width="52" height="36" alt="Gabsweb CashFlow logo" style="display:block;margin:0 auto;width:52px;height:36px;border:0;" /></td></tr></table>{% else %}<span style="display:inline-block;padding:10px 16px;border-radius:12px;background-color:#6366f1;color:#ffffff;font-size:16px;font-weight:700;">Gabsweb CashFlow</span>{% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 40px 36px;">
+                <h1 style="margin:0 0 20px;color:#0f172a;font-size:28px;line-height:36px;font-weight:700;">Welcome to Gabsweb CashFlow</h1>
+                <p style="margin:0 0 16px;color:#475569;font-size:16px;line-height:26px;">Hello {{ first_name }},</p>
+                <p style="margin:0 0 16px;color:#475569;font-size:16px;line-height:26px;">Your Gabsweb CashFlow account has been created successfully.</p>
+                <p style="margin:0 0 28px;color:#475569;font-size:16px;line-height:26px;">You can now set up your personal financial dashboard, track accounts, plan budgets, manage savings and goals, and keep your daily plans in one place.</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="border-radius:12px;background-color:#6366f1;">
+                      <a href="{{ login_url }}" style="display:inline-block;padding:14px 24px;border:1px solid #6366f1;border-radius:12px;color:#ffffff;font-size:16px;line-height:20px;font-weight:700;text-decoration:none;">Open Gabsweb CashFlow</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:28px 0 8px;color:#64748b;font-size:13px;line-height:20px;">If the button above does not work, copy and paste this link into your browser:</p>
+                <p style="margin:0;word-break:break-all;font-size:13px;line-height:20px;"><a href="{{ login_url }}" style="color:#4f46e5;text-decoration:underline;">{{ login_url }}</a></p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:24px 32px;border-top:1px solid #e2e8f0;">
+                <p style="margin:0 0 6px;color:#0f172a;font-size:14px;line-height:20px;font-weight:700;">Gabsweb CashFlow</p>
+                <p style="margin:0;color:#64748b;font-size:13px;line-height:20px;">Manage your finances and stay on top of your plans.</p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:20px 0 0;color:#94a3b8;font-size:12px;line-height:18px;text-align:center;">Official account notification</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

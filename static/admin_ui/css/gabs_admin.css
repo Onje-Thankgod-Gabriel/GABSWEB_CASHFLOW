@@ -1,0 +1,3784 @@
+/*
+ * Gabsweb CashFlow Admin
+ * Isolated visual layer for the native Django Admin.
+ * Never loaded by application pages.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Brand tokens                                                        */
+/* ------------------------------------------------------------------ */
+
+:root,
+html[data-theme="light"] {
+    --gabs-primary: #6366f1;
+    --gabs-primary-strong: #4f46e5;
+    --gabs-violet: #8b5cf6;
+    --gabs-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --gabs-success: #10b981;
+    --gabs-warning: #f59e0b;
+    --gabs-danger: #ef4444;
+    --gabs-accent: #00c850;
+
+    --gabs-bg: #fafbfc;
+    --gabs-surface: #ffffff;
+    --gabs-surface-2: #f3f4f8;
+    --gabs-surface-3: #eaecf3;
+    --gabs-border: #e1e4ec;
+    --gabs-text: #15171e;
+    --gabs-muted: #5f6673;
+    --gabs-header: #101219;
+    --gabs-header-2: #181b27;
+    --gabs-shadow: 0 1px 2px rgba(16, 18, 25, 0.05), 0 18px 40px -28px rgba(16, 18, 25, 0.45);
+    --gabs-shadow-soft: 0 1px 2px rgba(16, 18, 25, 0.04), 0 10px 24px -20px rgba(16, 18, 25, 0.4);
+    --gabs-radius: 16px;
+    --gabs-radius-sm: 10px;
+
+    --primary: #6366f1;
+    --secondary: #4f46e5;
+    --accent: #00c850;
+    --primary-fg: #ffffff;
+
+    --body-fg: var(--gabs-text);
+    --body-bg: var(--gabs-bg);
+    --body-quiet-color: var(--gabs-muted);
+    --body-medium-color: #3a404c;
+    --body-loud-color: #0b0d12;
+
+    --header-color: #eef0ff;
+    --header-bg: var(--gabs-header);
+    --header-link-color: #ffffff;
+    --header-branding-color: #c7d2fe;
+
+    --breadcrumbs-fg: var(--gabs-muted);
+    --breadcrumbs-link-fg: var(--gabs-text);
+    --breadcrumbs-bg: transparent;
+
+    --link-fg: #4f46e5;
+    --link-hover-color: #7c3aed;
+    --link-selected-fg: #4338ca;
+
+    --hairline-color: var(--gabs-border);
+    --border-color: #d6dae4;
+
+    --darkened-bg: #f4f5f9;
+    --selected-bg: #eef0ff;
+    --selected-row: #f5f3ff;
+
+    --error-fg: #b91c1c;
+    --message-debug-bg: #f1f5f9;
+    --message-info-bg: #eef2ff;
+    --message-success-bg: #e8f8f1;
+    --message-warning-bg: #fff7e6;
+    --message-error-bg: #fdecec;
+
+    --button-fg: #ffffff;
+    --button-bg: #4f46e5;
+    --button-hover-bg: #4338ca;
+    --default-button-bg: #6366f1;
+    --default-button-hover-bg: #4f46e5;
+    --close-button-bg: #475569;
+    --close-button-hover-bg: #334155;
+    --delete-button-bg: #dc2626;
+    --delete-button-hover-bg: #b91c1c;
+
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #6366f1;
+    --object-tools-hover-bg: #4f46e5;
+
+    --font-family-primary: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+        "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --font-family-monospace: ui-monospace, "Cascadia Mono", "Segoe UI Mono",
+        "Roboto Mono", Menlo, Monaco, Consolas, monospace;
+
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] {
+        --gabs-bg: #0c0d11;
+        --gabs-surface: #13151c;
+        --gabs-surface-2: #191c25;
+        --gabs-surface-3: #212531;
+        --gabs-border: #262a35;
+        --gabs-text: #e8eaf0;
+        --gabs-muted: #9aa1af;
+        --gabs-header: #090a0e;
+        --gabs-header-2: #121522;
+        --gabs-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 22px 50px -30px rgba(0, 0, 0, 0.9);
+        --gabs-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 30px -24px rgba(0, 0, 0, 0.9);
+
+        --primary: #6366f1;
+        --secondary: #4f46e5;
+        --accent: #00c850;
+        --primary-fg: #ffffff;
+
+        --body-fg: var(--gabs-text);
+        --body-bg: var(--gabs-bg);
+        --body-quiet-color: var(--gabs-muted);
+        --body-medium-color: #c9cdd6;
+        --body-loud-color: #ffffff;
+
+        --header-color: #eef0ff;
+        --header-bg: var(--gabs-header);
+        --header-link-color: #ffffff;
+        --header-branding-color: #c7d2fe;
+
+        --breadcrumbs-fg: var(--gabs-muted);
+        --breadcrumbs-link-fg: var(--gabs-text);
+        --breadcrumbs-bg: transparent;
+
+        --link-fg: #a5b4fc;
+        --link-hover-color: #c4b5fd;
+        --link-selected-fg: #c7d2fe;
+
+        --hairline-color: var(--gabs-border);
+        --border-color: #303643;
+
+        --darkened-bg: #171a22;
+        --selected-bg: #1e1b4b;
+        --selected-row: #231f52;
+
+        --error-fg: #fca5a5;
+        --message-debug-bg: #1f232c;
+        --message-info-bg: #1e1b4b;
+        --message-success-bg: #0f2f25;
+        --message-warning-bg: #33260f;
+        --message-error-bg: #3a1618;
+
+        --button-fg: #ffffff;
+        --button-bg: #4f46e5;
+        --button-hover-bg: #6366f1;
+        --default-button-bg: #6366f1;
+        --default-button-hover-bg: #8b5cf6;
+        --close-button-bg: #3a4150;
+        --close-button-hover-bg: #4b5563;
+        --delete-button-bg: #dc2626;
+        --delete-button-hover-bg: #ef4444;
+
+        --object-tools-fg: #ffffff;
+        --object-tools-bg: #6366f1;
+        --object-tools-hover-bg: #8b5cf6;
+
+        color-scheme: dark;
+    }
+}
+
+html[data-theme="dark"] {
+    --gabs-bg: #0c0d11;
+    --gabs-surface: #13151c;
+    --gabs-surface-2: #191c25;
+    --gabs-surface-3: #212531;
+    --gabs-border: #262a35;
+    --gabs-text: #e8eaf0;
+    --gabs-muted: #9aa1af;
+    --gabs-header: #090a0e;
+    --gabs-header-2: #121522;
+    --gabs-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 22px 50px -30px rgba(0, 0, 0, 0.9);
+    --gabs-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 30px -24px rgba(0, 0, 0, 0.9);
+
+    --primary: #6366f1;
+    --secondary: #4f46e5;
+    --accent: #00c850;
+    --primary-fg: #ffffff;
+
+    --body-fg: var(--gabs-text);
+    --body-bg: var(--gabs-bg);
+    --body-quiet-color: var(--gabs-muted);
+    --body-medium-color: #c9cdd6;
+    --body-loud-color: #ffffff;
+
+    --header-color: #eef0ff;
+    --header-bg: var(--gabs-header);
+    --header-link-color: #ffffff;
+    --header-branding-color: #c7d2fe;
+
+    --breadcrumbs-fg: var(--gabs-muted);
+    --breadcrumbs-link-fg: var(--gabs-text);
+    --breadcrumbs-bg: transparent;
+
+    --link-fg: #a5b4fc;
+    --link-hover-color: #c4b5fd;
+    --link-selected-fg: #c7d2fe;
+
+    --hairline-color: var(--gabs-border);
+    --border-color: #303643;
+
+    --darkened-bg: #171a22;
+    --selected-bg: #1e1b4b;
+    --selected-row: #231f52;
+
+    --error-fg: #fca5a5;
+    --message-debug-bg: #1f232c;
+    --message-info-bg: #1e1b4b;
+    --message-success-bg: #0f2f25;
+    --message-warning-bg: #33260f;
+    --message-error-bg: #3a1618;
+
+    --button-fg: #ffffff;
+    --button-bg: #4f46e5;
+    --button-hover-bg: #6366f1;
+    --default-button-bg: #6366f1;
+    --default-button-hover-bg: #8b5cf6;
+    --close-button-bg: #3a4150;
+    --close-button-hover-bg: #4b5563;
+    --delete-button-bg: #dc2626;
+    --delete-button-hover-bg: #ef4444;
+
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #6366f1;
+    --object-tools-hover-bg: #8b5cf6;
+
+    color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                               */
+/* ------------------------------------------------------------------ */
+
+body.gabs-admin {
+    background: var(--gabs-bg);
+    color: var(--gabs-text);
+    letter-spacing: 0.005em;
+}
+
+.gabs-admin a:link,
+.gabs-admin a:visited {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+.gabs-admin :focus-visible {
+    outline: 2px solid var(--gabs-violet);
+    outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Header                                                             */
+/* ------------------------------------------------------------------ */
+
+#header {
+    position: relative;
+    z-index: 30;
+    min-height: 68px;
+    padding: 13px 32px;
+    background:
+        radial-gradient(900px 180px at 12% -40%, rgba(99, 102, 241, 0.5), transparent 62%),
+        linear-gradient(118deg, var(--gabs-header) 0%, var(--gabs-header-2) 68%, #201640 100%);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.35);
+    box-shadow: 0 10px 30px -22px rgba(0, 0, 0, 0.9);
+    color: #ffffff;
+}
+
+#header.gabs-header--scrolled {
+    box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.95);
+}
+
+#branding {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.gabs-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 100%;
+    text-decoration: none !important;
+}
+
+.gabs-brand__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    padding: 7px;
+    border-radius: 13px;
+    background: var(--gabs-gradient);
+    box-shadow: 0 10px 24px -10px rgba(99, 102, 241, 0.95);
+}
+
+.gabs-brand__mark img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.gabs-brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+}
+
+.gabs-brand__text strong {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gabs-brand__text span {
+    margin-top: 2px;
+    color: #c7d2fe;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+#user-tools {
+    color: #eef0ff;
+    font-size: 0.75rem;
+    letter-spacing: 0.01em;
+}
+
+#user-tools a,
+#user-tools button {
+    color: #eef0ff;
+}
+
+#user-tools a:hover,
+#user-tools a:focus {
+    color: #ffffff;
+}
+
+#header .theme-toggle svg {
+    fill: #eef0ff;
+    color: transparent;
+}
+
+#logout-form button:hover,
+#logout-form button:focus {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Breadcrumbs                                                        */
+/* ------------------------------------------------------------------ */
+
+ol.breadcrumbs {
+    padding: 13px 32px;
+    margin: 0;
+    color: var(--gabs-muted);
+    background: var(--gabs-surface);
+    border-bottom: 1px solid var(--gabs-border);
+    font-size: 0.75rem;
+}
+
+ol.breadcrumbs a {
+    color: var(--gabs-text);
+    text-decoration: none;
+}
+
+ol.breadcrumbs a:hover,
+ol.breadcrumbs a:focus {
+    color: var(--gabs-primary-strong);
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page structure                                                     */
+/* ------------------------------------------------------------------ */
+
+#content {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 26px 32px 44px;
+}
+
+.main > .content,
+#changelist,
+#changelist-form,
+#changelist .changelist-form-container,
+#changelist .changelist-form-container > div {
+    min-width: 0;
+}
+
+.dashboard #content {
+    width: auto;
+}
+
+#content h1 {
+    margin: 0 0 6px;
+    color: var(--gabs-text);
+    font-size: 1.5rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.titles-and-tools {
+    gap: 16px;
+    align-items: flex-start;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar                                                            */
+/* ------------------------------------------------------------------ */
+
+.toggle-nav-sidebar {
+    border-right-color: var(--gabs-border);
+    background: var(--gabs-surface);
+    color: var(--gabs-muted);
+}
+
+.toggle-nav-sidebar:hover,
+.toggle-nav-sidebar:focus {
+    background: var(--gabs-surface-2);
+    color: var(--gabs-primary-strong);
+}
+
+#nav-sidebar {
+    border-right-color: var(--gabs-border);
+    background: var(--gabs-surface);
+    padding-bottom: 28px;
+}
+
+#nav-sidebar .module {
+    margin-bottom: 18px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    overflow: hidden;
+    box-shadow: none;
+}
+
+#nav-sidebar .module caption {
+    background: var(--gabs-surface-2);
+    color: var(--gabs-muted);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 10px 14px;
+}
+
+#nav-sidebar .module th {
+    padding: 9px 14px;
+    font-weight: 500;
+}
+
+#nav-sidebar .module td {
+    padding: 9px 10px;
+}
+
+#nav-sidebar .module tr + tr {
+    border-top: 1px solid var(--gabs-border);
+}
+
+#nav-sidebar .current-model {
+    background: var(--selected-bg);
+}
+
+#nav-sidebar .current-model th a {
+    color: var(--gabs-primary-strong);
+    font-weight: 650;
+}
+
+#nav-sidebar .module caption a.section:link,
+#nav-sidebar .module caption a.section:visited {
+    color: var(--gabs-muted);
+    font-weight: 700;
+}
+
+#nav-sidebar .module caption a.section:hover,
+#nav-sidebar .module caption a.section:focus {
+    color: var(--gabs-primary-strong);
+    text-decoration: none;
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+    color: var(--gabs-text);
+    font-weight: 700;
+}
+
+#nav-sidebar .addlink,
+#nav-sidebar .changelink,
+#nav-sidebar .viewlink {
+    color: var(--gabs-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Modules and dashboard                                              */
+/* ------------------------------------------------------------------ */
+
+.module {
+    background: var(--gabs-surface);
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius);
+    box-shadow: var(--gabs-shadow-soft);
+    overflow: hidden;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    padding: 13px 18px;
+    background: var(--gabs-surface-2);
+    color: var(--gabs-text);
+    border-bottom: 1px solid var(--gabs-border);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.gabs-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    min-height: 172px;
+    padding: 30px 34px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(139, 92, 246, 0.32);
+    border-radius: 22px;
+    background:
+        radial-gradient(760px 240px at 84% -30%, rgba(139, 92, 246, 0.55), transparent 68%),
+        radial-gradient(560px 220px at 8% 120%, rgba(99, 102, 241, 0.42), transparent 70%),
+        linear-gradient(120deg, #121420 0%, #181b29 52%, #241846 100%);
+    box-shadow: 0 26px 60px -38px rgba(24, 18, 70, 0.9);
+    color: #ffffff;
+}
+
+.gabs-hero__content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+}
+
+.gabs-eyebrow {
+    margin: 0 0 8px;
+    color: #c7d2fe;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.gabs-pending .gabs-eyebrow {
+    color: var(--gabs-primary-strong);
+}
+
+html[data-theme="dark"] .gabs-pending .gabs-eyebrow {
+    color: #a5b4fc;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .gabs-pending .gabs-eyebrow {
+        color: #a5b4fc;
+    }
+}
+
+#content .gabs-hero h1 {
+    margin: 0 0 8px;
+    color: #ffffff;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+}
+
+.gabs-hero__copy {
+    max-width: 560px;
+    margin: 0;
+    color: #d7d9e6;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.gabs-hero__glow {
+    position: absolute;
+    right: -70px;
+    bottom: -110px;
+    z-index: 0;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.55), transparent 66%);
+    filter: blur(4px);
+}
+
+.gabs-app-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    align-items: start;
+    gap: 18px;
+    width: 100%;
+    float: none;
+}
+
+.gabs-app-list > .module {
+    margin: 0;
+    border-radius: var(--gabs-radius);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.gabs-app-list > .module:hover {
+    transform: translateY(-1px);
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: var(--gabs-shadow);
+}
+
+.gabs-app-list > .module caption {
+    padding: 0;
+    background: var(--gabs-surface-2);
+}
+
+.gabs-app-list > .module caption a.section {
+    display: block;
+    padding: 14px 18px;
+    color: var(--gabs-text);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.gabs-app-list > .module caption a.section:hover,
+.gabs-app-list > .module caption a.section:focus {
+    color: var(--gabs-primary-strong);
+}
+
+.gabs-app-list .module table {
+    width: 100%;
+}
+
+.gabs-app-list .module th,
+.gabs-app-list .module td {
+    padding: 11px 14px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.gabs-app-list .module tr + tr {
+    border-top: 1px solid var(--gabs-border);
+}
+
+.gabs-app-list .module th a {
+    color: var(--gabs-text);
+    font-weight: 550;
+    text-decoration: none;
+}
+
+.gabs-app-list .module th a:hover,
+.gabs-app-list .module th a:focus {
+    color: var(--gabs-primary-strong);
+    text-decoration: underline;
+}
+
+.gabs-app-list .addlink,
+.gabs-app-list .changelink,
+.gabs-app-list .viewlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 750;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 8px 16px -14px rgba(79, 70, 229, 0.9);
+    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.gabs-app-list .addlink {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 16px -14px rgba(5, 150, 105, 0.9);
+}
+
+.gabs-app-list .addlink::before,
+.gabs-app-list .changelink::before,
+.gabs-app-list .viewlink::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.gabs-app-list .changelink::before,
+.gabs-app-list .viewlink::before {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.gabs-app-list .addlink:hover,
+.gabs-app-list .addlink:focus,
+.gabs-app-list .changelink:hover,
+.gabs-app-list .changelink:focus,
+.gabs-app-list .viewlink:hover,
+.gabs-app-list .viewlink:focus {
+    color: #ffffff;
+    text-decoration: none;
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+.gabs-app-list .addlink:focus-visible,
+.gabs-app-list .changelink:focus-visible,
+.gabs-app-list .viewlink:focus-visible {
+    outline: 2px solid var(--gabs-primary);
+    outline-offset: 2px;
+}
+
+@media (max-width: 575px) {
+    .gabs-app-list .addlink,
+    .gabs-app-list .changelink,
+    .gabs-app-list .viewlink {
+        padding: 3px 6px;
+        font-size: 0.5rem;
+        gap: 3px;
+    }
+
+    .gabs-app-list .addlink::before,
+    .gabs-app-list .changelink::before,
+    .gabs-app-list .viewlink::before {
+        width: 9px;
+        height: 9px;
+    }
+}
+
+#content-related {
+    background: transparent;
+}
+
+#content-related .module h2 {
+    background: var(--gabs-surface-2);
+}
+
+#recent-actions-module .actionlist li {
+    color: var(--gabs-muted);
+}
+
+#recent-actions-module .actionlist a {
+    color: var(--gabs-text);
+    text-decoration: none;
+}
+
+#recent-actions-module .actionlist a:hover,
+#recent-actions-module .actionlist a:hover {
+    color: var(--gabs-primary-strong);
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Changelists                                                        */
+/* ------------------------------------------------------------------ */
+
+#changelist {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#changelist .changelist-form-container {
+    gap: 22px;
+}
+
+#toolbar {
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+}
+
+#toolbar form #searchbar {
+    height: 2.15rem;
+    padding: 0 12px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-bg);
+    color: var(--gabs-text);
+}
+
+#toolbar form input[type="submit"] {
+    padding: 8px 14px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-surface-2);
+    color: var(--gabs-text);
+    font-weight: 600;
+}
+
+#toolbar form input[type="submit"]:hover,
+#toolbar form input[type="submit"]:focus {
+    background: var(--selected-bg);
+    color: var(--gabs-primary-strong);
+}
+
+#changelist-form .results {
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+    -webkit-overflow-scrolling: touch;
+}
+
+#changelist table {
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 680px;
+}
+
+#changelist table thead th {
+    padding: 11px 12px;
+    background: var(--gabs-surface-2);
+    color: var(--gabs-muted);
+    border-bottom: 1px solid var(--gabs-border);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+#changelist table thead th a:link,
+#changelist table thead th a:visited {
+    color: inherit;
+}
+
+#changelist table tbody td,
+#changelist table tbody th {
+    padding: 12px;
+    border-bottom: 1px solid var(--gabs-border);
+    vertical-align: middle;
+}
+
+#changelist table tbody tr:last-child td,
+#changelist table tbody tr:last-child th {
+    border-bottom: 0;
+}
+
+#changelist table tbody tr:hover {
+    background: var(--gabs-surface-2);
+}
+
+#changelist .paginator {
+    padding: 12px 14px;
+    background: var(--gabs-surface);
+    border-bottom: 0;
+    color: var(--gabs-muted);
+}
+
+#changelist .changelist-footer {
+    margin-top: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--gabs-border);
+    border-bottom: 0;
+}
+
+#changelist .paginator a,
+#changelist .paginator a:link,
+#changelist .paginator a:visited {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0 8px;
+    border-radius: 8px;
+}
+
+#changelist .paginator a[aria-current="page"] {
+    background: var(--gabs-primary);
+    color: #ffffff;
+}
+
+#changelist-filter {
+    flex-basis: 250px;
+    margin-left: 0;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+    overflow: hidden;
+}
+
+#changelist-filter h2 {
+    padding: 13px 16px;
+    margin: 0;
+    background: var(--gabs-surface-2);
+    color: var(--gabs-text);
+    border-bottom: 1px solid var(--gabs-border);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+#changelist-filter h3,
+#changelist-filter details summary {
+    padding: 11px 16px;
+    margin: 0;
+    color: var(--gabs-text);
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+#changelist-filter ul {
+    padding: 0 16px 12px;
+    border-bottom: 1px solid var(--gabs-border);
+}
+
+#changelist-filter li.selected {
+    border-left-color: var(--gabs-primary);
+}
+
+#changelist-filter a {
+    padding: 4px 0;
+    color: var(--gabs-muted);
+    text-decoration: none;
+}
+
+#changelist-filter a:hover,
+#changelist-filter a:focus,
+#changelist-filter li.selected a {
+    color: var(--gabs-primary-strong);
+}
+
+.actions {
+    padding: 12px 14px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+}
+
+.actions select {
+    min-height: 2.15rem;
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-bg);
+    color: var(--gabs-text);
+}
+
+.actions button {
+    min-height: 2.15rem;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--gabs-primary);
+    color: #ffffff;
+    font-weight: 650;
+}
+
+.actions button:hover,
+.actions button:focus {
+    background: var(--gabs-primary-strong);
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms                                                              */
+/* ------------------------------------------------------------------ */
+
+fieldset.module {
+    overflow: hidden;
+}
+
+.form-row {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--gabs-border);
+}
+
+.form-row:last-child {
+    border-bottom: 0;
+}
+
+.form-row label {
+    color: var(--gabs-text);
+    font-weight: 600;
+}
+
+.form-row .help,
+.form-row .helptext,
+.form-row p.help {
+    color: var(--gabs-muted);
+}
+
+.gabs-admin input[type="text"],
+.gabs-admin input[type="password"],
+.gabs-admin input[type="email"],
+.gabs-admin input[type="url"],
+.gabs-admin input[type="number"],
+.gabs-admin input[type="date"],
+.gabs-admin input[type="time"],
+.gabs-admin input[type="datetime-local"],
+.gabs-admin input[type="search"],
+.gabs-admin textarea,
+.gabs-admin select {
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-surface);
+    color: var(--gabs-text);
+}
+
+.gabs-admin input[type="text"]:focus,
+.gabs-admin input[type="password"]:focus,
+.gabs-admin input[type="email"]:focus,
+.gabs-admin input[type="url"]:focus,
+.gabs-admin input[type="number"]:focus,
+.gabs-admin input[type="date"]:focus,
+.gabs-admin input[type="time"]:focus,
+.gabs-admin input[type="datetime-local"]:focus,
+.gabs-admin input[type="search"]:focus,
+.gabs-admin textarea:focus,
+.gabs-admin select:focus {
+    border-color: var(--gabs-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    outline: 0;
+}
+
+.submit-row {
+    padding: 14px 16px;
+    margin-top: 18px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+}
+
+.submit-row input,
+.submit-row button,
+.button,
+input[type="submit"],
+input[type="button"] {
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+    background: var(--gabs-gradient);
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: 0 10px 20px -14px rgba(99, 102, 241, 0.95);
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover,
+.button.default:focus,
+input[type="submit"].default:focus,
+.submit-row input.default:focus {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    border-color: transparent;
+}
+
+.submit-row a.deletelink {
+    border-radius: 9px;
+}
+
+.object-tools {
+    margin-top: 0;
+}
+
+.object-tools a {
+    padding: 9px 15px;
+    border-radius: 999px;
+    background: var(--gabs-gradient);
+    color: #ffffff;
+    font-weight: 650;
+    box-shadow: 0 10px 22px -16px rgba(99, 102, 241, 0.95);
+}
+
+.object-tools a:link,
+.object-tools a:visited {
+    color: #ffffff;
+}
+
+.object-tools a:hover,
+.object-tools a:focus {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #ffffff;
+}
+
+.object-tools a.viewsitelink,
+.object-tools a.addlink {
+    background-image: none;
+    padding-left: 15px;
+}
+
+.object-tools a.viewsitelink::after,
+.object-tools a.addlink::after {
+    display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Messages and errors                                                */
+/* ------------------------------------------------------------------ */
+
+ul.messagelist li {
+    margin-bottom: 12px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background-position: 18px 13px;
+    padding: 12px 16px 12px 46px;
+    box-shadow: var(--gabs-shadow-soft);
+}
+
+.errornote {
+    border-radius: var(--gabs-radius-sm);
+}
+
+/* ------------------------------------------------------------------ */
+/* Login                                                              */
+/* ------------------------------------------------------------------ */
+
+.login {
+    background:
+        radial-gradient(900px 500px at 50% -10%, rgba(99, 102, 241, 0.16), transparent 62%),
+        var(--gabs-bg);
+}
+
+.login #container {
+    width: min(440px, calc(100vw - 32px));
+    min-width: 0;
+    margin: 7vh auto;
+    border: 1px solid var(--gabs-border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow);
+}
+
+.login #header {
+    justify-content: center;
+    padding: 20px 22px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.35);
+}
+
+.login #content {
+    padding: 26px 24px 28px;
+}
+
+.login .form-row {
+    padding: 6px 0 14px;
+    border-bottom: 0;
+}
+
+.login .form-row label {
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+}
+
+.login .form-row #id_username,
+.login .form-row #id_password {
+    min-height: 2.6rem;
+    padding: 0 12px;
+    border-radius: 10px;
+}
+
+.login .submit-row {
+    padding: 8px 0 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.login .submit-row input {
+    width: 100%;
+    min-height: 2.7rem;
+    background: var(--gabs-gradient);
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 650;
+}
+
+.login .password-reset-link {
+    margin-top: 14px;
+    font-size: 0.75rem;
+}
+
+.login .password-reset-link a {
+    color: var(--gabs-primary-strong);
+    text-decoration: none;
+}
+
+.login .password-reset-link a:hover,
+.login .password-reset-link a:focus {
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                         */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1024px) {
+    #header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 13px 20px;
+    }
+
+    #branding {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    #user-tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 10px;
+        width: 100%;
+        line-height: 1.5;
+        text-align: left;
+    }
+
+    #user-tools .gabs-theme-toggle {
+        margin-inline-start: auto;
+    }
+
+    ol.breadcrumbs {
+        padding: 12px 20px;
+    }
+
+    #content {
+        padding: 22px 20px 36px;
+    }
+
+    .gabs-hero {
+        padding: 26px 24px;
+    }
+
+    .gabs-app-list {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    #nav-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 40;
+        width: min(300px, 86vw);
+        max-height: 100vh;
+        margin-left: 0;
+        padding: 16px 0 28px;
+        transform: translateX(-100%);
+        transition: transform 180ms ease;
+        box-shadow: 18px 0 50px -32px rgba(0, 0, 0, 0.8);
+    }
+
+    .main.shifted > #nav-sidebar {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    .main > #nav-sidebar + .content,
+    .main.shifted > #nav-sidebar + .content {
+        max-width: 100%;
+    }
+
+    .toggle-nav-sidebar {
+        position: fixed;
+        top: 50%;
+        left: 0;
+        z-index: 41;
+        height: 52px;
+        border-radius: 0 10px 10px 0;
+        background: var(--gabs-surface);
+        box-shadow: var(--gabs-shadow-soft);
+        transition: left 180ms ease;
+    }
+
+    .main.shifted .toggle-nav-sidebar {
+        left: min(300px, 86vw);
+    }
+}
+
+@media (max-width: 900px) {
+    .colMS,
+    .colSM {
+        margin: 0;
+    }
+
+    #content-related,
+    .colSM #content-related {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        width: 100%;
+        margin: 0;
+        align-items: start;
+    }
+
+    #content-related .module {
+        margin-bottom: 0;
+    }
+
+    #changelist .changelist-form-container {
+        flex-direction: column;
+    }
+
+    #changelist .changelist-form-container:has(#changelist-filter) > div {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #changelist-filter {
+        width: 100%;
+        flex-basis: auto;
+        margin-top: 16px;
+    }
+}
+
+@media (max-width: 767px) {
+    #header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 13px 15px;
+    }
+
+    #branding {
+        width: 100%;
+    }
+
+    #user-tools {
+        width: 100%;
+        text-align: left;
+    }
+
+    ol.breadcrumbs {
+        padding: 11px 15px;
+    }
+
+    #content {
+        padding: 18px 15px 32px;
+    }
+
+    .gabs-hero {
+        min-height: 0;
+        padding: 22px 20px;
+        border-radius: 18px;
+    }
+
+    .gabs-hero__copy {
+        font-size: 0.8125rem;
+    }
+
+    .gabs-app-list {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    #changelist .changelist-form-container {
+        gap: 16px;
+    }
+
+    #changelist-filter {
+        flex-basis: auto;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .actions label,
+    .actions select,
+    .actions button {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .submit-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .submit-row input,
+    .submit-row a {
+        flex: 1 1 100%;
+        text-align: center;
+    }
+
+    .login #container {
+        margin: 5vh auto;
+    }
+
+    .login #header {
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .gabs-brand__mark {
+        width: 38px;
+        height: 38px;
+    }
+
+    .gabs-brand__text strong {
+        font-size: 0.9375rem;
+    }
+
+    .gabs-brand__text span {
+        font-size: 0.625rem;
+    }
+
+    #changelist table {
+        min-width: 620px;
+    }
+
+    .object-tools {
+        width: 100%;
+    }
+
+    .object-tools li,
+    .object-tools a {
+        width: 100%;
+        box-sizing: border-box;
+        float: none;
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gabs-app-list > .module {
+        transition: none;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Stage 2A — visual refinement                                       */
+/* ------------------------------------------------------------------ */
+
+:root,
+html[data-theme="light"] {
+    --gabs-primary-soft: rgba(99, 102, 241, 0.1);
+    --gabs-violet-soft: rgba(139, 92, 246, 0.1);
+    --gabs-success-soft: rgba(16, 185, 129, 0.11);
+    --gabs-warning-soft: rgba(245, 158, 11, 0.13);
+    --gabs-danger-soft: rgba(239, 68, 68, 0.1);
+
+    --gabs-space-1: 4px;
+    --gabs-space-2: 8px;
+    --gabs-space-3: 12px;
+    --gabs-space-4: 16px;
+    --gabs-space-5: 20px;
+    --gabs-space-6: 24px;
+    --gabs-space-7: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] {
+        --gabs-primary-soft: rgba(99, 102, 241, 0.17);
+        --gabs-violet-soft: rgba(139, 92, 246, 0.18);
+        --gabs-success-soft: rgba(16, 185, 129, 0.16);
+        --gabs-warning-soft: rgba(245, 158, 11, 0.16);
+        --gabs-danger-soft: rgba(239, 68, 68, 0.16);
+    }
+}
+
+html[data-theme="dark"] {
+    --gabs-primary-soft: rgba(99, 102, 241, 0.17);
+    --gabs-violet-soft: rgba(139, 92, 246, 0.18);
+    --gabs-success-soft: rgba(16, 185, 129, 0.16);
+    --gabs-warning-soft: rgba(245, 158, 11, 0.16);
+    --gabs-danger-soft: rgba(239, 68, 68, 0.16);
+}
+
+/* Theme toggle: one polished, stateful control in the existing native slot. */
+.gabs-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gabs-space-2);
+    width: auto;
+    min-width: 0;
+    height: 34px;
+    margin: 0;
+    margin-inline-start: var(--gabs-space-3);
+    padding: 0 12px 0 10px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #eef0ff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.gabs-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(199, 210, 254, 0.55);
+}
+
+.gabs-theme-toggle:focus-visible {
+    outline: 2px solid #c7d2fe;
+    outline-offset: 2px;
+}
+
+.gabs-theme-toggle:active {
+    transform: translateY(1px);
+}
+
+.gabs-theme-toggle__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: #eef0ff;
+}
+
+.gabs-theme-toggle__icon svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    color: transparent;
+    vertical-align: middle;
+}
+
+.gabs-theme-toggle__text {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.gabs-theme-label {
+    display: none;
+}
+
+html[data-theme="auto"] .gabs-theme-label--auto,
+html[data-theme="light"] .gabs-theme-label--light,
+html[data-theme="dark"] .gabs-theme-label--dark {
+    display: inline;
+}
+
+#header .gabs-theme-toggle {
+    flex: 0 0 auto;
+}
+
+#header {
+    flex-shrink: 0;
+}
+
+/* Login: centered, slightly above optical center, never clipped. */
+body.login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, calc(16px + 4vh));
+    box-sizing: border-box;
+}
+
+.login #container {
+    width: min(440px, calc(100vw - 32px));
+    margin: auto;
+    border-radius: 20px;
+}
+
+.login #header {
+    justify-content: flex-start;
+    padding: 18px 20px;
+}
+
+.login #branding {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1 1 auto;
+    gap: var(--gabs-space-3);
+    width: 100%;
+}
+
+.login #content {
+    padding: 28px 26px 30px;
+}
+
+.login .form-row {
+    padding: 0 0 16px;
+}
+
+.login .form-row label {
+    margin-bottom: 7px;
+    color: var(--gabs-text);
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+}
+
+.login .form-row #id_username,
+.login .form-row #id_password {
+    min-height: 2.75rem;
+    padding: 0 13px;
+    border-radius: 10px;
+}
+
+.login .submit-row {
+    margin-top: 4px;
+}
+
+.login .submit-row input {
+    min-height: 2.8rem;
+    letter-spacing: 0.01em;
+}
+
+.login .password-reset-link {
+    margin-top: 16px;
+    text-align: center;
+}
+
+/* Consistent page rhythm. */
+#content {
+    padding: 28px 32px 48px;
+}
+
+#content h1 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+#content h2 {
+    letter-spacing: -0.01em;
+}
+
+#content-related .module {
+    margin-bottom: 18px;
+}
+
+#content-related .module:last-child {
+    margin-bottom: 0;
+}
+
+fieldset.module,
+form .module {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    padding: 15px 0;
+}
+
+.aligned label {
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.help,
+p.help,
+form p.help,
+div.help {
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+/* Dashboard: summary stats above the app grid. */
+.gabs-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--gabs-space-4);
+    margin: 0 0 28px;
+}
+
+.gabs-stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gabs-space-2);
+    min-width: 0;
+    min-height: 132px;
+    padding: 18px 20px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+    color: var(--gabs-text);
+    text-decoration: none;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+#content .gabs-stat,
+#content .gabs-stat:link,
+#content .gabs-stat:visited,
+#content .gabs-stat:hover,
+#content .gabs-stat:focus,
+#content-related .gabs-quick-links a,
+#content-related .gabs-quick-links a:link,
+#content-related .gabs-quick-links a:visited {
+    color: var(--gabs-text);
+    text-decoration: none;
+}
+
+.gabs-stat:hover,
+.gabs-stat:focus-visible {
+    border-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 1px 2px rgba(16, 18, 25, 0.04), 0 18px 36px -26px rgba(79, 70, 229, 0.55);
+    color: var(--gabs-text);
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.gabs-stat:focus-visible {
+    outline: 2px solid var(--gabs-primary);
+    outline-offset: 2px;
+}
+
+.gabs-stat__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--gabs-space-3);
+}
+
+.gabs-stat__tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 750;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gabs-stat__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #ffffff;
+    box-shadow: 0 10px 20px -16px rgba(79, 70, 229, 0.9);
+}
+
+.gabs-stat__icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+@media (min-width: 640px) {
+    .gabs-stat__icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .gabs-stat__icon svg {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.gabs-stat__value {
+    color: var(--gabs-text);
+    font-size: 1.9rem;
+    font-weight: 650;
+    letter-spacing: -0.035em;
+    line-height: 1;
+}
+
+.gabs-stat__meta {
+    margin-top: auto;
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.gabs-stat--pending .gabs-stat__icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+}
+
+.gabs-stat--pending .gabs-stat__tag {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.gabs-stat--approved .gabs-stat__icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+}
+
+.gabs-stat--approved .gabs-stat__tag {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.gabs-stat--accounts .gabs-stat__icon {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    color: #ffffff;
+}
+
+.gabs-stat--accounts .gabs-stat__tag {
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+}
+
+html[data-theme="dark"] .gabs-stat--pending .gabs-stat__icon,
+html[data-theme="auto"] .gabs-stat--pending .gabs-stat__icon,
+html[data-theme="dark"] .gabs-stat--approved .gabs-stat__icon,
+html[data-theme="auto"] .gabs-stat--approved .gabs-stat__icon,
+html[data-theme="dark"] .gabs-stat--accounts .gabs-stat__icon,
+html[data-theme="auto"] .gabs-stat--accounts .gabs-stat__icon {
+    color: #ffffff;
+}
+
+.gabs-section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--gabs-space-4);
+    margin: 0 0 14px;
+}
+
+.gabs-section-head h2 {
+    margin: 0;
+    color: var(--gabs-text);
+    font-size: 1.125rem;
+    font-weight: 650;
+}
+
+.gabs-section-head p {
+    margin: 5px 0 0;
+    color: var(--gabs-muted);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
+.gabs-quick-links ul {
+    margin: 0;
+    padding: 6px 0;
+    list-style: none;
+}
+
+.gabs-quick-links li {
+    margin: 0;
+    padding: 0;
+}
+
+.gabs-quick-links li + li {
+    border-top: 1px solid var(--gabs-border);
+}
+
+.gabs-quick-links a {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 10px 18px;
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gabs-quick-links a:hover,
+.gabs-quick-links a:focus {
+    background: var(--gabs-surface-2);
+    color: var(--gabs-primary-strong);
+    text-decoration: none;
+}
+
+/* Keep table and form surfaces visually consistent in both themes. */
+#changelist .results,
+#changelist .paginator,
+#changelist-filter,
+.module,
+fieldset.module,
+.inline-group,
+.submit-row,
+.form-row input,
+.form-row select,
+.form-row textarea,
+.vTextField,
+.vLargeTextField {
+    background-color: var(--gabs-surface);
+}
+
+#changelist table thead th {
+    background: var(--gabs-surface-2);
+}
+
+#changelist table tbody tr:hover,
+#changelist table tbody tr:focus-within {
+    background: var(--gabs-surface-2);
+}
+
+#changelist .paginator {
+    border-top-color: var(--gabs-border);
+}
+
+@media (max-width: 1199px) {
+    .gabs-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1024px) {
+    #content {
+        padding: 24px 20px 40px;
+    }
+
+    .gabs-stats {
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .gabs-stat {
+        min-height: 124px;
+        padding: 16px 18px;
+    }
+
+    .login #container {
+        margin: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    #header {
+        flex-shrink: 0;
+    }
+
+    #user-tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 10px;
+        line-height: 1.5;
+    }
+
+    #user-tools a {
+        display: inline-block;
+    }
+
+    #logout-form {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    #user-tools .gabs-theme-toggle {
+        margin-inline-start: auto;
+    }
+
+    #content {
+        padding: 20px 15px 34px;
+    }
+
+    #content h1 {
+        font-size: 1.3rem;
+    }
+
+    .gabs-stat__top {
+        flex-wrap: wrap;
+    }
+
+    .gabs-stat__tag {
+        padding: 3px 7px;
+        font-size: 0.5625rem;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .gabs-stat__icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+    }
+
+    .gabs-stat__icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .gabs-section-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+
+    .gabs-section-head h2 {
+        font-size: 1.0625rem;
+    }
+
+    .gabs-stat {
+        min-height: 118px;
+        padding: 15px 16px;
+    }
+
+    .gabs-stat__value {
+        font-size: 1.7rem;
+    }
+
+    .gabs-theme-toggle {
+        margin-inline-start: var(--gabs-space-2);
+        padding-inline: 10px 9px;
+    }
+
+    .gabs-theme-toggle__text {
+        font-size: 0.625rem;
+    }
+
+    .login #header {
+        padding: 16px 18px;
+    }
+
+    .login #content {
+        padding: 24px 20px 26px;
+    }
+}
+
+@media (max-width: 575px) {
+    .gabs-stats {
+        gap: 12px;
+    }
+
+    .gabs-stat__tag {
+        padding: 3px 6px;
+        font-size: 0.5rem;
+    }
+
+    #content-related,
+    .colSM #content-related {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 359px) {
+    .gabs-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .gabs-stat {
+        min-height: 0;
+    }
+
+    .gabs-stat__meta {
+        margin-top: 2px;
+    }
+}
+
+@media (max-width: 374px) {
+    .gabs-theme-toggle {
+        width: 36px;
+        padding: 0;
+    }
+
+    .gabs-theme-toggle__text {
+        display: none;
+    }
+
+    .gabs-theme-toggle__icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .gabs-theme-toggle__icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .login #header {
+        padding: 14px 16px;
+    }
+
+    .login #content {
+        padding: 22px 17px 24px;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Pending verifications workflow                                     */
+/* ------------------------------------------------------------------ */
+
+.gabs-pending__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--gabs-space-5);
+    margin-bottom: var(--gabs-space-6);
+}
+
+.gabs-pending__header h1,
+.gabs-pending__confirm h1 {
+    margin: 4px 0 8px;
+}
+
+.gabs-pending__lede {
+    max-width: 68ch;
+    margin: 0;
+    color: var(--gabs-muted);
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+.gabs-pending__count {
+    flex: 0 0 auto;
+    margin: 6px 0 0;
+    padding: 10px 14px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 999px;
+    background: var(--gabs-surface);
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.gabs-pending__count strong {
+    color: var(--gabs-text);
+    font-size: 1rem;
+}
+
+.gabs-pending__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 14px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow-soft);
+}
+
+.gabs-pending__filters input[type="text"] {
+    flex: 1 1 260px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 9px;
+}
+
+.gabs-pending__filters select {
+    min-height: 40px;
+    min-width: 170px;
+    border-radius: 9px;
+}
+
+.gabs-pending__filters .button {
+    min-height: 40px;
+    padding-inline: 18px;
+}
+
+.gabs-pending__clear {
+    padding: 8px 4px;
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gabs-pending__clear:hover,
+.gabs-pending__clear:focus {
+    color: var(--gabs-primary-strong);
+    text-decoration: underline;
+}
+
+.gabs-pending__module {
+    overflow-x: auto;
+    margin: 0;
+    border-radius: var(--gabs-radius);
+}
+
+.gabs-pending__table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.gabs-pending__table th {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--gabs-border);
+    background: var(--gabs-surface-2);
+    color: var(--gabs-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.gabs-pending__table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--gabs-border);
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+    vertical-align: middle;
+}
+
+.gabs-pending__table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.gabs-pending__table tbody tr:hover {
+    background: var(--gabs-surface-2);
+}
+
+.gabs-pending__table th:first-child,
+.gabs-pending__table td:first-child {
+    padding-left: 20px;
+}
+
+.gabs-pending__table th:last-child,
+.gabs-pending__table td:last-child {
+    padding-right: 20px;
+}
+
+.gabs-pending__table strong {
+    display: block;
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+    font-weight: 650;
+}
+
+.gabs-pending__email {
+    display: block;
+    margin-top: 3px;
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+}
+
+.gabs-pending__date {
+    white-space: nowrap;
+}
+
+.gabs-pending__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.gabs-pending__actions form {
+    margin: 0;
+}
+
+.gabs-pending__actions .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 13px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.gabs-pending__approve {
+    background: var(--gabs-gradient);
+    color: #ffffff;
+}
+
+.gabs-pending__approve:hover,
+.gabs-pending__approve:focus {
+    color: #ffffff;
+    filter: brightness(1.06);
+}
+
+.gabs-pending__actions a.gabs-pending__return {
+    border-color: var(--gabs-border);
+    background: var(--gabs-surface);
+    color: var(--gabs-text);
+}
+
+.gabs-pending__actions a.gabs-pending__return:hover,
+.gabs-pending__actions a.gabs-pending__return:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: var(--gabs-surface-2);
+    color: var(--gabs-primary-strong);
+}
+
+.gabs-pending__blocked {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--gabs-warning-soft);
+    color: #b45309;
+    font-size: 0.6875rem;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+html[data-theme="dark"] .gabs-pending__blocked {
+    color: #fbbf24;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .gabs-pending__blocked {
+        color: #fbbf24;
+    }
+}
+
+.gabs-pending__empty {
+    padding: 36px 20px;
+    color: var(--gabs-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.gabs-pending__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 16px;
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+}
+
+.gabs-pending__pagination a {
+    color: var(--gabs-primary-strong);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.gabs-pending__pagination a:hover,
+.gabs-pending__pagination a:focus {
+    text-decoration: underline;
+}
+
+.gabs-pending__confirm-card {
+    max-width: 640px;
+    margin-top: 20px;
+    padding: 24px;
+    border-radius: var(--gabs-radius);
+}
+
+.gabs-pending__confirm-card > p:first-child {
+    margin-top: 0;
+    color: var(--gabs-text);
+    font-size: 1rem;
+}
+
+.gabs-pending__details {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.4fr) 1fr;
+    gap: 8px 16px;
+    margin: 20px 0;
+    padding: 16px;
+    border: 1px solid var(--gabs-border);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-surface-2);
+}
+
+.gabs-pending__details dt {
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    font-weight: 650;
+}
+
+.gabs-pending__details dd {
+    margin: 0;
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+}
+
+.gabs-pending__confirm-card .submit-row {
+    margin-top: 20px;
+}
+
+.gabs-pending-link {
+    background: var(--gabs-surface-2) !important;
+    color: var(--gabs-text) !important;
+    border: 1px solid var(--gabs-border) !important;
+}
+
+.gabs-pending-link:hover,
+.gabs-pending-link:focus {
+    border-color: rgba(99, 102, 241, 0.5) !important;
+    color: var(--gabs-primary-strong) !important;
+}
+
+@media (max-width: 767px) {
+    .gabs-pending__header {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .gabs-pending__count {
+        margin-top: 0;
+    }
+
+    .gabs-pending__filters {
+        padding: 12px;
+    }
+
+    .gabs-pending__filters input[type="text"],
+    .gabs-pending__filters select,
+    .gabs-pending__filters .button {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .gabs-pending__details {
+        grid-template-columns: 1fr;
+    }
+
+    .gabs-pending__confirm-card {
+        padding: 18px;
+    }
+
+    .gabs-pending__module {
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .gabs-pending__table {
+        display: block;
+        min-width: 0;
+    }
+
+    .gabs-pending__table thead {
+        display: none;
+    }
+
+    .gabs-pending__table tbody {
+        display: grid;
+        gap: 12px;
+    }
+
+    .gabs-pending__table tr {
+        display: block;
+        padding: 16px;
+        border: 1px solid var(--gabs-border);
+        border-radius: var(--gabs-radius);
+        background: var(--gabs-surface);
+        box-shadow: var(--gabs-shadow-soft);
+    }
+
+    .gabs-pending__table tbody tr:hover {
+        background: var(--gabs-surface);
+    }
+
+    .gabs-pending__table td,
+    .gabs-pending__table th:first-child,
+    .gabs-pending__table td:first-child,
+    .gabs-pending__table th:last-child,
+    .gabs-pending__table td:last-child {
+        display: grid;
+        grid-template-columns: 90px minmax(0, 1fr);
+        gap: 10px;
+        padding: 6px 0;
+        border: 0;
+    }
+
+    .gabs-pending__table td::before {
+        content: attr(data-label);
+        color: var(--gabs-muted);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .gabs-pending__table td > .gabs-pending__blocked {
+        justify-self: start;
+    }
+
+    .gabs-pending__table td:first-child {
+        display: block;
+        padding: 0 0 10px;
+        border-bottom: 1px solid var(--gabs-border);
+    }
+
+    .gabs-pending__table td:first-child::before {
+        display: none;
+    }
+
+    .gabs-pending__table td:last-child {
+        display: block;
+        padding-top: 12px;
+    }
+
+    .gabs-pending__table td:last-child::before {
+        display: none;
+    }
+
+    .gabs-pending__actions {
+        gap: 8px;
+    }
+}
+
+.gabs-pending__confirm-card .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.gabs-pending__confirm-card .submit-row input[type="submit"] {
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 9px;
+    background: var(--gabs-gradient);
+    color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 650;
+}
+
+.gabs-pending__confirm-card .submit-row a.cancel-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-surface);
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gabs-pending__confirm-card .submit-row a.cancel-link:hover,
+.gabs-pending__confirm-card .submit-row a.cancel-link:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: var(--gabs-surface-2);
+    color: var(--gabs-primary-strong);
+    text-decoration: none;
+}
+
+/* ================================================================== */
+/* Final polish — icons, compact filters, forms, dashboard layout      */
+/* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Icon system: match the Dashboard's 16–24px proportions              */
+/* ------------------------------------------------------------------ */
+
+.gabs-admin .addlink,
+.gabs-admin .changelink,
+.gabs-admin .viewlink,
+.gabs-admin .deletelink,
+.gabs-admin .inlineviewlink,
+.gabs-admin .inlinechangelink,
+.gabs-admin .hidelink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 20px;
+    padding-left: 19px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: 13px 13px;
+    line-height: 1.5;
+    vertical-align: middle;
+}
+
+.gabs-admin .addlink {
+    background-position: left center;
+}
+
+.gabs-admin table .addlink,
+.gabs-admin table .changelink,
+.gabs-admin table .viewlink,
+.gabs-admin table .deletelink {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.gabs-admin #changelist-search img,
+.gabs-admin #toolbar img {
+    width: 15px;
+    height: 15px;
+    margin-right: 2px;
+    opacity: 0.75;
+    vertical-align: middle;
+}
+
+.gabs-admin .form-row img[src$="icon-yes.svg"],
+.gabs-admin .form-row img[src$="icon-no.svg"],
+.gabs-admin .form-row img[src$="icon-alert.svg"],
+.gabs-admin img[src$="icon-yes.svg"],
+.gabs-admin img[src$="icon-no.svg"] {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+}
+
+/* Related-object controls: compact icon buttons instead of 24px images. */
+.gabs-admin .related-widget-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.gabs-admin .related-widget-wrapper > select,
+.gabs-admin .related-widget-wrapper > input,
+.gabs-admin .related-widget-wrapper > .selector {
+    flex: 1 1 16rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.gabs-admin .related-widget-wrapper-link,
+.gabs-admin .related-widget-wrapper-link:link,
+.gabs-admin .related-widget-wrapper-link:visited {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 8px;
+    background: var(--gabs-surface-2);
+    opacity: 1;
+    filter: none;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.gabs-admin .related-widget-wrapper-link:hover,
+.gabs-admin .related-widget-wrapper-link:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    background: var(--selected-bg);
+    transform: translateY(-1px);
+}
+
+.gabs-admin .related-widget-wrapper-link img {
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+}
+
+.gabs-admin .inline-deletelink {
+    width: 22px;
+    height: 22px;
+    background-size: 17px 17px;
+}
+
+.gabs-admin .object-tools a.viewsitelink,
+.gabs-admin .object-tools a.addlink {
+    background-image: none;
+    padding-right: 15px;
+}
+
+/* Keep inline (formset) and table controls from overflowing on narrow screens. */
+.gabs-admin .inline-group {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gabs-admin .inline-group .tabular {
+    min-width: 620px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compact horizontal changelist filters                               */
+/* ------------------------------------------------------------------ */
+
+.gabs-admin #changelist .changelist-form-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.gabs-admin #changelist-filter {
+    order: -1;
+    display: flex;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.gabs-admin #changelist-filter h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.gabs-admin #changelist-filter #changelist-filter-extra-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 2px 0 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.75rem;
+}
+
+.gabs-admin #changelist-filter #changelist-filter-extra-actions h3 {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.gabs-admin #changelist-filter .gabs-filter {
+    position: relative;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.gabs-admin #changelist-filter .gabs-filter summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 38px;
+    max-width: min(320px, calc(100vw - 42px));
+    padding: 0 12px;
+    border: 1px solid var(--gabs-border);
+    border-radius: 9px;
+    background: var(--gabs-surface);
+    color: var(--gabs-text);
+    box-shadow: var(--gabs-shadow-soft);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    list-style: none;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease;
+}
+
+.gabs-admin #changelist-filter .gabs-filter summary::-webkit-details-marker {
+    display: none;
+}
+
+.gabs-admin #changelist-filter .gabs-filter summary::before {
+    content: none;
+}
+
+.gabs-admin #changelist-filter .gabs-filter:hover summary,
+.gabs-admin #changelist-filter .gabs-filter[open] summary {
+    border-color: rgba(99, 102, 241, 0.55);
+    background: var(--gabs-surface-2);
+}
+
+.gabs-admin #changelist-filter .gabs-filter__text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.gabs-admin #changelist-filter .gabs-filter__label {
+    color: var(--gabs-muted);
+    font-weight: 600;
+}
+
+.gabs-admin #changelist-filter .gabs-filter__value {
+    overflow: hidden;
+    color: var(--gabs-primary-strong);
+    font-weight: 650;
+    text-overflow: ellipsis;
+}
+
+.gabs-admin #changelist-filter .gabs-filter__chevron {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    margin-top: -3px;
+    border-right: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    color: var(--gabs-muted);
+    transform: rotate(45deg);
+    transition: transform 150ms ease, margin 150ms ease;
+}
+
+.gabs-admin #changelist-filter .gabs-filter[open] .gabs-filter__chevron {
+    margin-top: 3px;
+    transform: rotate(225deg);
+}
+
+.gabs-admin #changelist-filter .gabs-filter > ul {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 25;
+    width: max-content;
+    min-width: 210px;
+    max-width: min(320px, calc(100vw - 42px));
+    max-height: 320px;
+    margin: 0;
+    padding: 6px;
+    overflow-y: auto;
+    border: 1px solid var(--gabs-border);
+    border-radius: 11px;
+    background: var(--gabs-surface);
+    box-shadow: var(--gabs-shadow);
+}
+
+.gabs-admin #changelist-filter .gabs-filter > ul::-webkit-scrollbar {
+    width: 8px;
+}
+
+.gabs-admin #changelist-filter .gabs-filter > ul::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--gabs-surface-3);
+}
+
+.gabs-admin #changelist-filter li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    list-style: none;
+}
+
+.gabs-admin #changelist-filter li.selected {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.gabs-admin #changelist-filter a,
+.gabs-admin #changelist-filter li.selected a {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    color: var(--gabs-text);
+    font-size: 0.75rem;
+    font-weight: 550;
+    line-height: 1.35;
+    text-decoration: none;
+    white-space: normal;
+}
+
+.gabs-admin #changelist-filter li.selected a {
+    background: var(--selected-bg);
+    color: var(--gabs-primary-strong);
+    font-weight: 650;
+}
+
+.gabs-admin #changelist-filter a:hover,
+.gabs-admin #changelist-filter a:focus {
+    background: var(--gabs-surface-2);
+    color: var(--gabs-primary-strong);
+}
+
+.gabs-admin #changelist-filter li.selected a::before {
+    content: "✓";
+    margin-right: 7px;
+    color: var(--gabs-primary-strong);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Toolbar / Run / Search buttons with theme-specific contrast. */
+.gabs-admin #toolbar form #searchbar {
+    box-sizing: border-box;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0 13px;
+}
+
+.gabs-admin #toolbar form input[type="submit"],
+.gabs-admin .actions button,
+.gabs-admin .actions .button {
+    box-sizing: border-box;
+    min-height: 2.5rem;
+    height: 2.5rem;
+    padding: 0 18px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: var(--gabs-primary);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: 0 10px 20px -16px rgba(79, 70, 229, 0.9);
+    transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.gabs-admin .actions button,
+.gabs-admin .actions .button {
+    min-height: 2.2rem;
+    height: 2.2rem;
+    padding: 0 14px;
+}
+
+.gabs-admin #toolbar form input[type="submit"]:hover,
+.gabs-admin #toolbar form input[type="submit"]:focus,
+.gabs-admin .actions button:hover,
+.gabs-admin .actions button:focus,
+.gabs-admin .actions .button:hover,
+.gabs-admin .actions .button:focus {
+    border-color: transparent;
+    background: var(--gabs-primary-strong);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.gabs-admin .actions button:disabled,
+.gabs-admin .actions .button:disabled {
+    background: var(--gabs-surface-3);
+    color: var(--gabs-muted);
+    box-shadow: none;
+    transform: none;
+}
+
+html[data-theme="dark"] .gabs-admin #toolbar form input[type="submit"],
+html[data-theme="dark"] .gabs-admin .actions button,
+html[data-theme="dark"] .gabs-admin .actions .button {
+    background: #6366f1;
+    box-shadow: 0 10px 24px -18px rgba(99, 102, 241, 0.95);
+}
+
+html[data-theme="dark"] .gabs-admin #toolbar form input[type="submit"]:hover,
+html[data-theme="dark"] .gabs-admin #toolbar form input[type="submit"]:focus,
+html[data-theme="dark"] .gabs-admin .actions button:hover,
+html[data-theme="dark"] .gabs-admin .actions button:focus,
+html[data-theme="dark"] .gabs-admin .actions .button:hover,
+html[data-theme="dark"] .gabs-admin .actions .button:focus {
+    background: #7c3aed;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .gabs-admin #toolbar form input[type="submit"],
+    html[data-theme="auto"] .gabs-admin .actions button,
+    html[data-theme="auto"] .gabs-admin .actions .button {
+        background: #6366f1;
+    }
+
+    html[data-theme="auto"] .gabs-admin #toolbar form input[type="submit"]:hover,
+    html[data-theme="auto"] .gabs-admin #toolbar form input[type="submit"]:focus,
+    html[data-theme="auto"] .gabs-admin .actions button:hover,
+    html[data-theme="auto"] .gabs-admin .actions button:focus,
+    html[data-theme="auto"] .gabs-admin .actions .button:hover,
+    html[data-theme="auto"] .gabs-admin .actions .button:focus {
+        background: #7c3aed;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Add / edit forms                                                    */
+/* ------------------------------------------------------------------ */
+
+.gabs-admin form .form-row {
+    padding: 16px 18px;
+}
+
+.gabs-admin form .form-row:last-child {
+    border-bottom: 0;
+}
+
+.gabs-admin .aligned .form-row > .flex-container,
+.gabs-admin .aligned .form-row > div {
+    width: 100%;
+    max-width: 100%;
+}
+
+.gabs-admin .flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+}
+
+.gabs-admin .flex-container > label,
+.gabs-admin .aligned label {
+    color: var(--gabs-text);
+    font-size: 0.75rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.gabs-admin .flex-container > input:not([type="checkbox"]):not([type="radio"]),
+.gabs-admin .flex-container > select,
+.gabs-admin .flex-container > textarea,
+.gabs-admin .flex-container > .related-widget-wrapper,
+.gabs-admin .flex-container > .selector {
+    width: 100%;
+    max-width: min(100%, 44rem);
+}
+
+.gabs-admin input[type="text"],
+.gabs-admin input[type="password"],
+.gabs-admin input[type="email"],
+.gabs-admin input[type="url"],
+.gabs-admin input[type="number"],
+.gabs-admin input[type="date"],
+.gabs-admin input[type="time"],
+.gabs-admin input[type="datetime-local"],
+.gabs-admin input[type="search"],
+.gabs-admin input[type="tel"],
+.gabs-admin textarea,
+.gabs-admin select {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 2.45rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.gabs-admin textarea {
+    min-height: 6.5rem;
+    resize: vertical;
+}
+
+.gabs-admin input[type="checkbox"],
+.gabs-admin input[type="radio"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--gabs-primary);
+    vertical-align: -2px;
+}
+
+.gabs-admin .form-row .help,
+.gabs-admin .form-row .helptext,
+.gabs-admin .form-row p.help,
+.gabs-admin .form-row div.help,
+.gabs-admin .aligned label + p,
+.gabs-admin .aligned .checkbox-row + div.help,
+.gabs-admin .aligned label + div.readonly {
+    max-width: 68ch;
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.gabs-admin .form-row div.readonly {
+    padding: 6px 0;
+    color: var(--gabs-text);
+    font-size: 0.8125rem;
+}
+
+.gabs-admin .form-row.errors {
+    margin: 8px 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: var(--gabs-radius-sm);
+    background: var(--gabs-danger-soft);
+}
+
+.gabs-admin ul.errorlist {
+    margin: 2px 0 8px;
+    padding: 0;
+    color: var(--error-fg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    list-style: none;
+}
+
+.gabs-admin ul.errorlist li {
+    margin: 0;
+    padding: 2px 0;
+}
+
+.gabs-admin .form-row .error input,
+.gabs-admin .form-row .error select,
+.gabs-admin .form-row .error textarea {
+    border-color: var(--gabs-danger);
+}
+
+.gabs-admin .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+}
+
+.gabs-admin .submit-row input,
+.gabs-admin .submit-row button,
+.gabs-admin .submit-row a.button,
+.gabs-admin .submit-row a.deletelink,
+.gabs-admin .submit-row a.closelink {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.55rem;
+    padding: 0 18px;
+    border-radius: 9px;
+    font-size: 0.8125rem;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.gabs-admin .submit-row a.deletelink {
+    margin-left: auto;
+}
+
+.gabs-admin .inline-group h2 {
+    padding: 13px 18px;
+}
+
+.gabs-admin .inline-related fieldset.module {
+    padding: 4px 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tags and contextual labels                                          */
+/* ------------------------------------------------------------------ */
+
+.gabs-admin .gabs-pending__blocked,
+.gabs-admin .gabs-pending__count,
+.gabs-admin .mini.quiet {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 650;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.gabs-admin .gabs-pending__blocked {
+    background: var(--gabs-warning-soft);
+    color: #b45309;
+}
+
+html[data-theme="dark"] .gabs-admin .gabs-pending__blocked {
+    color: #fbbf24;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .gabs-admin .gabs-pending__blocked {
+        color: #fbbf24;
+    }
+}
+
+.gabs-admin .gabs-pending__count {
+    color: var(--gabs-muted);
+}
+
+.gabs-admin .gabs-pending__count strong {
+    color: var(--gabs-text);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pending actions and compact Return button                           */
+/* ------------------------------------------------------------------ */
+
+.gabs-admin .gabs-pending__actions .button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    line-height: 1.15;
+}
+
+.gabs-admin .gabs-pending__confirm-card .submit-row input[type="submit"],
+.gabs-admin .gabs-pending__confirm-card .submit-row a.cancel-link {
+    box-sizing: border-box;
+    min-height: 38px;
+    height: 38px;
+    padding: 0 16px;
+    line-height: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dashboard card arrangement                                          */
+/* ------------------------------------------------------------------ */
+
+.gabs-dashboard .gabs-dashboard-grid {
+    display: grid;
+    float: none;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    align-items: start;
+    gap: 18px;
+    width: 100%;
+}
+
+.gabs-dashboard .gabs-app-list--primary {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.gabs-dashboard .gabs-app-list--primary > .module {
+    margin: 0;
+}
+
+.gabs-dashboard .gabs-app-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    min-width: 0;
+}
+
+.gabs-dashboard .gabs-app-aside > .module {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    float: none;
+}
+
+@media (max-width: 1199px) {
+    .gabs-dashboard .gabs-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gabs-dashboard .gabs-app-aside {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+    }
+}
+
+@media (max-width: 575px) {
+    .gabs-dashboard .gabs-app-aside {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .gabs-dashboard #content-related {
+        margin-top: 18px;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile refinements                                                  */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+    .gabs-admin #changelist-filter {
+        gap: 8px;
+    }
+
+    .gabs-admin #changelist-filter .gabs-filter {
+        flex: 1 1 calc(50% - 8px);
+        max-width: 100%;
+    }
+
+    .gabs-admin #changelist-filter .gabs-filter summary {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .gabs-admin #changelist-filter .gabs-filter > ul {
+        right: 0;
+        left: auto;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .gabs-admin form .form-row {
+        padding: 14px 15px;
+    }
+
+    .gabs-admin .flex-container > input:not([type="checkbox"]):not([type="radio"]),
+    .gabs-admin .flex-container > select,
+    .gabs-admin .flex-container > textarea {
+        max-width: 100%;
+    }
+
+    .gabs-admin #toolbar form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .gabs-admin #toolbar form #searchbar {
+        flex: 1 1 180px;
+        min-width: 0;
+    }
+
+    .gabs-admin #toolbar form input[type="submit"] {
+        flex: 0 0 auto;
+    }
+
+    .gabs-admin .submit-row a.deletelink {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 575px) {
+    .gabs-admin .object-tools {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        margin: 0 0 12px;
+    }
+
+    .gabs-admin .object-tools li {
+        display: block;
+        width: 100%;
+        margin: 0;
+    }
+
+    .gabs-admin .object-tools a,
+    .gabs-admin .object-tools a:link,
+    .gabs-admin .object-tools a:visited {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        float: none;
+        width: 100%;
+        min-height: 38px;
+        padding: 0 14px;
+        text-align: center;
+    }
+
+    .gabs-admin .object-tools a.viewsitelink,
+    .gabs-admin .object-tools a.addlink {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+}
+
+@media (max-width: 420px) {
+    .gabs-admin #changelist-filter .gabs-filter {
+        flex: 1 1 100%;
+    }
+}
+
+.gabs-admin .gabs-pending__count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.gabs-admin .related-widget-wrapper-link img {
+    transform: none;
+}
+
+.gabs-admin #toolbar form > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.gabs-admin #toolbar form #searchbar {
+    flex: 0 1 360px;
+    min-width: 0;
+}
+
+.gabs-admin #toolbar form .small.quiet {
+    color: var(--gabs-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+    .gabs-admin #toolbar form #searchbar {
+        flex: 1 1 150px;
+    }
+
+    .gabs-admin #toolbar form .small.quiet {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .gabs-admin #toolbar form #searchbar {
+        flex: 1 1 110px;
+    }
+
+    .gabs-admin #toolbar form input[type="submit"] {
+        padding-inline: 14px;
+    }
+}
+
+/* ================================================================== */
+/* Corrections pass: theme-aware button text, filter dropdowns,        */
+/* full-width tables and dashboard hero/stats                          */
+/* ================================================================== */
+
+/*
+ * Accent text (hover/focus states, current-model labels, filter values)
+ * must stay readable in dark mode. The light accent (#4f46e5) becomes
+ * invisible on dark surfaces, so switch to a light indigo in dark mode.
+ * Button backgrounds remain controlled by the explicit rules below.
+ */
+html[data-theme="dark"] {
+    --gabs-primary-strong: #a5b4fc;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] {
+        --gabs-primary-strong: #a5b4fc;
+    }
+}
+
+/* Every button-like control keeps a readable foreground in every state. */
+.gabs-admin .object-tools a,
+.gabs-admin .object-tools a:link,
+.gabs-admin .object-tools a:visited,
+.gabs-admin .object-tools a:hover,
+.gabs-admin .object-tools a:focus,
+.gabs-admin .object-tools a:active,
+.gabs-admin .gabs-pending__approve,
+.gabs-admin .gabs-pending__approve:hover,
+.gabs-admin .gabs-pending__approve:focus,
+.gabs-admin .gabs-pending__approve:active {
+    color: #ffffff;
+}
+
+.gabs-admin #toolbar form input[type="submit"]:active,
+.gabs-admin .actions button:active,
+.gabs-admin .actions .button:active {
+    background: var(--gabs-primary-strong);
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .gabs-admin #toolbar form input[type="submit"]:active,
+html[data-theme="dark"] .gabs-admin .actions button:active,
+html[data-theme="dark"] .gabs-admin .actions .button:active {
+    background: #7c3aed;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] .gabs-admin #toolbar form input[type="submit"]:active,
+    html[data-theme="auto"] .gabs-admin .actions button:active,
+    html[data-theme="auto"] .gabs-admin .actions .button:active {
+        background: #7c3aed;
+    }
+}
+
+/* "Show counts" toggle: keep eye icon and label aligned and stable. */
+.gabs-admin #changelist-filter #changelist-filter-extra-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+}
+
+.gabs-admin #changelist-filter #changelist-filter-extra-actions .viewlink,
+.gabs-admin #changelist-filter #changelist-filter-extra-actions .hidelink {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-height: 22px;
+    padding-left: 20px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+    white-space: nowrap;
+}
+
+/* Filter dropdowns: open group sits above its siblings on every screen. */
+.gabs-admin #changelist-filter .gabs-filter[open] {
+    z-index: 30;
+}
+
+.gabs-admin #changelist-filter .gabs-filter summary {
+    box-sizing: border-box;
+}
+
+.gabs-admin #changelist-filter .gabs-filter > ul {
+    box-sizing: border-box;
+    left: 0;
+    right: auto;
+    max-width: min(320px, calc(100vw - 32px));
+}
+
+/*
+ * Mobile filters: one control per row and an in-flow dropdown so the
+ * options are always fully visible and never covered by another filter.
+ */
+@media (max-width: 767px) {
+    .gabs-admin #changelist-filter .gabs-filter {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    .gabs-admin #changelist-filter .gabs-filter summary {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .gabs-admin #changelist-filter .gabs-filter > ul {
+        position: static;
+        right: auto;
+        left: auto;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        margin-top: 6px;
+    }
+}
+
+/*
+ * The filters now live above the table, so the form column must use the
+ * full width instead of Django reserving 270px for a side filter panel.
+ */
+.gabs-admin #changelist .changelist-form-container:has(#changelist-filter) > div {
+    width: 100%;
+    max-width: 100%;
+}
+
+.gabs-admin #changelist table {
+    width: 100%;
+}
+
+/* Dashboard hero and summary cards span the full content width. */
+@media (min-width: 901px) {
+    .gabs-dashboard .gabs-hero,
+    .gabs-dashboard .gabs-stats,
+    .gabs-dashboard .gabs-section-head {
+        box-sizing: border-box;
+        width: calc(100% + 300px);
+        max-width: calc(100% + 300px);
+    }
+}
+
+@media (min-width: 901px) and (max-width: 1024px) {
+    .gabs-dashboard .gabs-hero,
+    .gabs-dashboard .gabs-stats,
+    .gabs-dashboard .gabs-section-head {
+        width: calc(100% + 290px);
+        max-width: calc(100% + 290px);
+    }
+}
+
+/* Dashboard app-card actions: premium gradient pills (final override). */
+.gabs-admin .gabs-app-list a.addlink,
+.gabs-admin .gabs-app-list a.changelink,
+.gabs-admin .gabs-app-list a.viewlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 0;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 999px;
+    background-image: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: auto;
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 750;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 8px 16px -14px rgba(79, 70, 229, 0.9);
+    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.gabs-admin .gabs-app-list a.addlink {
+    background-image: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 16px -14px rgba(5, 150, 105, 0.9);
+}
+
+.gabs-admin .gabs-app-list a.addlink::before,
+.gabs-admin .gabs-app-list a.changelink::before,
+.gabs-admin .gabs-app-list a.viewlink::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.gabs-admin .gabs-app-list a.changelink::before,
+.gabs-admin .gabs-app-list a.viewlink::before {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.gabs-admin .gabs-app-list a.addlink:link,
+.gabs-admin .gabs-app-list a.addlink:visited,
+.gabs-admin .gabs-app-list a.changelink:link,
+.gabs-admin .gabs-app-list a.changelink:visited,
+.gabs-admin .gabs-app-list a.viewlink:link,
+.gabs-admin .gabs-app-list a.viewlink:visited {
+    color: #ffffff;
+}
+
+.gabs-admin .gabs-app-list a.addlink:hover,
+.gabs-admin .gabs-app-list a.addlink:focus,
+.gabs-admin .gabs-app-list a.changelink:hover,
+.gabs-admin .gabs-app-list a.changelink:focus,
+.gabs-admin .gabs-app-list a.viewlink:hover,
+.gabs-admin .gabs-app-list a.viewlink:focus {
+    background-size: auto;
+    color: #ffffff;
+    text-decoration: none;
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 575px) {
+    .gabs-admin .gabs-app-list a.addlink,
+    .gabs-admin .gabs-app-list a.changelink,
+    .gabs-admin .gabs-app-list a.viewlink {
+        gap: 3px;
+        padding: 3px 6px;
+        font-size: 0.5rem;
+    }
+
+    .gabs-admin .gabs-app-list a.addlink::before,
+    .gabs-admin .gabs-app-list a.changelink::before,
+    .gabs-admin .gabs-app-list a.viewlink::before {
+        width: 9px;
+        height: 9px;
+    }
+}
+
+/* Recent actions: premium gradient icon chips (add/change/delete). */
+.gabs-admin #recent-actions-module .actionlist li {
+    position: relative;
+    display: block;
+    padding-left: 28px;
+    background-image: none;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: auto;
+    min-height: 22px;
+}
+
+.gabs-admin #recent-actions-module .actionlist li::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    background-repeat: no-repeat, no-repeat;
+    background-position: center, center;
+    background-size: 11px 11px, auto;
+    box-shadow: 0 8px 16px -14px rgba(79, 70, 229, 0.9);
+}
+
+.gabs-admin #recent-actions-module .actionlist li.changelink::before {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.gabs-admin #recent-actions-module .actionlist li.addlink::before {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 8px 16px -14px rgba(5, 150, 105, 0.9);
+}
+
+.gabs-admin #recent-actions-module .actionlist li.deletelink::before {
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"),
+        linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 8px 16px -14px rgba(220, 38, 38, 0.9);
+}
+
+/* Recent actions: label left, content type right on the same row. */
+.gabs-admin #recent-actions-module .actionlist li .gabs-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.gabs-admin #recent-actions-module .actionlist li .gabs-action-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.gabs-admin #recent-actions-module .actionlist li .gabs-action-meta {
+    flex: 0 0 auto;
+    margin: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Pending verifications count: premium gradient tag. */
+.gabs-admin .gabs-pending__count {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 0;
+    margin: 6px 0 0;
+    padding: 5px 11px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #ffffff;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 10px 20px -16px rgba(79, 70, 229, 0.9);
+}
+
+.gabs-admin .gabs-pending__count strong {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1;
+}
+
+@media (max-width: 767px) {
+    .gabs-admin .gabs-pending__count {
+        margin-top: 0;
+    }
+}

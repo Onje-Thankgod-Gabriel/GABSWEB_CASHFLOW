@@ -1,0 +1,34 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block theme_scripts %}<script src="{% static 'assets/js/theme-loader.js' %}"></script>{% endblock %}
+
+{% block page_styles %}<link href="{% static 'assets/css/auth.css' %}?v=20261115e" rel="stylesheet" />{% block auth_styles %}{% endblock %}{% endblock %}
+
+{% block body_attributes %} class="auth-page flex items-center justify-center relative"{% endblock %}
+
+{% block body %}
+  <button id="theme-toggle" class="auth-theme-toggle" type="button" aria-label="Switch to light mode" aria-pressed="false">
+    <i data-lucide="sun" aria-hidden="true"></i>
+  </button>
+  {% if messages %}
+    <div class="auth-toast-region" aria-live="polite" aria-atomic="true">
+      {% for message in messages %}
+        <div class="auth-toast" role="status" data-auto-dismiss>
+          <i data-lucide="{% if 'success' in message.tags %}check-circle-2{% else %}info{% endif %}" class="auth-toast-icon" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="auth-card {% block auth_card_class %}auth-card-login{% endblock %} px-10 py-12"{% block auth_main_attributes %}{% endblock %}>
+    {% block auth_content %}{% endblock %}
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'assets/js/auth.js' %}"></script>
+  {% block auth_scripts %}{% endblock %}
+  <script>if (window.lucide) window.lucide.createIcons();</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+<div class="app-notices">
+  {% if messages %}
+  <div class="app-notices-messages">
+    {% for message in messages %}
+    <div class="app-notices-message app-message-card{% if 'error' in message.tags %} app-message-card--error{% elif 'warning' in message.tags %} app-message-card--warning{% elif 'success' in message.tags %} app-message-card--success{% endif %}" role="{% if 'error' in message.tags %}alert{% else %}status{% endif %}">
+      <span class="app-message-card__body">{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated and user.account_status == "PENDING" %}
+  <section class="app-pending-notice" role="status" aria-live="polite" aria-labelledby="app-pending-title">
+    <span class="app-pending-icon" aria-hidden="true">
+      <i data-lucide="shield-check"></i>
+    </span>
+    <div class="app-pending-content">
+      <div class="app-pending-heading">
+        <h2 id="app-pending-title" class="app-pending-title">Workplace access pending</h2>
+        <span class="app-pending-badge">Awaiting review</span>
+      </div>
+      <p class="app-pending-copy">Your request to access GCTN/Apex Pay workplace features is awaiting approval from the platform owner.</p>
+      <p class="app-pending-help">You can keep using your available features while this is reviewed. Contact the platform owner if you need assistance.</p>
+    </div>
+  </section>
+  {% endif %}
+</div>

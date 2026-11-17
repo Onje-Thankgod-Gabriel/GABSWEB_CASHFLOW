@@ -1,0 +1,76 @@
+{
+  "id": "/",
+  "name": "Gabsweb CashFlow",
+  "short_name": "CashFlow",
+  "description": "Gabsweb CashFlow is a personal finance workspace for accounts, transactions, budgets, savings, goals, schedules and reports.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#13151c",
+  "background_color": "#0c0d11",
+  "categories": ["finance", "productivity"],
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.webmanifest",
+      "id": "/"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/static/assets/icons/gabsweb_PWA_Maskable_Icon.png?v=20261115d",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/assets/icons/gabsweb_PWA_Maskable_Icon.png?v=20261115d",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/static/assets/icons/gabsweb_PWA_Maskable_Icon.png?v=20261115d",
+          "sizes": "1254x1254",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "My Finances",
+      "short_name": "Finances",
+      "url": "/transaction/",
+      "icons": [
+        {
+          "src": "/static/assets/icons/gabsweb_PWA_Maskable_Icon.png?v=20261115d",
+          "sizes": "1254x1254",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Budget",
+      "short_name": "Budget",
+      "url": "/budgets/",
+      "icons": [
+        {
+          "src": "/static/assets/icons/gabsweb_PWA_Maskable_Icon.png?v=20261115d",
+          "sizes": "1254x1254",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

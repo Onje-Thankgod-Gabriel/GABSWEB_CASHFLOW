@@ -1,0 +1,16 @@
+Gabsweb CashFlow
+
+New sign-in to your account
+
+Hello {{ first_name }},
+
+Your Gabsweb CashFlow account was just signed in to successfully.
+
+If this was you, no action is needed. If you do not recognise this activity, sign in and update your password as soon as possible.
+
+Sign in here:
+{{ login_url }}
+
+Gabsweb CashFlow
+Manage your finances and stay on top of your plans.
+Official account notification

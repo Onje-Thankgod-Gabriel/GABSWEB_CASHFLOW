@@ -1,0 +1,18 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Django local artifacts
+db.sqlite3
+staticfiles/
+media/
+private_media/
+
+# Private database backups and recovery files
+backups/

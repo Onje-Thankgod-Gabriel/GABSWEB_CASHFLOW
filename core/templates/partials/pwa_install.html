@@ -1,0 +1,64 @@
+{% load static %}
+<dialog
+  id="pwa-install-dialog"
+  class="pwa-dialog"
+  aria-labelledby="pwa-install-title"
+  aria-describedby="pwa-install-copy"
+>
+  <div class="pwa-card">
+    <button type="button" class="pwa-close" data-pwa-close aria-label="Close installation dialog">
+      <i data-lucide="x" aria-hidden="true"></i>
+    </button>
+
+    <div class="pwa-head">
+      <img
+        class="pwa-app-icon"
+        src="{% static 'assets/icons/gabsweb_PWA_Maskable_Icon.png' %}?v=20261115d"
+        width="48"
+        height="48"
+        alt=""
+        aria-hidden="true"
+      />
+      <div>
+        <p class="pwa-eyebrow">Gabsweb CashFlow</p>
+        <h2 id="pwa-install-title">Install the app</h2>
+      </div>
+    </div>
+
+    <p id="pwa-install-copy" class="pwa-copy">
+      Add Gabsweb CashFlow to your device for a faster, full-screen way to open
+      your financial workspace.
+    </p>
+
+    <ul class="pwa-benefits">
+      <li>
+        <span class="pwa-benefit-icon"><i data-lucide="zap" aria-hidden="true"></i></span>
+        <span>Opens straight into the app, without browser tabs.</span>
+      </li>
+      <li>
+        <span class="pwa-benefit-icon"><i data-lucide="shield-check" aria-hidden="true"></i></span>
+        <span>Your balances and records stay protected on the server.</span>
+      </li>
+      <li>
+        <span class="pwa-benefit-icon"><i data-lucide="wifi-off" aria-hidden="true"></i></span>
+        <span>Offline shows a clear notice, never outdated balances.</span>
+      </li>
+    </ul>
+
+    <div id="pwa-install-steps" class="pwa-steps" hidden>
+      <p id="pwa-steps-title" class="pwa-steps-title">Add to your home screen</p>
+      <ol id="pwa-steps-list" class="pwa-steps-list"></ol>
+    </div>
+
+    <div class="pwa-actions">
+      <button type="button" class="pwa-btn pwa-btn-primary" id="pwa-install-confirm" hidden>
+        Install app
+      </button>
+      <button type="button" class="pwa-btn pwa-btn-quiet" data-pwa-close>Not now</button>
+    </div>
+
+    <button type="button" class="pwa-skip" id="pwa-dont-ask">
+      Don't show this again
+    </button>
+  </div>
+</dialog>
