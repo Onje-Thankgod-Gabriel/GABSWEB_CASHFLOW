@@ -206,36 +206,28 @@
   background: transparent;
 }
 
-.app-notification-item.is-unread .app-notification-item-dot {
+.app-notification-item-dot.is-info {
   background: #6366f1;
 }
 
-.app-notification-item-icon {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background: rgba(99, 102, 241, 0.09);
-  color: #6366f1;
+.app-notification-item-dot.is-success {
+  background: #10b981;
 }
 
-.app-notification-item-icon.is-warning {
-  background: rgba(245, 158, 11, 0.14);
-  color: #d97706;
+.app-notification-item-dot.is-warning {
+  background: #f59e0b;
 }
 
-.app-notification-item-icon.is-neutral {
-  background: rgba(100, 116, 139, 0.12);
-  color: #64748b;
+.app-notification-item-dot.is-danger {
+  background: #ef4444;
 }
 
-.app-notification-item-icon i,
-.app-notification-item-icon svg {
-  width: 14px;
-  height: 14px;
+.app-notification-item-dot.is-neutral {
+  background: #94a3b8;
+}
+
+.app-notification-item:not(.is-unread):not(.is-alert) .app-notification-item-dot {
+  opacity: 0.35;
 }
 
 .app-notification-item-body {

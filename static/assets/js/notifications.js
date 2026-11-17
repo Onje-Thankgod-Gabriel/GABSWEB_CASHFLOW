@@ -195,6 +195,20 @@
     return alerts;
   }
 
+  function notificationTone(item) {
+    if (item.local) return item.tone || "neutral";
+    switch (item.eventType) {
+      case "membership_approved":
+      case "welcome":
+        return "success";
+      case "login":
+      case "account":
+        return "info";
+      default:
+        return "neutral";
+    }
+  }
+
   function itemMarkup(item) {
     var local = Boolean(item.local);
     var unread = !local && !item.isRead;
@@ -202,13 +216,10 @@
       typeof item.destinationUrl === "string" && item.destinationUrl
         ? item.destinationUrl
         : "";
-    var marker = local
-      ? '<span class="app-notification-item-icon is-' +
-        escapeHtml(item.tone || "neutral") +
-        '"><i data-lucide="' +
-        escapeHtml(item.icon || "bell") +
-        '" class="w-4 h-4"></i></span>'
-      : '<span class="app-notification-item-dot" aria-hidden="true"></span>';
+    var marker =
+      '<span class="app-notification-item-dot is-' +
+      escapeHtml(notificationTone(item)) +
+      '" aria-hidden="true"></span>';
     var timeLabel = item.createdLabel || item.actionLabel || "";
     return (
       '<button type="button" class="app-notification-item' +
