@@ -10,6 +10,7 @@
   var DISMISS_WINDOW_DAYS = 30;
   var MAX_AUTO_DISMISSALS = 3;
   var INSTALL_CHECK_INTERVAL = 60000;
+  var UPDATE_CHECK_INTERVAL = 60 * 60 * 1000;
   var SERVICE_WORKER_URL = "/sw.js";
 
   var deferredPrompt = null;
@@ -22,6 +23,7 @@
   var toastTimer = null;
   var dialog = null;
   var lastInstallCheck = 0;
+  var lastUpdateCheck = 0;
 
   function byId(id) {
     return document.getElementById(id);
@@ -478,6 +480,19 @@
       });
   }
 
+  function checkForUpdate(force) {
+    if (!registration || typeof registration.update !== "function") return;
+    var now = Date.now();
+    if (!force && now - lastUpdateCheck < UPDATE_CHECK_INTERVAL) return;
+    lastUpdateCheck = now;
+    // The browser compares /sw.js byte-for-byte. A new deployment therefore
+    // installs a waiting worker without any user action; activation still
+    // waits for the explicit Refresh button.
+    registration.update().catch(function () {
+      /* A failed background check must never interrupt the page. */
+    });
+  }
+
   function setupUpdateUI() {
     var banner = byId("pwa-update-banner");
     var action = byId("pwa-update-action");
@@ -509,8 +524,15 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState !== "visible") return;
       checkWaitingWorker();
+      checkForUpdate(false);
       refreshInstallState("visibility");
     });
+
+    // Installed PWAs can stay open for days. Keep checking periodically so a
+    // deployment is noticed without the user closing and reopening the app.
+    window.setInterval(function () {
+      checkForUpdate(false);
+    }, UPDATE_CHECK_INTERVAL);
   }
 
   function registerServiceWorker() {
@@ -530,10 +552,15 @@
           .register(SERVICE_WORKER_URL, { scope: "/" })
           .then(function (reg) {
             registration = reg;
+            lastUpdateCheck = Date.now();
 
             if (reg.waiting && navigator.serviceWorker.controller) {
               showUpdate(reg);
             }
+
+            // Check once shortly after registration as well as on the hourly
+            // schedule, so a long-lived installed app still sees deployments.
+            checkForUpdate(true);
 
             reg.addEventListener("updatefound", function () {
               var installing = reg.installing;

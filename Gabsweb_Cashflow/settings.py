@@ -108,6 +108,9 @@ LOGOUT_REDIRECT_URL = 'core:login'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves collected static files in production without a separate
+    # web-server static location. It must follow SecurityMiddleware.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -142,16 +145,51 @@ WSGI_APPLICATION = 'Gabsweb_Cashflow.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,
-            'transaction_mode': 'IMMEDIATE',
-        },
+# Database selection is environment driven so local development keeps using the
+# existing SQLite file while production can point at MySQL 8.4.13 without any
+# code change. SQLite-only options are never applied to MySQL.
+_database_engine = os.environ.get("DJANGO_DB_ENGINE", "").strip().lower()
+if _database_engine in {"mysql", "mariadb"}:
+    _mysql_port = os.environ.get("DJANGO_DB_PORT", "3306").strip() or "3306"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ.get("DJANGO_DB_NAME", "").strip(),
+            "USER": os.environ.get("DJANGO_DB_USER", "").strip(),
+            "PASSWORD": os.environ.get("DJANGO_DB_PASSWORD", ""),
+            "HOST": os.environ.get("DJANGO_DB_HOST", "localhost").strip()
+            or "localhost",
+            "PORT": _mysql_port,
+            "CONN_MAX_AGE": int(
+                os.environ.get("DJANGO_DB_CONN_MAX_AGE", "60") or 60
+            ),
+            "OPTIONS": {
+                "charset": "utf8mb4",
+                "connect_timeout": int(
+                    os.environ.get("DJANGO_DB_CONNECT_TIMEOUT", "10") or 10
+                ),
+                "init_command": (
+                    "SET sql_mode='STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'"
+                ),
+            },
+        }
     }
-}
+    if not DATABASES["default"]["NAME"]:
+        raise ImproperlyConfigured(
+            "DJANGO_DB_NAME is required when DJANGO_DB_ENGINE is mysql."
+        )
+else:
+    _sqlite_name = os.environ.get("DJANGO_DB_NAME", "").strip()
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': Path(_sqlite_name) if _sqlite_name else BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'timeout': 20,
+                'transaction_mode': 'IMMEDIATE',
+            },
+        }
+    }
 
 
 # Password validation
@@ -200,6 +238,27 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise serves the collected static files from the WSGI process. In
+# development the existing runserver static handling stays authoritative.
+WHITENOISE_USE_FINDERS = DEBUG
+WHITENOISE_AUTOREFRESH = DEBUG
+WHITENOISE_MAX_AGE = int(os.environ.get("DJANGO_STATIC_MAX_AGE", "60") or 60)
+
+if not DEBUG:
+    # Hashed, compressed filenames make every deployment's assets unique, so a
+    # new release cannot be served with stale JavaScript or CSS. Non-hashed
+    # files (for example the offline page) keep the short WhiteNoise max-age.
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            ),
+        },
+    }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

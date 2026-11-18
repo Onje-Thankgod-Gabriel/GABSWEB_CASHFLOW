@@ -578,6 +578,27 @@ async function run() {
   );
   assert.ok(pwaSource.indexOf("getRegistration") !== -1);
   assert.ok(pwaSource.indexOf("visibilitychange") !== -1);
+
+  // Deployments are detected without reinstalling: the page checks the
+  // registration while visible, hourly, and immediately after registering, and
+  // activating the new worker still waits for the explicit Refresh action.
+  assert.ok(pwaSource.indexOf("function checkForUpdate") !== -1);
+  assert.ok(pwaSource.indexOf("registration.update()") !== -1);
+  assert.ok(pwaSource.indexOf("UPDATE_CHECK_INTERVAL") !== -1);
+  assert.ok(pwaSource.indexOf("checkForUpdate(false)") !== -1);
+  assert.ok(pwaSource.indexOf("checkForUpdate(true)") !== -1);
+  assert.ok(
+    pwaSource.indexOf("window.setInterval") !== -1,
+    "The worker must be rechecked periodically while the app stays open"
+  );
+  assert.ok(
+    pwaSource.indexOf("postMessage({ type: \"SKIP_WAITING\" })") !== -1,
+    "The update must only activate after the user clicks Refresh"
+  );
+  assert.ok(
+    /if \(!reloadRequested\) return;/.test(pwaSource),
+    "Automatic activation must never reload the page without a user request"
+  );
   assert.ok(pwaSource.indexOf("DISMISS_WINDOW_DAYS = 30") !== -1);
   assert.ok(pwaSource.indexOf("MAX_AUTO_DISMISSALS = 3") !== -1);
   assert.ok(pwaSource.indexOf("display-mode: standalone") !== -1);

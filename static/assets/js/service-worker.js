@@ -21,7 +21,7 @@
  * served from a previous cache.
  */
 
-const CACHE_VERSION = "2026-11-15.5";
+const CACHE_VERSION = "2026-11-18.1";
 const PRECACHE = `gabsweb-precache-${CACHE_VERSION}`;
 const STATIC_CACHE = `gabsweb-static-${CACHE_VERSION}`;
 const CACHE_PREFIX = "gabsweb-";

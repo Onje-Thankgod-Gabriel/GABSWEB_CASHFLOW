@@ -424,9 +424,14 @@ class Transaction(models.Model):
                 | ~models.Q(transaction_type="transfer"),
                 name="transfer_requires_destination",
             ),
+            # NULL client references are optional idempotency keys. SQLite,
+            # MySQL and PostgreSQL all treat NULLs as distinct in a unique
+            # index, so an unconditional constraint enforces uniqueness only
+            # for real references while allowing any number of NULLs. This is
+            # portable to MySQL 8.4, where partial/conditional unique indexes
+            # are not supported and Django would silently skip the constraint.
             models.UniqueConstraint(
                 fields=("owner", "client_reference"),
-                condition=models.Q(client_reference__isnull=False),
                 name="unique_owner_transaction_client_reference",
             ),
         ]
@@ -752,7 +757,6 @@ class Goal(models.Model):
             ),
             models.UniqueConstraint(
                 fields=("owner", "client_reference"),
-                condition=models.Q(client_reference__isnull=False),
                 name="unique_owner_goal_client_reference",
             ),
         ]
@@ -839,7 +843,6 @@ class GoalAssignment(models.Model):
             ),
             models.UniqueConstraint(
                 fields=("owner", "client_reference"),
-                condition=models.Q(client_reference__isnull=False),
                 name="unique_owner_goal_assignment_reference",
             ),
         ]
@@ -916,7 +919,6 @@ class SavingsWithdrawal(models.Model):
             ),
             models.UniqueConstraint(
                 fields=("owner", "client_reference"),
-                condition=models.Q(client_reference__isnull=False),
                 name="unique_owner_savings_withdrawal_reference",
             ),
         ]
@@ -1004,7 +1006,6 @@ class Notification(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=("owner", "dedupe_key"),
-                condition=models.Q(dedupe_key__isnull=False),
                 name="unique_owner_notification_dedupe_key",
             )
         ]
@@ -1448,7 +1449,6 @@ class Project(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=("owner", "client_reference"),
-                condition=models.Q(client_reference__isnull=False),
                 name="unique_owner_project_client_reference",
             ),
             models.CheckConstraint(
