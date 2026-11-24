@@ -15,15 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 
 from core import views as core_views
 from core import pwa as core_pwa
+from core.sitemaps import sitemaps
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('robots.txt', core_views.robots_txt, name='robots_txt'),
     path('manifest.webmanifest', core_pwa.pwa_manifest, name='pwa_manifest'),
     path('sw.js', core_pwa.pwa_service_worker, name='pwa_service_worker'),
     path('accounts/google/login/', core_views.google_login),

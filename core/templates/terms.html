@@ -1,7 +1,11 @@
 {% extends "layouts/legal_base.html" %}
 {% load static %}
 
-{% block title %}Gabsweb CashFlow - Terms and Conditions{% endblock %}
+{% block title %}Terms and Conditions | Gabsweb CashFlow{% endblock %}
+
+{% block seo_meta %}
+  {% include "partials/seo_meta.html" with seo_title="Terms and Conditions | Gabsweb CashFlow" seo_description="Understand the terms that govern access to and use of the Gabsweb CashFlow personal finance application." seo_path="/terms/" %}
+{% endblock %}
 
 {% block legal_content %}
   <header class="terms-hero">
@@ -177,6 +181,7 @@
 
       <footer class="terms-footer">
         <a class="terms-back-link" href="{% url 'core:index' %}"><i data-lucide="arrow-left" aria-hidden="true"></i> Back to Dashboard</a>
+        <p>Part of the <a class="gabsweb-portfolio-link" href="https://gabsweb.com.ng/" target="_blank" rel="noopener noreferrer">Gabsweb</a> experience.</p>
       </footer>
     </article>
   </div>

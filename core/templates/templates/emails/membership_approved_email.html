@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Gabsweb CashFlow membership has been approved</title>
+    <style>
+      @media only screen and (max-width: 480px) {
+        .email-content { padding-left: 24px !important; padding-right: 24px !important; }
+        .email-button a { padding-left: 18px !important; padding-right: 18px !important; }
+      }
+    </style>
   </head>
   <body style="margin:0;padding:0;background-color:#f1f5f9;color:#0f172a;font-family:Arial,Helvetica,sans-serif;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f1f5f9;">
@@ -16,15 +22,15 @@
               </td>
             </tr>
             <tr>
-              <td style="padding:0 40px 36px;">
+              <td class="email-content" style="padding:0 40px 36px;">
                 <h1 style="margin:0 0 20px;color:#0f172a;font-size:28px;line-height:36px;font-weight:700;">Application Approved</h1>
                 <p style="margin:0 0 16px;color:#475569;font-size:16px;line-height:26px;">Hello {{ first_name }},</p>
                 <p style="margin:0 0 16px;color:#475569;font-size:16px;line-height:26px;">Your <strong>{{ membership_label }}</strong> membership application has been approved.</p>
                 <p style="margin:0 0 28px;color:#475569;font-size:16px;line-height:26px;">You can now sign in to Gabsweb CashFlow and access the available workplace features.</p>
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="border-radius:12px;background-color:#6366f1;">
-                      <a href="{{ login_url }}" style="display:inline-block;padding:14px 24px;border:1px solid #6366f1;border-radius:12px;color:#ffffff;font-size:16px;line-height:20px;font-weight:700;text-decoration:none;">Sign in to Gabsweb CashFlow</a>
+                    <td class="email-button" style="border-radius:10px;background-color:#6366f1;mso-padding-alt:12px 20px;">
+                      <a href="{{ login_url }}" style="display:inline-block;padding:12px 20px;border:1px solid #6366f1;border-radius:10px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:18px;font-weight:700;text-decoration:none;white-space:nowrap;">Open Gabsweb CashFlow</a>
                     </td>
                   </tr>
                 </table>

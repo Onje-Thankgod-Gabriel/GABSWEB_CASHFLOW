@@ -30,4 +30,11 @@ class AuthenticatedCacheControlMiddleware:
                 response.headers['Pragma'] = 'no-cache'
             if 'Expires' not in response.headers:
                 response.headers['Expires'] = '0'
+        if (
+            request.method == "GET"
+            and response.status_code == 200
+            and getattr(request, "_gabsweb_pwa_prompt_rendered", False)
+            and response.get('Content-Type', '').startswith('text/html')
+        ):
+            request.session.pop("gabsweb_pwa_prompt", None)
         return response

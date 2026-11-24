@@ -21,6 +21,7 @@
       <a class="error-primary" href="{% url 'core:index' %}">Back to Dashboard</a>
     </div>
     <p id="error-status" class="error-status" role="status" aria-live="polite"></p>
+    {% include "partials/portfolio_footer.html" with footer_class="auth-portfolio-footer" %}
   </main>
 {% endblock %}
 

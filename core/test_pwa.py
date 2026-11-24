@@ -12,7 +12,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.contrib.staticfiles import finders
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from PIL import Image, ImageChops
 
@@ -84,7 +84,10 @@ class ManifestEndpointTests(TestCase):
             purpose = icon.get("purpose", "any")
             indexed[(sizes, purpose)] = icon
 
-        self.assertIn(("1254x1254", "any"), indexed)
+        # Chromium only offers beforeinstallprompt when the manifest exposes
+        # installable "any" artwork at the standard 192px and 512px sizes.
+        self.assertIn(("192x192", "any"), indexed)
+        self.assertIn(("512x512", "any"), indexed)
         self.assertIn(("1254x1254", "maskable"), indexed)
 
     def test_every_manifest_icon_resolves_to_a_real_image(self):
@@ -183,14 +186,27 @@ class IconAssetTests(TestCase):
             self.assertGreaterEqual(ratio, 0.45)
             self.assertLessEqual(ratio, 0.70)
 
-    def test_manifest_references_only_the_approved_icon(self):
+    def test_manifest_references_only_the_approved_icon_artwork(self):
         manifest = json.loads(
             manifest_bytes(self.client.get(reverse("pwa_manifest")))
         )
         sources = {
             icon["src"].split("?", 1)[0] for icon in manifest["icons"]
         }
-        self.assertEqual(sources, {f"/static/{self.ICON}"})
+        self.assertEqual(
+            sources,
+            {
+                f"/static/{self.ICON}",
+                "/static/assets/icons/gabsweb_PWA_Icon_192x192.png",
+                "/static/assets/icons/gabsweb_PWA_Icon_512x512.png",
+            },
+        )
+        maskable = {
+            icon["src"].split("?", 1)[0]
+            for icon in manifest["icons"]
+            if icon.get("purpose") == "maskable"
+        }
+        self.assertEqual(maskable, {f"/static/{self.ICON}"})
 
 
 class ServiceWorkerEndpointTests(TestCase):
@@ -275,6 +291,9 @@ class ServiceWorkerEndpointTests(TestCase):
         )
 
 
+@override_settings(
+    PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
+)
 class PwaTemplateIntegrationTests(TestCase):
     def test_base_layout_wires_manifest_icons_and_pwa_assets(self):
         base = read_template("layouts/base.html")
@@ -356,15 +375,35 @@ class PwaTemplateIntegrationTests(TestCase):
                     f"{route} must identify itself as an authenticated app page",
                 )
 
-    def test_app_shell_includes_installation_dialog_only_when_authenticated(self):
+    def test_app_shell_includes_one_installation_dialog_only_when_authenticated(self):
         app_base = read_template("layouts/app_base.html")
         install = read_template("partials/pwa_install.html")
 
-        self.assertIn('include "partials/pwa_install.html"', app_base)
-        self.assertIn('id="pwa-install-dialog"', install)
-        self.assertIn('id="pwa-dont-ask"', install)
+        self.assertEqual(
+            app_base.count('include "partials/pwa_install.html"'),
+            1,
+            "The app shell must include exactly one installation dialog",
+        )
+        self.assertEqual(
+            install.count('id="pwa-install-dialog"'),
+            1,
+            "The installation partial must define exactly one dialog",
+        )
         self.assertIn('id="pwa-install-confirm"', install)
-        self.assertIn('data-pwa-close', install)
+        self.assertIn('id="pwa-install-dismiss"', install)
+        self.assertIn('id="pwa-install-later"', install)
+        self.assertEqual(install.count("data-pwa-close"), 2)
+        self.assertNotIn('id="pwa-dont-ask"', install)
+
+        # The Install app button must be rendered without a hidden attribute.
+        # A hidden button previously let the close control occupy its place.
+        confirm = re.search(
+            r'<button[^>]*id="pwa-install-confirm"[^>]*>', install
+        )
+        self.assertIsNotNone(confirm)
+        self.assertNotRegex(confirm.group(0), r"\bhidden\b")
+        self.assertIn('type="button"', confirm.group(0))
+        self.assertIn("data-pwa-install", confirm.group(0))
 
     def test_update_notice_is_available_on_every_layout(self):
         update = read_template("partials/pwa_update.html")
@@ -397,6 +436,21 @@ class PwaTemplateIntegrationTests(TestCase):
         self.assertContains(response, 'id="pwa-update-banner"')
         self.assertContains(response, "/manifest.webmanifest")
 
+    def test_authenticated_shell_renders_exactly_one_install_dialog(self):
+        from .models import User
+
+        user = User.objects.create_user(
+            email="pwa-single-dialog@example.com", password="StrongPass123!"
+        )
+        self.client.force_login(user)
+
+        html = self.client.get(reverse("core:index")).content.decode("utf-8")
+
+        self.assertEqual(html.count('id="pwa-install-dialog"'), 1)
+        self.assertEqual(html.count('id="pwa-install-confirm"'), 1)
+        self.assertEqual(html.count('id="pwa-install-dismiss"'), 1)
+        self.assertEqual(html.count('id="pwa-install-later"'), 1)
+
     def test_manifest_scope_is_not_broken_by_authentication_redirects(self):
         response = self.client.get(reverse("core:index"))
 
@@ -416,15 +470,128 @@ class PwaTemplateIntegrationTests(TestCase):
         self.assertIn("appinstalled", source)
         self.assertIn("promptEvent.prompt()", source)
 
-    def test_install_onboarding_respects_user_choices(self):
+    def test_beforeinstallprompt_is_captured_before_the_pwa_module(self):
+        base = read_template("layouts/base.html")
+        app_base = read_template("layouts/app_base.html")
         source = read_static("assets/js/pwa.js")
 
-        self.assertIn("DISMISS_WINDOW_DAYS = 30", source)
-        self.assertIn("MAX_AUTO_DISMISSALS = 3", source)
-        self.assertIn("state.never", source)
-        self.assertIn("sessionStorage", source)
+        self.assertIn("beforeinstallprompt", base)
+        self.assertIn("__gabswebDeferredInstallPrompt", base)
+        self.assertEqual(
+            base.count("beforeinstallprompt"),
+            1,
+            "Only the early capture script may listen for beforeinstallprompt",
+        )
+        self.assertNotIn(
+            "beforeinstallprompt",
+            app_base,
+            "The event must be captured once in base.html, not per layout",
+        )
+        self.assertIn("__gabswebHandleInstallPrompt", base)
+        self.assertIn("__gabswebHandleInstallPrompt", source)
+        self.assertNotIn(
+            'window.addEventListener("beforeinstallprompt"',
+            source,
+            "pwa.js must not register a second beforeinstallprompt listener",
+        )
+        self.assertLess(
+            base.index("__gabswebDeferredInstallPrompt"),
+            base.index("assets/js/pwa.js"),
+        )
+
+    def test_install_button_uses_the_retained_prompt_once(self):
+        source = read_static("assets/js/pwa.js")
+
+        self.assertIn("var promptEvent = getDeferredPrompt();", source)
+        self.assertIn("promptEvent.prompt()", source)
+        self.assertIn("promptEvent.userChoice", source)
+        self.assertIn("clearDeferredPrompt();", source)
+        self.assertNotIn("var deferredPrompt", source)
+
+    def test_install_dialog_fits_mobile_viewports(self):
+        css = read_static("assets/css/pwa.css")
+
+        self.assertIn("max-height: calc(100dvh - 2rem)", css)
+        self.assertIn("@media (max-width: 480px)", css)
+        self.assertIn("max-height: calc(100dvh - 10px)", css)
+        self.assertIn("min-height: 44px", css)
+
+    def test_install_onboarding_is_login_scoped(self):
+        source = read_static("assets/js/pwa.js")
+        base = read_template("layouts/app_base.html")
+
+        self.assertNotIn("DISMISS_WINDOW_DAYS", source)
+        self.assertNotIn("MAX_AUTO_DISMISSALS", source)
+        self.assertNotIn("state.never", source)
+        self.assertIn("isLoginPrompt", source)
+        self.assertIn("gabsweb_pwa_prompt", (BASE_DIR / "core" / "signals.py").read_text(encoding="utf-8"))
+        self.assertIn("data-pwa-login-prompt", base)
         self.assertIn("isStandalone", source)
         self.assertIn("display-mode: standalone", source)
+
+    def test_normal_login_prompts_once_and_refresh_does_not_repeat(self):
+        from .models import User
+
+        User.objects.create_user(
+            email="pwa-login@example.com", password="StrongPass123!"
+        )
+        response = self.client.post(
+            reverse("core:login"),
+            {"email": "pwa-login@example.com", "password": "StrongPass123!"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("core:index"))
+        self.assertTrue(self.client.session.get("gabsweb_pwa_prompt"))
+
+        first_render = self.client.get(reverse("core:index"))
+        self.assertContains(first_render, 'data-pwa-login-prompt="true"')
+        self.assertNotIn("gabsweb_pwa_prompt", self.client.session)
+
+        refresh = self.client.get(reverse("core:index"))
+        self.assertContains(refresh, 'data-pwa-login-prompt="false"')
+
+    def test_registration_prompts_once_after_sign_in(self):
+        response = self.client.post(
+            reverse("core:register"),
+            {
+                "full_name": "Pwa Person",
+                "email": "pwa-register@example.com",
+                "password1": "StrongPass123!",
+                "password2": "StrongPass123!",
+                "workplace_access": "no",
+                "terms": "on",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("core:index"))
+        self.assertTrue(self.client.session.get("gabsweb_pwa_prompt"))
+
+        first_render = self.client.get(reverse("core:index"))
+        self.assertContains(first_render, 'data-pwa-login-prompt="true"')
+        self.assertNotIn("gabsweb_pwa_prompt", self.client.session)
+
+    def test_each_new_login_session_prompts_again(self):
+        from .models import User
+
+        User.objects.create_user(
+            email="pwa-one@example.com", password="StrongPass123!"
+        )
+        User.objects.create_user(
+            email="pwa-two@example.com", password="StrongPass123!"
+        )
+        self.client.post(
+            reverse("core:login"),
+            {"email": "pwa-one@example.com", "password": "StrongPass123!"},
+        )
+        self.client.get(reverse("core:index"))
+        self.client.post(reverse("core:logout"))
+
+        self.client.post(
+            reverse("core:login"),
+            {"email": "pwa-two@example.com", "password": "StrongPass123!"},
+        )
+        next_login = self.client.get(reverse("core:index"))
+        self.assertContains(next_login, 'data-pwa-login-prompt="true"')
 
     def test_no_custom_splash_screen_or_duplicate_auth_flow_was_added(self):
         pwa_source = read_static("assets/js/pwa.js")

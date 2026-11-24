@@ -279,7 +279,8 @@ async function run() {
   var purposes = manifest.icons.map(function (icon) {
     return (icon.purpose || "any") + ":" + icon.sizes;
   });
-  assert.ok(purposes.indexOf("any:1254x1254") !== -1);
+  assert.ok(purposes.indexOf("any:192x192") !== -1);
+  assert.ok(purposes.indexOf("any:512x512") !== -1);
   assert.ok(purposes.indexOf("maskable:1254x1254") !== -1);
   manifest.icons.forEach(function (icon) {
     assert.ok(icon.src.indexOf("/static/") === 0);
@@ -390,6 +391,18 @@ async function run() {
     1,
     "base.html must load exactly one theme-colour script"
   );
+
+  // Capture the browser install event before the deferred PWA module runs so a
+  // fast beforeinstallprompt event can never be missed.
+  assert.ok(baseSource.indexOf("__gabswebDeferredInstallPrompt") !== -1);
+  assert.ok(pwaSource.indexOf("__gabswebDeferredInstallPrompt") !== -1);
+  assert.ok(
+    baseSource.indexOf("__gabswebDeferredInstallPrompt") <
+      baseSource.indexOf("assets/js/pwa.js"),
+    "The install event must be captured before pwa.js loads"
+  );
+  assert.ok(pwaSource.indexOf("promptEvent.userChoice") !== -1);
+  assert.ok(pwaSource.indexOf("clearDeferredPrompt();") !== -1);
 
   // The shared header toggle must replace the theme classes instead of
   // layering both and leaving the status colour out of sync.
@@ -599,8 +612,10 @@ async function run() {
     /if \(!reloadRequested\) return;/.test(pwaSource),
     "Automatic activation must never reload the page without a user request"
   );
-  assert.ok(pwaSource.indexOf("DISMISS_WINDOW_DAYS = 30") !== -1);
-  assert.ok(pwaSource.indexOf("MAX_AUTO_DISMISSALS = 3") !== -1);
+  assert.ok(pwaSource.indexOf("isLoginPrompt") !== -1);
+  assert.ok(pwaSource.indexOf("data-pwa-login-prompt") !== -1);
+  assert.strictEqual(pwaSource.indexOf("state.never"), -1);
+  assert.strictEqual(pwaSource.indexOf("sessionStorage"), -1);
   assert.ok(pwaSource.indexOf("display-mode: standalone") !== -1);
   assert.ok(pwaSource.indexOf("getInstalledRelatedApps") !== -1);
   assert.ok(pwaSource.indexOf("refreshInstallState") !== -1);

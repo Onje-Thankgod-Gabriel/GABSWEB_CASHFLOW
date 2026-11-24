@@ -1825,11 +1825,13 @@
 
   function updateEntryTimeFields() {
     var shift = byId("ws-entry-shift").value;
+    var heading = byId("ws-shift-time-heading");
     var startField = byId("ws-start-field");
     var endField = byId("ws-end-field");
     var start = byId("ws-entry-start");
     var end = byId("ws-entry-end");
     var isOff = shift === "off";
+    if (heading) heading.classList.toggle("is-hidden", isOff);
     if (startField) startField.classList.toggle("is-hidden", isOff);
     if (endField) endField.classList.toggle("is-hidden", isOff);
     if (start) {
@@ -1891,7 +1893,9 @@
     var shift = byId("ws-entry-shift").value;
     var start = byId("ws-entry-start");
     var end = byId("ws-entry-end");
-    if (shift && shift !== "off") {
+    if (shift && shift !== "off" && workplaceAccess) {
+      // Approved workplace users keep the predefined rotation times. General
+      // and pending users enter the actual shift time themselves.
       var defaults = entryDefaults(shift);
       if (start) start.value = defaults.start;
       if (end) end.value = defaults.end;

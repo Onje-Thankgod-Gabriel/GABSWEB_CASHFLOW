@@ -6,22 +6,18 @@
   window.__gabswebPwaInitialized = true;
 
   var STORAGE_KEY = "gabsweb-pwa-install-v1";
-  var SESSION_KEY = "gabsweb-pwa-auto-shown";
-  var DISMISS_WINDOW_DAYS = 30;
-  var MAX_AUTO_DISMISSALS = 3;
   var INSTALL_CHECK_INTERVAL = 60000;
   var UPDATE_CHECK_INTERVAL = 60 * 60 * 1000;
   var SERVICE_WORKER_URL = "/sw.js";
 
-  var deferredPrompt = null;
   var registration = null;
   var waitingWorker = null;
   var reloadRequested = false;
   var autoPromptDone = false;
-  var userInteracted = false;
   var initialized = false;
   var toastTimer = null;
   var dialog = null;
+  var promptInFlight = false;
   var lastInstallCheck = 0;
   var lastUpdateCheck = 0;
 
@@ -72,6 +68,13 @@
     return isStandalone() || readState().completed === true;
   }
 
+  function isLoginPrompt() {
+    var body = document.body;
+    return Boolean(
+      body && body.getAttribute("data-pwa-login-prompt") === "true"
+    );
+  }
+
   function userAgent() {
     return window.navigator.userAgent || "";
   }
@@ -96,6 +99,31 @@
 
   function isAppShell() {
     return Boolean(byId("pwa-install-dialog") && byId("sidebar"));
+  }
+
+  /*
+   * The inline capture script in base.html owns the single authoritative
+   * beforeinstallprompt reference at window.__gabswebDeferredInstallPrompt.
+   * This module never keeps a second copy, so the event cannot be lost,
+   * overwritten or cleared in two different places.
+   */
+  function getDeferredPrompt() {
+    var event = window && window.__gabswebDeferredInstallPrompt;
+    return event && typeof event.prompt === "function" ? event : null;
+  }
+
+  function setDeferredPrompt(event) {
+    if (!window) return;
+    window.__gabswebDeferredInstallPrompt =
+      event && typeof event.prompt === "function" ? event : null;
+  }
+
+  function clearDeferredPrompt() {
+    setDeferredPrompt(null);
+  }
+
+  function hasUsablePrompt() {
+    return Boolean(getDeferredPrompt());
   }
 
   function markInstalled() {
@@ -132,6 +160,7 @@
       return Promise.resolve(isInstalled());
     }
     lastInstallCheck = now;
+    var completedAtStart = readState().completed === true;
 
     return hasInstalledRelatedApp().then(function (installed) {
       if (installed === true) {
@@ -140,12 +169,17 @@
         return true;
       }
 
-      // The browser cannot keep reporting an app that was uninstalled. If the
-      // previous "completed" flag is stale, clear it so the install journey
-      // returns on the next visit. When the platform has no related-app API,
-      // a normal browser visit is treated as an opportunity to install again.
-      var state = readState();
-      if (state.completed === true) {
+      // Only an explicit "not installed" answer may clear a previous
+      // completion. Browsers without the related-app API return null; keep the
+      // completed flag there so a genuinely installed app does not prompt
+      // again merely because it was opened in a normal browser tab. The
+      // beforeinstallprompt event remains the authoritative uninstall signal
+      // on those browsers.
+      if (
+        installed === false &&
+        completedAtStart &&
+        readState().completed === true
+      ) {
         writeState({
           completed: false,
           dismissedAt: 0,
@@ -153,47 +187,25 @@
         });
       }
       updateInstallMenu();
-      if (!isInstalled()) maybeAutoPrompt(1200);
+      if (installed === null) return isInstalled();
       return false;
     });
   }
 
   function recordDismissal() {
-    var state = readState();
-    writeState({
-      dismissedAt: Date.now(),
-      dismissCount: (Number(state.dismissCount) || 0) + 1
-    });
+    // Dismissal only applies to the current authenticated session. The next
+    // successful login sets a fresh server-side prompt flag.
+    autoPromptDone = true;
   }
 
   function canAutoPrompt() {
-    var state = readState();
     if (!isAppShell() || isInstalled()) return false;
-    if (state.never || state.completed) return false;
-    if ((Number(state.dismissCount) || 0) >= MAX_AUTO_DISMISSALS) return false;
-    if (
-      state.dismissedAt &&
-      Date.now() - Number(state.dismissedAt) <
-        DISMISS_WINDOW_DAYS * 24 * 60 * 60 * 1000
-    ) {
-      return false;
-    }
     if (autoPromptDone) return false;
-    try {
-      if (window.sessionStorage.getItem(SESSION_KEY) === "1") return false;
-    } catch (error) {
-      /* Ignore unavailable session storage. */
-    }
-    return true;
+    return isLoginPrompt();
   }
 
   function markAutoShown() {
     autoPromptDone = true;
-    try {
-      window.sessionStorage.setItem(SESSION_KEY, "1");
-    } catch (error) {
-      /* Ignore unavailable session storage. */
-    }
   }
 
   function showToast(message) {
@@ -227,76 +239,142 @@
     wrapper.hidden = false;
   }
 
-  function resetDialog(platform) {
-    var copy = byId("pwa-install-copy");
-    var confirm = byId("pwa-install-confirm");
-    var steps = [];
-    var stepsTitle = "";
-
-    if (confirm) confirm.hidden = !deferredPrompt;
-
-    if (deferredPrompt) {
-      copy.textContent =
-        "Add Gabsweb CashFlow to your device for a faster, full-screen way to open your financial workspace.";
-    } else if (platform === "ios") {
-      copy.textContent =
-        "Safari and other browsers on iPhone and iPad add apps through the Share menu. These steps take a moment and keep your data protected.";
-      stepsTitle = "Add to Home Screen";
-      steps = [
-        "Open the <strong>Share</strong> menu in your browser.",
-        "Choose <strong>Add to Home Screen</strong>.",
-        "Tap <strong>Add</strong> to confirm."
-      ];
-    } else if (platform === "safari") {
-      copy.textContent =
-        "Safari on macOS can keep Gabsweb CashFlow in the Dock like an app. Use the File menu to add it.";
-      stepsTitle = "Add to the Dock";
-      steps = [
-        "Open the <strong>File</strong> menu in Safari.",
-        "Choose <strong>Add to Dock</strong>.",
-        "Confirm to add Gabsweb CashFlow."
-      ];
-    } else if (platform === "samsung") {
-      copy.textContent =
-        "Samsung Internet can add Gabsweb CashFlow to your home screen from the browser menu.";
-      stepsTitle = "Add to Home screen";
-      steps = [
-        "Open the browser menu.",
-        "Choose <strong>Add page to</strong> then <strong>Home screen</strong>.",
-        "Confirm the installation."
-      ];
-    } else if (platform === "firefox") {
-      copy.textContent =
-        "This browser does not offer web app installation here. Use Chrome, Edge or Safari to install Gabsweb CashFlow. You can keep using the app in this tab.";
-      steps = [];
-    } else if (platform === "chromium") {
-      copy.textContent =
-        "Your browser has not offered an automatic install prompt yet. You can install Gabsweb CashFlow from the browser menu.";
-      stepsTitle = "Install from your browser";
-      steps = [
-        "Open the browser menu.",
-        "Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.",
-        "Confirm the installation."
-      ];
+  function setInstallStatus(message) {
+    var status = byId("pwa-install-status");
+    if (!status) return;
+    if (message) {
+      status.textContent = message;
+      status.hidden = false;
     } else {
-      copy.textContent =
-        "Adding Gabsweb CashFlow to your device makes it quicker to open. If your browser supports installation, it appears in the browser menu.";
-      stepsTitle = "Install from your browser";
-      steps = [
+      status.textContent = "";
+      status.hidden = true;
+    }
+  }
+
+  function platformGuidance(platform) {
+    if (platform === "ios") {
+      return {
+        copy:
+          "Safari and other browsers on iPhone and iPad add apps through the Share menu. Tap Install app to continue.",
+        stepsTitle: "Add to Home Screen",
+        steps: [
+          "Open the <strong>Share</strong> menu in your browser.",
+          "Choose <strong>Add to Home Screen</strong>.",
+          "Tap <strong>Add</strong> to confirm."
+        ]
+      };
+    }
+    if (platform === "safari") {
+      return {
+        copy:
+          "Safari on macOS can keep Gabsweb CashFlow in the Dock like an app. Tap Install app to continue.",
+        stepsTitle: "Add to the Dock",
+        steps: [
+          "Open the <strong>File</strong> menu in Safari.",
+          "Choose <strong>Add to Dock</strong>.",
+          "Confirm to add Gabsweb CashFlow."
+        ]
+      };
+    }
+    if (platform === "samsung") {
+      return {
+        copy:
+          "Samsung Internet can add Gabsweb CashFlow to your home screen from the browser menu. Tap Install app to continue.",
+        stepsTitle: "Add to Home screen",
+        steps: [
+          "Open the browser menu.",
+          "Choose <strong>Add page to</strong> then <strong>Home screen</strong>.",
+          "Confirm the installation."
+        ]
+      };
+    }
+    if (platform === "firefox") {
+      return {
+        copy:
+          "Firefox does not offer web app installation here. Use Chrome, Edge or Safari to install Gabsweb CashFlow. You can keep using the app in this tab.",
+        stepsTitle: "",
+        steps: []
+      };
+    }
+    if (platform === "chromium") {
+      return {
+        copy:
+          "You can install Gabsweb CashFlow from your browser menu. Tap Install app to continue.",
+        stepsTitle: "Install from your browser",
+        steps: [
+          "Open the browser menu.",
+          "Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.",
+          "Confirm the installation."
+        ]
+      };
+    }
+    return {
+      copy:
+        "Adding Gabsweb CashFlow to your device makes it quicker to open. Tap Install app to continue.",
+      stepsTitle: "Install from your browser",
+      steps: [
         "Open your browser menu.",
         "Look for <strong>Install app</strong> or <strong>Add to Home screen</strong>.",
         "Confirm the installation."
-      ];
+      ]
+    };
+  }
+
+  function resetDialog(platform) {
+    var copy = byId("pwa-install-copy");
+    var confirm = byId("pwa-install-confirm");
+
+    if (confirm) {
+      // The single installation modal always presents a working Install app
+      // button. When direct installation is unavailable, the button reveals
+      // the browser-specific guidance inside this same modal.
+      confirm.hidden = false;
+      confirm.disabled = promptInFlight;
+      confirm.textContent = "Install app";
+    }
+    setInstallStatus("");
+
+    if (hasUsablePrompt()) {
+      if (copy) {
+        copy.textContent =
+          "Add Gabsweb CashFlow to your device for a faster, full-screen way to open your financial workspace.";
+      }
+      setSteps("", []);
+    } else {
+      var guidance = platformGuidance(platform);
+      if (copy) copy.textContent = guidance.copy;
+      // Instructions stay inside this modal and are revealed by the Install
+      // app button, so the button is useful in every browser.
+      setSteps("", []);
     }
 
-    setSteps(stepsTitle, steps);
+    renderIcons();
+  }
+
+  function showInstallGuidance(message) {
+    var platform = detectPlatform();
+    var guidance = platformGuidance(platform);
+    var copy = byId("pwa-install-copy");
+    var confirm = byId("pwa-install-confirm");
+
+    if (copy) copy.textContent = guidance.copy;
+    if (confirm) {
+      confirm.hidden = false;
+      confirm.disabled = promptInFlight;
+    }
+    setSteps(guidance.stepsTitle, guidance.steps);
+    setInstallStatus(message || "");
+
+    var steps = byId("pwa-install-steps");
+    if (steps && !steps.hidden && typeof steps.scrollIntoView === "function") {
+      steps.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
     renderIcons();
   }
 
   function openInstallDialog(source) {
     if (!dialog) return;
     if (isInstalled()) {
-      writeState({ completed: true });
       updateInstallMenu();
       showToast("Gabsweb CashFlow is already installed on this device.");
       return;
@@ -329,34 +407,101 @@
     if (!canAutoPrompt()) return;
     window.setTimeout(function () {
       if (!canAutoPrompt()) return;
-      if (!deferredPrompt && !isIos()) return;
-      if (userInteracted) return;
       if (document.querySelector("dialog[open]")) return;
       openInstallDialog("auto");
     }, delay);
   }
 
   function onBeforeInstallPrompt(event) {
-    if (event && typeof event.preventDefault === "function") {
-      event.preventDefault();
-    }
-    deferredPrompt = event;
+    if (!event || typeof event.prompt !== "function") return;
+    setDeferredPrompt(event);
     // Browsers only offer this prompt while the app is not installed, so a
     // stale "completed" flag (for example after the app was uninstalled) must
     // not keep hiding the installation guidance from the user menu.
     if (readState().completed === true) {
       writeState({ completed: false });
     }
-    if (initialized) {
-      updateInstallMenu();
-      maybeAutoPrompt(1200);
-    }
+    if (!initialized) return;
+    updateInstallMenu();
+    if (dialog && dialog.open) resetDialog(detectPlatform());
+    if (canAutoPrompt()) maybeAutoPrompt(300);
   }
 
   function onAppInstalled() {
-    deferredPrompt = null;
+    clearDeferredPrompt();
     markInstalled();
     showToast("Gabsweb CashFlow is installed.");
+  }
+
+  function handleInstallClick(event) {
+    if (event && typeof event.preventDefault === "function") {
+      event.preventDefault();
+    }
+    if (promptInFlight) return;
+
+    var confirm = byId("pwa-install-confirm");
+    var promptEvent = getDeferredPrompt();
+    if (!promptEvent) {
+      // No direct browser prompt is available. Keep the single modal open and
+      // reveal its browser-specific guidance. This is not an installation.
+      showInstallGuidance(
+        "This browser hasn't offered a direct install prompt. You can install Gabsweb CashFlow from the browser menu instead."
+      );
+      return;
+    }
+
+    /*
+     * Consume the event synchronously inside the user's click. Nothing
+     * asynchronous may run before prompt(), otherwise the browser no longer
+     * treats the call as a user gesture.
+     */
+    promptInFlight = true;
+    clearDeferredPrompt();
+    if (confirm) confirm.disabled = true;
+    setInstallStatus("Opening your browser's install prompt…");
+
+    var promptResult;
+    try {
+      promptResult = promptEvent.prompt();
+    } catch (error) {
+      promptResult = Promise.reject(error);
+    }
+
+    Promise.resolve(promptResult)
+      .then(function (result) {
+        // Current Chromium resolves prompt() with the user's choice. Older
+        // versions resolve with undefined, so fall back to userChoice then.
+        if (result && result.outcome) return result;
+        return promptEvent.userChoice;
+      })
+      .then(function (choice) {
+        if (choice && choice.outcome === "accepted") {
+          // Accepted means the native install flow has started. appinstalled
+          // confirms completion; marking it now prevents a duplicate prompt.
+          markInstalled();
+          showToast(
+            "Installation started. Gabsweb CashFlow will appear on your device shortly."
+          );
+        } else {
+          // Dismissing the browser prompt is not a close action. Keep the same
+          // modal open and show honest fallback guidance.
+          showInstallGuidance(
+            "Installation was cancelled. You can try again, or install Gabsweb CashFlow from the browser menu."
+          );
+        }
+      })
+      .catch(function () {
+        // The prompt was unavailable or already consumed. Never close the
+        // modal as if the close button had been pressed.
+        showInstallGuidance(
+          "Your browser didn't open the install prompt. You can install Gabsweb CashFlow from the browser menu instead."
+        );
+      })
+      .then(function () {
+        promptInFlight = false;
+        if (confirm) confirm.disabled = false;
+        updateInstallMenu();
+      });
   }
 
   function setupInstallUI() {
@@ -365,12 +510,17 @@
 
     updateInstallMenu();
 
+    // Close controls only ever close. The install control is a separate
+    // element with its own handler, so a tap can never run both actions.
     dialog.querySelectorAll("[data-pwa-close]").forEach(function (button) {
-      button.addEventListener("click", function () {
+      button.addEventListener("click", function (event) {
+        event.preventDefault();
         closeDialog(true);
       });
     });
 
+    // Only a click on the backdrop itself closes the dialog. Clicks on the
+    // card, the Install app button or any other control are ignored here.
     dialog.addEventListener("click", function (event) {
       if (event.target === dialog) closeDialog(true);
     });
@@ -381,40 +531,7 @@
 
     var confirm = byId("pwa-install-confirm");
     if (confirm) {
-      confirm.addEventListener("click", function () {
-        if (!deferredPrompt || typeof deferredPrompt.prompt !== "function") {
-          resetDialog(detectPlatform());
-          return;
-        }
-        var promptEvent = deferredPrompt;
-        deferredPrompt = null;
-        if (confirm) confirm.hidden = true;
-        promptEvent.prompt();
-        promptEvent.userChoice
-          .then(function (choice) {
-            if (choice && choice.outcome === "accepted") {
-              showToast(
-                "Installation started. Gabsweb CashFlow will appear on your device shortly."
-              );
-              closeDialog(false);
-            } else {
-              closeDialog(true);
-            }
-            updateInstallMenu();
-          })
-          .catch(function () {
-            closeDialog(true);
-            updateInstallMenu();
-          });
-      });
-    }
-
-    var dontAsk = byId("pwa-dont-ask");
-    if (dontAsk) {
-      dontAsk.addEventListener("click", function () {
-        writeState({ never: true, dismissedAt: Date.now() });
-        closeDialog(false);
-      });
+      confirm.addEventListener("click", handleInstallClick);
     }
 
     var menuItem = byId("pwa-install-menu-item");
@@ -434,24 +551,11 @@
       }
     }
 
-    if (isInstalled()) {
-      markInstalled();
-      refreshInstallState("init");
-    } else {
-      maybeAutoPrompt(2800);
-      refreshInstallState("init");
-    }
-  }
-
-  function setupInteractionDetection() {
-    ["keydown", "input", "pointerdown"].forEach(function (eventName) {
-      document.addEventListener(
-        eventName,
-        function () {
-          userInteracted = true;
-        },
-        { passive: true }
-      );
+    // Resolve the installed state before showing the login prompt. A browser
+    // that has no beforeinstallprompt event is not proof of installation.
+    refreshInstallState("init").then(function (installed) {
+      updateInstallMenu();
+      if (!installed && canAutoPrompt()) maybeAutoPrompt(1200);
     });
   }
 
@@ -585,18 +689,18 @@
 
   function init() {
     initialized = true;
-    setupInteractionDetection();
+    if (getDeferredPrompt() && readState().completed === true) {
+      writeState({ completed: false });
+    }
     setupInstallUI();
     setupUpdateUI();
     registerServiceWorker();
-    if (deferredPrompt && isAppShell() && !isInstalled()) {
-      maybeAutoPrompt(1200);
-    }
   }
 
-  /* Capture the prompt as early as possible so a fast browser event is not
-     missed while the document is still loading. */
-  window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+  /* The inline capture script in base.html is the only beforeinstallprompt
+     listener. This callback lets it wake the already-loaded UI when a late
+     event arrives. appinstalled has its own single listener here. */
+  window.__gabswebHandleInstallPrompt = onBeforeInstallPrompt;
   window.addEventListener("appinstalled", onAppInstalled);
 
   if (document.readyState === "loading") {

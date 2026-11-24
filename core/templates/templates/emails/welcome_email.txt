@@ -10,7 +10,10 @@ You can now set up your personal financial dashboard, track accounts, plan budge
 
 Sign in here:
 {{ login_url }}
-
+{% if documentation_url %}
+New to Gabsweb CashFlow? Read how it works and how to get started:
+{{ documentation_url }}
+{% endif %}
 Gabsweb CashFlow
 Manage your finances and stay on top of your plans.
 Official account notification

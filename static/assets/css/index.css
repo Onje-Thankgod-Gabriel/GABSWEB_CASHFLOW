@@ -165,6 +165,39 @@
   object-fit: contain;
 }
 
+.app-portfolio-footer,
+.auth-portfolio-footer {
+  margin: 20px auto 6px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.auth-portfolio-footer {
+  margin-top: 18px;
+}
+
+.gabsweb-portfolio-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gabsweb-portfolio-link:hover,
+.gabsweb-portfolio-link:focus-visible {
+  color: #8b5cf6;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gabsweb-portfolio-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .mobile-sidebar-toggle {
   display: none;
   flex: 0 0 auto;
@@ -433,6 +466,18 @@ nav.bottom-nav {
 
   header.sticky > div:last-child button {
     flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 359px) {
+  header.sticky > div:last-child .btn-primary {
+    padding: 5px 7px;
+    border-radius: 9px;
+  }
+
+  header.sticky > div:last-child .btn-primary svg {
+    width: 13px;
+    height: 13px;
   }
 }
 

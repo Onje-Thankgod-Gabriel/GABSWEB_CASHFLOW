@@ -156,9 +156,17 @@ urlpatterns = [
 
     path('budgets/', views.budgets, name='budgets'),
 
+    path('documentation/', views.documentation, name='documentation'),
+
     path('goals/', views.goals, name='goals'),
 
     path('google/connect/', views.google_connect, name='google_connect'),
+
+    path(
+        'google/disconnect/',
+        views.google_disconnect,
+        name='google_disconnect',
+    ),
 
     path('insights/', views.insights, name='insights'),
 
@@ -195,6 +203,10 @@ urlpatterns = [
         views.GabswebPasswordResetView.as_view(),
         name='password_reset',
     ),
+
+    path('password/set/', views.set_password, name='set_password'),
+
+    path('password/change/', views.change_password, name='change_password'),
 
     path('planner/', views.planner, name='planner'),
 
@@ -348,6 +360,12 @@ urlpatterns = [
         'notifications-api/read-all/',
         views.notifications_read_all,
         name='notifications_read_all',
+    ),
+
+    path(
+        'notifications-api/clear/',
+        views.notifications_clear,
+        name='notifications_clear',
     ),
 
     path('work-schedule/', views.work_schedule, name='work_schedule'),

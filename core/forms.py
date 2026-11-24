@@ -10,11 +10,16 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import (
     BaseUserCreationForm,
+    PasswordChangeForm,
     PasswordResetForm,
+    SetPasswordForm,
     UserChangeForm as BaseUserChangeForm,
 )
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
+from django.urls import reverse
 
 from allauth.socialaccount.forms import SignupForm as SocialSignupForm
 
@@ -51,6 +56,16 @@ def _smtp_target():
 
 
 class GabswebPasswordResetForm(PasswordResetForm):
+    google_recovery_subject_template = (
+        "templates/emails/google_password_recovery_subject.txt"
+    )
+    google_recovery_text_template = (
+        "templates/emails/google_password_recovery_email.txt"
+    )
+    google_recovery_html_template = (
+        "templates/emails/google_password_recovery_email.html"
+    )
+
     def _log_failure(self, context, exc, host, port, attempt, attempts):
         detail = f"type={type(exc).__name__}"
         if isinstance(exc, OSError) and getattr(exc, "errno", None) is not None:
@@ -67,8 +82,9 @@ class GabswebPasswordResetForm(PasswordResetForm):
                 error = error.decode("utf-8", "replace")
             detail += f" smtp_code={exc.smtp_code} smtp_response={str(error)[:200]}"
         logger.error(
-            "Password reset email delivery failed for user id %s "
+            "%s email delivery failed for user id %s "
             "(%s smtp_host=%s smtp_port=%s attempt=%s/%s).",
+            context.get("email_kind", "Password reset"),
             context["user"].pk,
             detail,
             host,
@@ -105,9 +121,10 @@ class GabswebPasswordResetForm(PasswordResetForm):
             except _CONNECTION_RETRY_ERRORS as exc:
                 if attempt < _CONNECTION_ATTEMPTS:
                     logger.warning(
-                        "Password reset email connection failed for user id %s "
+                        "%s email connection failed for user id %s "
                         "(type=%s smtp_host=%s smtp_port=%s attempt=%s/%s); "
                         "retrying once.",
+                        context.get("email_kind", "Password reset"),
                         context["user"].pk,
                         type(exc).__name__,
                         host,
@@ -129,18 +146,133 @@ class GabswebPasswordResetForm(PasswordResetForm):
 
             if sent:
                 logger.info(
-                    "Password reset email accepted by the mail server for user id %s.",
+                    "%s email accepted by the mail server for user id %s.",
+                    context.get("email_kind", "Password reset"),
                     context["user"].pk,
                 )
             else:
                 logger.error(
-                    "Password reset email was not submitted for user id %s "
+                    "%s email was not submitted for user id %s "
                     "(backend returned 0).",
+                    context.get("email_kind", "Password reset"),
                     context["user"].pk,
                 )
             return sent
 
         return 0
+
+    def save(
+        self,
+        domain_override=None,
+        subject_template_name="registration/password_reset_subject.txt",
+        email_template_name="registration/password_reset_email.html",
+        use_https=False,
+        token_generator=default_token_generator,
+        from_email=None,
+        request=None,
+        html_email_template_name=None,
+        extra_email_context=None,
+    ):
+        """Send a reset only to accounts with a usable local password.
+
+        Google-only accounts have no Gabsweb password to reset. They receive a
+        targeted, privacy-preserving email that explains Google sign-in
+        instead. The public response never changes, so the flow does not reveal
+        whether an address is registered or how it authenticates.
+        """
+        from allauth.socialaccount.models import SocialAccount
+
+        email = self.cleaned_data["email"]
+        if not domain_override:
+            current_site = get_current_site(request)
+            site_name = current_site.name
+            domain = current_site.domain
+        else:
+            site_name = domain = domain_override
+
+        active_users = list(
+            User.objects.filter(email__iexact=email, is_active=True)
+        )
+        google_only_users = [
+            user
+            for user in active_users
+            if not user.has_usable_password()
+            and SocialAccount.objects.filter(
+                user=user, provider="google"
+            ).exists()
+        ]
+        if google_only_users:
+            extra_context = dict(extra_email_context or {})
+            base = (extra_context.get("public_base_url") or "").rstrip("/")
+            origin = base or f"{'https' if use_https else 'http'}://{domain}"
+            login_path = reverse("core:login")
+            google_path = reverse("google_login")
+            for user in google_only_users:
+                context = {
+                    "email": user.email,
+                    "domain": domain,
+                    "site_name": site_name,
+                    "user": user,
+                    "first_name": user.get_first_display_name(),
+                    "protocol": "https" if use_https else "http",
+                    "login_url": f"{origin}{login_path}",
+                    "google_login_url": f"{origin}{google_path}",
+                    "email_kind": "Google sign-in guidance",
+                    **extra_context,
+                }
+                self.send_mail(
+                    self.google_recovery_subject_template,
+                    self.google_recovery_text_template,
+                    context,
+                    from_email,
+                    user.email,
+                    html_email_template_name=self.google_recovery_html_template,
+                )
+
+        if any(user.has_usable_password() for user in active_users):
+            return super().save(
+                domain_override=domain_override,
+                subject_template_name=subject_template_name,
+                email_template_name=email_template_name,
+                use_https=use_https,
+                token_generator=token_generator,
+                from_email=from_email,
+                request=request,
+                html_email_template_name=html_email_template_name,
+                extra_email_context=extra_email_context,
+            )
+        return None
+
+
+class GabswebSetPasswordForm(SetPasswordForm):
+    """Create a first local password for a Google-only account."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in ("new_password1", "new_password2"):
+            self.fields[name].widget.attrs.update(
+                {
+                    "autocomplete": "new-password",
+                    "placeholder": "At least 8 characters",
+                }
+            )
+
+
+class GabswebPasswordChangeForm(PasswordChangeForm):
+    """Change an existing local password without disturbing Google sign-in."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].widget.attrs.update(
+            {"autocomplete": "current-password"}
+        )
+        for name in ("new_password1", "new_password2"):
+            self.fields[name].widget.attrs.update(
+                {
+                    "autocomplete": "new-password",
+                    "placeholder": "At least 8 characters",
+                }
+            )
 
 
 class UserCreationForm(BaseUserCreationForm):

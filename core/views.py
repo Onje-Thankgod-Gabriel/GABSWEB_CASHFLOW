@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import get_hashers, identify_hasher
 from django.contrib.auth.views import (
@@ -50,7 +51,9 @@ from .forms import (
     AccountForm,
     BudgetAllocationForm,
     BudgetCategoryForm,
+    GabswebPasswordChangeForm,
     GabswebPasswordResetForm,
+    GabswebSetPasswordForm,
     GoalAssignmentForm,
     GoalForm,
     LoginForm,
@@ -134,6 +137,11 @@ def budgets(request):
 @login_required
 def goals(request):
     return render(request, 'goals.html')
+
+
+@login_required
+def documentation(request):
+    return render(request, 'documentation.html')
 
 
 @login_required
@@ -334,6 +342,28 @@ def privacy_policy(request):
     return render(request, 'privacy-policy.html')
 
 
+def robots_txt(request):
+    base_url = getattr(
+        django_settings,
+        "SITE_BASE_URL",
+        "https://cashflow.gabsweb.com.ng",
+    ).rstrip("/")
+    # Only the two public legal pages are intended for search engines. Every
+    # other route (dashboard, finances, accounts, APIs, auth, documentation) is
+    # private or user-specific, so a default deny keeps new routes private by
+    # default. The longer Allow rules take precedence for the legal pages.
+    lines = [
+        "User-agent: *",
+        "Allow: /privacy-policy/",
+        "Allow: /terms/",
+        "Disallow: /",
+        "",
+        f"Sitemap: {base_url}/sitemap.xml",
+        "",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+
+
 def register(request):
     if request.user.is_authenticated:
         return redirect("core:index")
@@ -362,17 +392,93 @@ def savings(request):
     return render(request, 'savings.html')
 
 
-@login_required
-def settings(request):
+def _settings_context(request, password_form=None, password_mode=None):
     from allauth.socialaccount.models import SocialAccount
 
     google_account = SocialAccount.objects.filter(
         user=request.user, provider="google"
     ).first()
+    has_usable_password = request.user.has_usable_password()
+    if password_mode is None:
+        password_mode = "change" if has_usable_password else "set"
+    if password_form is None:
+        if has_usable_password:
+            password_form = GabswebPasswordChangeForm(user=request.user)
+        else:
+            password_form = GabswebSetPasswordForm(user=request.user)
+    return {
+        "google_account": google_account,
+        "has_usable_password": has_usable_password,
+        "password_form": password_form,
+        "password_mode": password_mode,
+    }
+
+
+@login_required
+def settings(request):
+    return render(request, "settings.html", _settings_context(request))
+
+
+@require_POST
+@login_required
+def set_password(request):
+    from allauth.socialaccount.models import SocialAccount
+
+    user = request.user
+    user.refresh_from_db(fields=["password"])
+    if user.has_usable_password():
+        messages.error(
+            request,
+            "Your account already has a Gabsweb password. Use Change password instead.",
+        )
+        return redirect("core:settings")
+    if not SocialAccount.objects.filter(user=user, provider="google").exists():
+        messages.error(
+            request,
+            "Set password is only available for accounts that sign in with Google.",
+        )
+        return redirect("core:settings")
+
+    form = GabswebSetPasswordForm(user=user, data=request.POST)
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(
+            request,
+            "Your Gabsweb password has been set. You can now sign in with Google "
+            "or with your email and password.",
+        )
+        return redirect("core:settings")
     return render(
         request,
-        'settings.html',
-        {'google_account': google_account},
+        "settings.html",
+        _settings_context(request, password_form=form, password_mode="set"),
+        status=400,
+    )
+
+
+@require_POST
+@login_required
+def change_password(request):
+    user = request.user
+    if not user.has_usable_password():
+        messages.error(
+            request,
+            "Your account does not have a Gabsweb password yet. Use Set password instead.",
+        )
+        return redirect("core:settings")
+
+    form = GabswebPasswordChangeForm(user=user, data=request.POST)
+    if form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, "Your Gabsweb password has been updated.")
+        return redirect("core:settings")
+    return render(
+        request,
+        "settings.html",
+        _settings_context(request, password_form=form, password_mode="change"),
+        status=400,
     )
 
 
@@ -411,6 +517,33 @@ def google_connect(request):
         return redirect("core:settings")
 
     return redirect(f"{reverse('google_login')}?process=connect")
+
+
+@require_POST
+@login_required
+def google_disconnect(request):
+    from allauth.socialaccount.models import SocialAccount
+
+    account = SocialAccount.objects.filter(
+        user=request.user, provider="google"
+    ).first()
+    if account is None:
+        messages.info(request, "No Google account is connected to your profile.")
+        return redirect("core:settings")
+    if not request.user.has_usable_password():
+        messages.error(
+            request,
+            "You cannot disconnect Google because it is your only way to sign in. "
+            "Set a Gabsweb password first.",
+        )
+        return redirect("core:settings")
+
+    account.delete()
+    messages.success(
+        request,
+        "Google sign-in has been disconnected. Your Gabsweb password still works.",
+    )
+    return redirect("core:settings")
 
 
 def _profile_payload(user):
@@ -860,6 +993,16 @@ def notifications_read_all(request):
         owner=request.user, is_read=False
     ).update(is_read=True, read_at=timezone.now())
     return JsonResponse({"ok": True, "updated": updated, "unreadCount": 0})
+
+
+@login_required
+@require_POST
+def notifications_clear(request):
+    """Permanently clear only the authenticated user's notifications."""
+    queryset = Notification.objects.filter(owner=request.user)
+    cleared = queryset.count()
+    queryset.delete()
+    return JsonResponse({"ok": True, "cleared": cleared, "unreadCount": 0})
 
 
 def terms(request):

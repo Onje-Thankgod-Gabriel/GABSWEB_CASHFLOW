@@ -6,7 +6,13 @@
   aria-describedby="pwa-install-copy"
 >
   <div class="pwa-card">
-    <button type="button" class="pwa-close" data-pwa-close aria-label="Close installation dialog">
+    <button
+      type="button"
+      class="pwa-close"
+      id="pwa-install-dismiss"
+      data-pwa-close
+      aria-label="Close installation dialog"
+    >
       <i data-lucide="x" aria-hidden="true"></i>
     </button>
 
@@ -50,15 +56,31 @@
       <ol id="pwa-steps-list" class="pwa-steps-list"></ol>
     </div>
 
+    <p
+      id="pwa-install-status"
+      class="pwa-status"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></p>
+
     <div class="pwa-actions">
-      <button type="button" class="pwa-btn pwa-btn-primary" id="pwa-install-confirm" hidden>
+      <button
+        type="button"
+        class="pwa-btn pwa-btn-primary"
+        id="pwa-install-confirm"
+        data-pwa-install
+      >
         Install app
       </button>
-      <button type="button" class="pwa-btn pwa-btn-quiet" data-pwa-close>Not now</button>
+      <button
+        type="button"
+        class="pwa-btn pwa-btn-quiet"
+        id="pwa-install-later"
+        data-pwa-close
+      >
+        Not now
+      </button>
     </div>
-
-    <button type="button" class="pwa-skip" id="pwa-dont-ask">
-      Don't show this again
-    </button>
   </div>
 </dialog>

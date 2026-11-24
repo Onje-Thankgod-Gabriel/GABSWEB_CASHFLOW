@@ -5,7 +5,7 @@
 
 {% block extra_head %}<meta name="csrf-token" content="{{ csrf_token }}" /><meta name="gabsweb-user-id" content="{{ user.pk }}" /><script src="{% static 'assets/js/balance-visibility.js' %}"></script>{% endblock %}
 
-{% block body_attributes %} {% block body_id %}{% endblock %}data-page="{% block data_page %}{% endblock %}" data-user-id="{{ user.pk }}" data-user-first-name="{{ user.get_first_display_name }}" data-user-two-part-name="{{ user.get_two_part_name }}" data-user-full-name="{{ user.get_full_name }}" data-user-email="{{ user.email }}" data-user-professional-role="{{ user.professional_role }}" data-user-account-status="{{ user.account_status }}" data-user-workplace-company="{{ user.workplace_company }}" data-user-workplace-label="{{ user.workplace_label }}" data-user-has-workplace-access="{% if user.has_approved_workplace_access %}true{% else %}false{% endif %}" data-user-works-shifts="{% if user.works_shifts %}true{% else %}false{% endif %}" data-user-avatar-url="{{ user.effective_profile_image_url_versioned }}" class="bg-bg text-text"{% endblock %}
+{% block body_attributes %} {% block body_id %}{% endblock %}data-page="{% block data_page %}{% endblock %}" data-user-id="{{ user.pk }}" data-user-first-name="{{ user.get_first_display_name }}" data-user-two-part-name="{{ user.get_two_part_name }}" data-user-full-name="{{ user.get_full_name }}" data-user-email="{{ user.email }}" data-user-professional-role="{{ user.professional_role }}" data-user-account-status="{{ user.account_status }}" data-user-workplace-company="{{ user.workplace_company }}" data-user-workplace-label="{{ user.workplace_label }}" data-user-has-workplace-access="{% if user.has_approved_workplace_access %}true{% else %}false{% endif %}" data-user-works-shifts="{% if user.works_shifts %}true{% else %}false{% endif %}" data-user-avatar-url="{{ user.effective_profile_image_url_versioned }}" data-pwa-login-prompt="{% if pwa_login_prompt %}true{% else %}false{% endif %}" class="bg-bg text-text"{% endblock %}
 
 {% block page_styles %}{% block app_styles %}{% endblock %}<link href="{% static 'assets/css/notifications.css' %}" rel="stylesheet" /><link href="{% static 'assets/css/account-notices.css' %}" rel="stylesheet" /><link href="{% static 'assets/css/balance-visibility.css' %}" rel="stylesheet" />{% endblock %}
 
@@ -62,6 +62,7 @@
 
     <main id="main-content" class="{% block main_classes %}px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}">
       {% block app_content %}{% endblock %}
+      {% include "partials/portfolio_footer.html" %}
     </main>
   </div>
 
@@ -79,5 +80,6 @@
   <script src="{% static 'assets/js/sidebar-balance.js' %}"></script>
   <script defer src="{% static 'assets/js/index.js' %}"></script>
   <script src="{% static 'assets/js/notifications.js' %}"></script>
+  <script src="{% static 'assets/js/app-notices.js' %}"></script>
   <script src="{% static 'assets/js/global-navigation.js' %}"></script>
 {% endblock %}

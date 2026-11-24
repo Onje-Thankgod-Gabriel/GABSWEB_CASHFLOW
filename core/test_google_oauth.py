@@ -245,6 +245,48 @@ class GoogleOAuthTests(TestCase):
         self.assertEqual(account.uid, "google-123")
         self.assertTrue(account.extra_data["email_verified"])
 
+    def test_google_signup_sets_single_use_pwa_install_prompt(self):
+        response, _sociallogin = self.sign_up_social_user()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("core:index"))
+        self.assertTrue(self.client.session.get("gabsweb_pwa_prompt"))
+
+        first_render = self.client.get(reverse("core:index"))
+        self.assertContains(first_render, 'data-pwa-login-prompt="true"')
+        self.assertNotIn("gabsweb_pwa_prompt", self.client.session)
+
+        refresh = self.client.get(reverse("core:index"))
+        self.assertContains(refresh, 'data-pwa-login-prompt="false"')
+
+    def test_returning_google_login_sets_single_use_pwa_install_prompt(self):
+        user = User.objects.create_user(
+            email="google-return@example.com",
+            password=PASSWORD,
+        )
+        SocialAccount.objects.create(
+            user=user,
+            provider="google",
+            uid="google-return",
+            extra_data={"email": user.email},
+        )
+        state = self.start_flow()
+        response = self.complete_callback(
+            state,
+            self.build_sociallogin(
+                email=user.email,
+                uid="google-return",
+                first_name="Return",
+                last_name="User",
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("core:index"))
+        self.assertTrue(self.client.session.get("gabsweb_pwa_prompt"))
+
+        first_render = self.client.get(reverse("core:index"))
+        self.assertContains(first_render, 'data-pwa-login-prompt="true"')
+        self.assertNotIn("gabsweb_pwa_prompt", self.client.session)
+
     def test_missing_state_is_rejected(self):
         response = self.client.get(reverse("google_callback"), {"code": "fake-code"})
 
@@ -343,6 +385,54 @@ class GoogleOAuthTests(TestCase):
         self.assertEqual(user.account_status, User.AccountStatus.PENDING)
         self.assertTrue(user.has_usable_password())
         self.assertTrue(check_password(PASSWORD, user.password))
+        self.assertEqual(
+            SocialAccount.objects.filter(user=user, provider="google").count(), 1
+        )
+        settings_page = self.client.get(reverse("core:settings"))
+        self.assertContains(settings_page, "Connected")
+        self.assertContains(settings_page, "Disconnect Google")
+
+    def test_cancelled_connect_leaves_the_existing_account_unchanged(self):
+        user = User.objects.create_user(
+            email="cancelled-link@example.com",
+            password=PASSWORD,
+            account_status=User.AccountStatus.APPROVED,
+        )
+        self.client.force_login(user)
+
+        self.client.post(reverse("core:google_connect"))
+        state = self.start_flow(process="connect")
+        response = self.client.get(
+            reverse("google_callback"),
+            {"state": state, "error": "access_denied"},
+        )
+
+        self.assertRedirects(response, reverse("socialaccount_login_cancelled"))
+        self.assertFalse(
+            SocialAccount.objects.filter(user=user, provider="google").exists()
+        )
+        self.assertTrue(user.has_usable_password())
+        user.refresh_from_db()
+        self.assertEqual(user.account_status, User.AccountStatus.APPROVED)
+
+    def test_repeated_connect_attempt_reports_the_existing_connection(self):
+        user = User.objects.create_user(
+            email="repeat-link@example.com", password=PASSWORD
+        )
+        SocialAccount.objects.create(
+            user=user,
+            provider="google",
+            uid="google-repeat",
+            extra_data={"email": user.email},
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse("core:google_connect"), follow=True)
+
+        self.assertRedirects(response, reverse("core:settings"))
+        self.assertContains(
+            response, "A Google account is already connected to your profile."
+        )
         self.assertEqual(
             SocialAccount.objects.filter(user=user, provider="google").count(), 1
         )

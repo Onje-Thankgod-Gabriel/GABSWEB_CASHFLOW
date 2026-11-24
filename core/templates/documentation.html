@@ -1,0 +1,499 @@
+{% extends "layouts/app_base.html" %}
+{% load static %}
+
+{% block title %}Gabsweb CashFlow · Documentation{% endblock %}
+
+{% block body_id %}id="root-body" {% endblock %}
+{% block data_page %}Documentation{% endblock %}
+
+{% block page_title %}Documentation{% endblock %}
+{% block page_subtitle %}How Gabsweb CashFlow works{% endblock %}
+
+{% block app_styles %}<link href="{% static 'assets/css/documentation.css' %}" rel="stylesheet" />{% endblock %}
+
+{% block main_classes %}docs-page px-3 pt-3 max-xl:mb-20 xl:mb-4{% endblock %}
+
+{% block app_content %}
+  <div class="docs-breadcrumb">
+    <a href="{% url 'core:index' %}">Home</a>
+    <span>/</span>
+    <span aria-current="page">Documentation</span>
+  </div>
+
+  <header class="docs-page-header">
+    <div class="docs-heading">
+      <span class="docs-eyebrow">
+        <i data-lucide="book-open" class="w-4 h-4"></i>
+        User guide
+      </span>
+      <h1 class="docs-title">Gabsweb CashFlow Documentation</h1>
+      <p class="docs-subtitle">
+        Learn how each part of Gabsweb CashFlow works, how your finances are calculated
+        and how the features connect so you can manage your money with confidence.
+      </p>
+    </div>
+  </header>
+
+  <details class="docs-toc-mobile">
+    <summary>On this page</summary>
+    <nav aria-label="Documentation sections">
+      <a class="docs-toc-link" href="#welcome" data-docs-target="welcome">Welcome</a>
+      <a class="docs-toc-link" href="#dashboard" data-docs-target="dashboard">Dashboard</a>
+      <a class="docs-toc-link" href="#my-finances" data-docs-target="my-finances">My Finances</a>
+      <a class="docs-toc-link" href="#budget" data-docs-target="budget">Budget &amp; Money Allocation</a>
+      <a class="docs-toc-link" href="#savings" data-docs-target="savings">Savings</a>
+      <a class="docs-toc-link" href="#goals" data-docs-target="goals">Goals</a>
+      <a class="docs-toc-link" href="#planner" data-docs-target="planner">Planner</a>
+      <a class="docs-toc-link" href="#work-schedule" data-docs-target="work-schedule">Work Schedule</a>
+      <a class="docs-toc-link" href="#reports" data-docs-target="reports">Reports &amp; Insights</a>
+      <a class="docs-toc-link" href="#settings" data-docs-target="settings">Settings</a>
+      <a class="docs-toc-link" href="#connections" data-docs-target="connections">How your finances connect</a>
+      <a class="docs-toc-link" href="#need-help" data-docs-target="need-help">Need help?</a>
+    </nav>
+  </details>
+
+  <div class="docs-layout">
+    <aside class="docs-toc" aria-label="Documentation table of contents">
+      <div class="docs-toc-card">
+        <p class="docs-toc-title">On this page</p>
+        <nav>
+          <a class="docs-toc-link" href="#welcome" data-docs-target="welcome">Welcome</a>
+          <a class="docs-toc-link" href="#dashboard" data-docs-target="dashboard">Dashboard</a>
+          <a class="docs-toc-link" href="#my-finances" data-docs-target="my-finances">My Finances</a>
+          <a class="docs-toc-link" href="#budget" data-docs-target="budget">Budget &amp; Money Allocation</a>
+          <a class="docs-toc-link" href="#savings" data-docs-target="savings">Savings</a>
+          <a class="docs-toc-link" href="#goals" data-docs-target="goals">Goals</a>
+          <a class="docs-toc-link" href="#planner" data-docs-target="planner">Planner</a>
+          <a class="docs-toc-link" href="#work-schedule" data-docs-target="work-schedule">Work Schedule</a>
+          <a class="docs-toc-link" href="#reports" data-docs-target="reports">Reports &amp; Insights</a>
+          <a class="docs-toc-link" href="#settings" data-docs-target="settings">Settings</a>
+          <a class="docs-toc-link" href="#connections" data-docs-target="connections">How your finances connect</a>
+          <a class="docs-toc-link" href="#need-help" data-docs-target="need-help">Need help?</a>
+        </nav>
+      </div>
+    </aside>
+
+    <article class="docs-article">
+      <section class="docs-section" id="welcome">
+        <h2>Welcome to Gabsweb CashFlow</h2>
+        <p>
+          Gabsweb CashFlow helps you manage your money, understand your spending and plan
+          your finances in one place.
+        </p>
+        <p>
+          You can track your accounts and transactions, plan how to use your income,
+          monitor savings, manage financial goals and review your financial activity.
+        </p>
+        <p>
+          This guide explains how each part of the application works and how the different
+          features connect.
+        </p>
+      </section>
+
+      <section class="docs-section" id="dashboard">
+        <h2>1. Dashboard</h2>
+        <p>Your Dashboard gives you a quick overview of your financial position.</p>
+        <p>You can see:</p>
+        <ul>
+          <li>Your total account balance.</li>
+          <li>Your available balance after current savings.</li>
+          <li>Your income, expenses and net cash flow.</li>
+          <li>Your financial health indicators.</li>
+          <li>Your income and expense trends.</li>
+          <li>Recent transactions.</li>
+          <li>Budget, Savings and Goals summaries.</li>
+          <li>Your Planner summary.</li>
+        </ul>
+        <p>
+          The dashboard uses your recorded financial information. If required information
+          cannot be loaded, the affected figures may be shown as unavailable instead of
+          displaying guessed values.
+        </p>
+
+        <h3>Understanding available balance</h3>
+        <div class="docs-callout">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <p>
+            Available balance is calculated by subtracting your current Savings balance
+            from your total account balance.
+          </p>
+        </div>
+
+        <h3>Understanding the cash-flow indicator</h3>
+        <p>
+          The dashboard's displayed rate is based on income minus expenses, divided by
+          income. It represents net cash flow as a proportion of income;
+          it is not a measure of Budget Savings allocations.
+        </p>
+      </section>
+
+      <section class="docs-section" id="my-finances">
+        <h2>2. My Finances</h2>
+        <p>My Finances is where you record and manage your actual money.</p>
+
+        <h3>Accounts</h3>
+        <p>Create accounts for the places where you keep your money, including:</p>
+        <ul>
+          <li>Bank accounts.</li>
+          <li>Cash wallets.</li>
+          <li>Savings accounts.</li>
+          <li>Mobile money.</li>
+          <li>Investments.</li>
+          <li>Other account types.</li>
+        </ul>
+        <p>
+          Each account can have an opening balance, opening-balance date and description.
+        </p>
+        <p>
+          You can edit and archive accounts. Archiving keeps their financial history
+          available.
+        </p>
+        <p>An account with transaction history cannot be deleted. Archive it instead.</p>
+
+        <h3>Transactions</h3>
+        <p>Record three types of transactions:</p>
+        <ul>
+          <li><strong>Income:</strong> Money received.</li>
+          <li><strong>Expense:</strong> Money spent.</li>
+          <li><strong>Transfer:</strong> Money moved between two of your accounts.</li>
+        </ul>
+        <p>Transfers require two different accounts belonging to you.</p>
+        <p>
+          Transactions can include an amount, date, description, category, account and
+          optional notes.
+        </p>
+        <p>
+          Expenses can also be linked to a Budget allocation or a Goal where appropriate.
+        </p>
+        <p>
+          An expense linked to a Budget allocation must fall within that allocation's
+          financial month.
+        </p>
+        <div class="docs-callout">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <p>
+            Your account balances are calculated from opening balances and recorded
+            transactions. Budget allocations and Goal assignments do not directly change
+            account balances.
+          </p>
+        </div>
+      </section>
+
+      <section class="docs-section" id="budget">
+        <h2>3. Budget &amp; Money Allocation</h2>
+        <p>Budget helps you plan how to distribute your monthly income.</p>
+        <p>
+          You can create allocations for categories such as Feeding, Transport, Family
+          Support, Savings and Goals.
+        </p>
+        <p>
+          Each allocation can have a name, planned amount, month, description and status.
+        </p>
+
+        <h3>How Budget works</h3>
+        <p>
+          Your monthly income comes from actual income transactions recorded in My
+          Finances.
+        </p>
+        <p>
+          Allocations are financial plans. Creating an allocation does not mean that money
+          has been spent, saved or transferred.
+        </p>
+        <p>
+          When you record an expense, you can link it to the relevant allocation. The
+          expense then counts towards that allocation's actual spending.
+        </p>
+        <p>
+          Expenses that are not linked to an allocation still count as real expenses in My
+          Finances.
+        </p>
+        <p>
+          You can spend more than an allocation's planned amount. The application tracks the
+          excess so you can see where you have overspent.
+        </p>
+
+        <h3>Understanding your Budget figures</h3>
+        <dl class="docs-facts">
+          <div class="docs-fact">
+            <dt>Monthly income</dt>
+            <dd>Income transactions recorded during the month.</dd>
+          </div>
+          <div class="docs-fact">
+            <dt>Total allocated</dt>
+            <dd>The amount assigned across your Budget allocations.</dd>
+          </div>
+          <div class="docs-fact">
+            <dt>Unallocated funds</dt>
+            <dd>
+              Income that has not been allocated. This figure never displays as a negative
+              amount.
+            </dd>
+          </div>
+          <div class="docs-fact">
+            <dt>Over-allocated funds</dt>
+            <dd>The amount by which your allocations exceed your monthly income.</dd>
+          </div>
+          <div class="docs-fact">
+            <dt>Actual spending</dt>
+            <dd>Expenses linked to Budget allocations.</dd>
+          </div>
+          <div class="docs-fact">
+            <dt>Remaining</dt>
+            <dd>The amount left against your allocations after linked spending.</dd>
+          </div>
+        </dl>
+        <div class="docs-callout docs-callout--warning">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          <p>
+            Over-allocation and overspending are different. Over-allocation means you
+            planned more than your income. Overspending means actual expenses exceeded an
+            allocation.
+          </p>
+        </div>
+      </section>
+
+      <section class="docs-section" id="savings">
+        <h2>4. Savings</h2>
+        <p>Savings shows the money allocated to Savings through your Budget.</p>
+        <p>
+          You do not create separate savings contributions. Your Savings amount is
+          calculated from non-cancelled Budget allocations in the Savings category.
+        </p>
+        <p>
+          The page shows your monthly Savings allocations, cumulative Savings balance,
+          withdrawals and Savings history.
+        </p>
+
+        <h3>Recording a withdrawal</h3>
+        <p>When you take money out of Savings, record a withdrawal with:</p>
+        <ul>
+          <li>Amount.</li>
+          <li>Date.</li>
+          <li>Reason.</li>
+        </ul>
+        <p>A withdrawal reduces your available Savings balance.</p>
+        <p>You cannot withdraw more than your available Savings.</p>
+        <div class="docs-callout docs-callout--warning">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          <p>
+            <strong>Important:</strong> Recording a withdrawal is a Savings record only. It
+            does not automatically create an expense, transfer money between accounts or
+            change an account balance. If you actually spent the money, record the expense
+            separately in My Finances.
+          </p>
+        </div>
+      </section>
+
+      <section class="docs-section" id="goals">
+        <h2>5. Goals</h2>
+        <p>Goals helps you plan and fund future purchases or financial targets.</p>
+        <p>
+          Create a Goal with a name, target amount, optional target date and description.
+        </p>
+
+        <h3>Funding your Goals</h3>
+        <p>
+          Your Goals funding comes from non-cancelled Budget allocations in the Goals
+          category.
+        </p>
+        <p>You can assign available Goals funding to individual Goals.</p>
+        <p>
+          Assigning money to a Goal is a planning action. It does not create income, an
+          expense, a transfer or an account-balance change.
+        </p>
+        <p>
+          You can reverse an assignment to release the money back into the available Goals
+          funding pool.
+        </p>
+
+        <h3>Completing a Goal</h3>
+        <p>
+          A Goal becomes fully funded when its assigned funding reaches its target amount.
+        </p>
+        <p>A fully funded Goal does not automatically mean that you have purchased the item.</p>
+        <p>
+          To record the purchase, create an expense in My Finances and link it to the
+          relevant Goal.
+        </p>
+        <p>
+          The linked expense records the purchase and updates the Goal's funding position.
+        </p>
+      </section>
+
+      <section class="docs-section" id="planner">
+        <h2>6. Planner</h2>
+        <p>Planner helps you organise your daily activities and projects.</p>
+
+        <h3>Daily planning</h3>
+        <p>You can create daily plans containing:</p>
+        <ul>
+          <li>Your Top Three priorities.</li>
+          <li>Tasks.</li>
+          <li>Appointments and meetings.</li>
+          <li>Notes and remarks.</li>
+        </ul>
+        <p>You can move between dates and review your daily plans.</p>
+
+        <h3>Projects</h3>
+        <p>Create projects to organise larger activities.</p>
+        <p>
+          Projects support details, dates, status, milestones and progress tracking.
+        </p>
+        <div class="docs-callout">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <p>
+            Planner activities are separate from your financial records. Creating a project
+            or milestone does not automatically create a transaction or affect your account
+            balances.
+          </p>
+        </div>
+      </section>
+
+      <section class="docs-section" id="work-schedule">
+        <h2>7. Work Schedule</h2>
+        <p>Work Schedule lets you organise and review your work shifts.</p>
+        <p>You can view your schedule in monthly, weekly and list formats.</p>
+
+        <h3>Manual schedule entries</h3>
+        <p>Users can create and manage their own manual schedule entries.</p>
+
+        <h3>Automatic work rotations</h3>
+        <p>
+          Automatic rotation generation and its related settings are available only to
+          users with approved GCTN or Apex Pay workplace access.
+        </p>
+        <p>
+          Users with General or Pending status can use manual schedule entries but cannot
+          access approved workplace rotation features.
+        </p>
+        <p>
+          If you need access to those workplace features, contact the platform owner for
+          approval.
+        </p>
+      </section>
+
+      <section class="docs-section" id="reports">
+        <h2>8. Reports &amp; Insights</h2>
+        <p>Reports &amp; Insights helps you understand your financial activity over time.</p>
+        <p>You can view monthly and yearly reports.</p>
+        <p>Reports include:</p>
+        <ul>
+          <li>Financial overview.</li>
+          <li>Cash-flow trends.</li>
+          <li>Income and expense categories.</li>
+          <li>Transfers.</li>
+          <li>Budget allocation performance.</li>
+          <li>Savings analysis.</li>
+          <li>Goal progress and purchases.</li>
+          <li>Period comparisons.</li>
+          <li>Useful financial insights.</li>
+        </ul>
+        <p>You can export a report as a PDF.</p>
+        <p>
+          Reports are read-only. They use the same financial records and calculations as the
+          rest of the application. They do not create or modify transactions, allocations,
+          Savings or Goals.
+        </p>
+      </section>
+
+      <section class="docs-section" id="settings">
+        <h2>9. Settings</h2>
+        <p>Settings lets you manage your personal and application preferences.</p>
+        <p>Available sections include:</p>
+        <ul>
+          <li>
+            <strong>Personal profile:</strong> Your personal details, email, professional
+            role and profile image.
+          </li>
+          <li>
+            <strong>Password and Google sign-in:</strong> Manage your Gabsweb password and
+            Google sign-in connection.
+          </li>
+          <li>
+            <strong>Financial preferences:</strong> Review your currency and financial-month
+            settings.
+          </li>
+          <li>
+            <strong>Work preferences:</strong> Manage available personal work settings and
+            details.
+          </li>
+          <li>
+            <strong>Appearance:</strong> Choose between light and dark themes.
+          </li>
+        </ul>
+        <p>
+          Your financial currency is NGN, and financial periods follow the calendar month.
+        </p>
+      </section>
+
+      <section class="docs-section" id="connections">
+        <h2>10. Understanding how your finances connect</h2>
+        <p>
+          It is important to understand the difference between actual financial records and
+          financial plans.
+        </p>
+        <div class="docs-table-wrap">
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th scope="col">Feature</th>
+                <th scope="col">What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>My Finances</td>
+                <td>Records actual income, expenses and transfers.</td>
+              </tr>
+              <tr>
+                <td>Budget</td>
+                <td>Plans how monthly income should be allocated.</td>
+              </tr>
+              <tr>
+                <td>Savings</td>
+                <td>Shows Budget Savings allocations and records withdrawals.</td>
+              </tr>
+              <tr>
+                <td>Goals</td>
+                <td>
+                  Organises funding from Budget Goals allocations towards planned purchases.
+                </td>
+              </tr>
+              <tr>
+                <td>Planner</td>
+                <td>Organises daily activities and projects.</td>
+              </tr>
+              <tr>
+                <td>Reports &amp; Insights</td>
+                <td>Summarises existing financial records and calculations.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Remember</h3>
+        <ul class="docs-rules">
+          <li>Only recorded transactions change account balances.</li>
+          <li>Budget allocations do not create transactions.</li>
+          <li>Savings allocations do not automatically move money into another account.</li>
+          <li>Savings withdrawals are not automatically expenses or transfers.</li>
+          <li>Assigning money to a Goal does not change account balances.</li>
+          <li>A Goal purchase must be recorded as an expense in My Finances.</li>
+          <li>Reports display financial information; they do not change it.</li>
+        </ul>
+      </section>
+
+      <section class="docs-section" id="need-help">
+        <h2>Need help?</h2>
+        <p>
+          Use this guide whenever you need clarification about how Gabsweb CashFlow works.
+        </p>
+        <p>
+          For workplace rotation access, contact the platform owner for approval.
+        </p>
+      </section>
+    </article>
+  </div>
+{% endblock %}
+
+{% block page_scripts %}<script src="{% static 'assets/js/documentation.js' %}"></script>{% endblock %}

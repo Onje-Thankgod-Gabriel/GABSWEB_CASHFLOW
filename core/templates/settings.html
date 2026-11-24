@@ -237,7 +237,19 @@
                     </p>
                   </div>
 
-                  {% if not google_account and google_oauth_configured %}
+                  {% if google_account %}
+                    {% if has_usable_password %}
+                      <form method="post" action="{% url 'core:google_disconnect' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="gs-btn gs-btn-ghost">
+                          <i data-lucide="unlink" class="w-4 h-4"></i>
+                          Disconnect Google
+                        </button>
+                      </form>
+                    {% else %}
+                      <p class="gs-hint">Set a Gabsweb password below before disconnecting Google.</p>
+                    {% endif %}
+                  {% elif google_oauth_configured %}
                     <form method="post" action="{% url 'core:google_connect' %}">
                       {% csrf_token %}
                       <button type="submit" class="gs-btn gs-btn-secondary">
@@ -247,6 +259,56 @@
                     </form>
                   {% endif %}
                 </div>
+              </div>
+
+              <div class="gs-card gs-google-account">
+                <div class="gs-card-heading">
+                  <span class="gs-icon-box"><i data-lucide="lock-keyhole" class="w-5 h-5"></i></span>
+                  <div>
+                    <h3>Gabsweb password</h3>
+                    <p>
+                      {% if has_usable_password %}
+                        Change the password used for email sign-in.
+                      {% else %}
+                        Create a password so you can sign in without Google.
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+
+                {% if not has_usable_password %}
+                  <p class="gs-hint">Your account currently uses Google sign-in only. Setting a password is optional and does not affect your Google connection.</p>
+                {% endif %}
+
+                <form class="gs-form-grid" method="post" action="{% if has_usable_password %}{% url 'core:change_password' %}{% else %}{% url 'core:set_password' %}{% endif %}" novalidate>
+                  {% csrf_token %}
+                  {% if has_usable_password %}
+                    <div class="gs-field gs-field-wide">
+                      <label class="gs-label" for="id_old_password">Current password</label>
+                      <input type="password" id="id_old_password" name="old_password" class="form-input" autocomplete="current-password" required />
+                      {% if password_form.old_password.errors %}<p class="gs-field-error" role="alert" style="display:block">{{ password_form.old_password.errors.0 }}</p>{% endif %}
+                    </div>
+                  {% endif %}
+                  <div class="gs-field">
+                    <label class="gs-label" for="id_new_password1">New password</label>
+                    <input type="password" id="id_new_password1" name="new_password1" class="form-input" autocomplete="new-password" placeholder="At least 8 characters" required />
+                    {% if password_form.new_password1.errors %}<p class="gs-field-error" role="alert" style="display:block">{{ password_form.new_password1.errors.0 }}</p>{% endif %}
+                  </div>
+                  <div class="gs-field">
+                    <label class="gs-label" for="id_new_password2">Confirm new password</label>
+                    <input type="password" id="id_new_password2" name="new_password2" class="form-input" autocomplete="new-password" placeholder="Repeat your password" required />
+                    {% if password_form.new_password2.errors %}<p class="gs-field-error" role="alert" style="display:block">{{ password_form.new_password2.errors.0 }}</p>{% endif %}
+                  </div>
+                  {% if password_form.non_field_errors %}
+                    <p class="gs-field-error gs-field-wide" role="alert" style="display:block">{{ password_form.non_field_errors.0 }}</p>
+                  {% endif %}
+                  <div class="gs-form-actions gs-field-wide">
+                    <button type="submit" class="gs-btn gs-btn-primary">
+                      <i data-lucide="check" class="w-4 h-4"></i>
+                      {% if has_usable_password %}Update password{% else %}Set password{% endif %}
+                    </button>
+                  </div>
+                </form>
               </div>
             </section>
 

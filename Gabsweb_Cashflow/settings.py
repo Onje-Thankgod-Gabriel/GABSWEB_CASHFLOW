@@ -88,6 +88,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
+    'anymail',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -267,64 +269,42 @@ PRIVATE_MEDIA_ROOT = BASE_DIR / 'private_media'
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+#
+# Transactional email is delivered through the Resend HTTPS API using
+# django-anymail. Outbound SMTP is intentionally never used: the shared host
+# firewall intercepts port 587 and breaks SMTP TLS, so all delivery goes over
+# HTTPS (port 443). The API key comes only from the environment.
 
 _resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
-_email_host = os.environ.get("EMAIL_HOST", "").strip() or (
-    "smtp.resend.com" if _resend_api_key else ""
-)
-_email_port = int(os.environ.get("EMAIL_PORT", "587") or 587)
-_email_host_user = os.environ.get("EMAIL_HOST_USER", "").strip() or (
-    "resend" if _resend_api_key else ""
-)
-_email_host_password = (
-    os.environ.get("EMAIL_HOST_PASSWORD", "") or _resend_api_key
-)
-_email_use_ssl = env_bool("EMAIL_USE_SSL", _email_port in {465, 2465})
-_email_use_tls = env_bool("EMAIL_USE_TLS", not _email_use_ssl)
 _email_timeout = int(os.environ.get("EMAIL_TIMEOUT", "10") or 10)
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "webmaster@localhost")
 
-if _email_use_tls and _email_use_ssl:
-    raise ImproperlyConfigured(
-        "EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be enabled. Use TLS on "
-        "port 587 or SSL on port 465."
-    )
+ANYMAIL = {
+    "RESEND_API_KEY": _resend_api_key,
+    "REQUESTS_TIMEOUT": _email_timeout,
+}
 
 _email_backend = os.environ.get("EMAIL_BACKEND", "").strip()
 if not _email_backend:
-    if _email_host:
-        _email_backend = "django.core.mail.backends.smtp.EmailBackend"
+    if _resend_api_key:
+        _email_backend = "anymail.backends.resend.EmailBackend"
     elif DEBUG:
+        # Local development without a key never sends real mail.
         _email_backend = "django.core.mail.backends.console.EmailBackend"
     else:
         raise ImproperlyConfigured(
-            "Production email delivery is not configured. Set EMAIL_HOST, "
-            "EMAIL_HOST_USER, EMAIL_HOST_PASSWORD and DEFAULT_FROM_EMAIL, or set "
-            "EMAIL_BACKEND explicitly."
+            "Production email delivery is not configured. Set RESEND_API_KEY "
+            "and DEFAULT_FROM_EMAIL to send email through the Resend HTTPS API."
         )
 
-if _email_backend == "django.core.mail.backends.smtp.EmailBackend":
-    if not _email_host:
-        raise ImproperlyConfigured(
-            "EMAIL_HOST is required when using the SMTP email backend."
-        )
-    if not _email_host_user or not _email_host_password:
-        raise ImproperlyConfigured(
-            "SMTP email delivery requires EMAIL_HOST_USER and "
-            "EMAIL_HOST_PASSWORD (or RESEND_API_KEY)."
-        )
+if _email_backend == "anymail.backends.resend.EmailBackend" and not _resend_api_key:
+    raise ImproperlyConfigured(
+        "RESEND_API_KEY is required when using the Resend HTTPS email backend."
+    )
 
 _mailer_options = {}
-if _email_backend == "django.core.mail.backends.smtp.EmailBackend":
-    _mailer_options = {
-        "host": _email_host,
-        "port": _email_port,
-        "username": _email_host_user,
-        "password": _email_host_password,
-        "use_tls": _email_use_tls,
-        "use_ssl": _email_use_ssl,
-        "timeout": _email_timeout,
-    }
+if _email_backend == "anymail.backends.resend.EmailBackend":
+    _mailer_options = {"timeout": _email_timeout}
 
 MAILERS = {
     'default': {
@@ -333,19 +313,12 @@ MAILERS = {
     },
 }
 
-# Django 6.0 and earlier do not read MAILERS. Mirror the same configuration
-# into the legacy EMAIL_* settings so email still targets Resend instead of
-# silently falling back to localhost:25. Django 6.1 rejects these settings
-# when MAILERS is defined, so they must remain conditional.
+# Django 6.0 and earlier do not read MAILERS. Mirror the backend selection into
+# the legacy EMAIL_BACKEND setting. Anymail still reads the API key from the
+# ANYMAIL setting above, so no SMTP settings are configured. Django 6.1 rejects
+# EMAIL_BACKEND when MAILERS is defined, so this remains conditional.
 if DJANGO_VERSION < (6, 1):
     EMAIL_BACKEND = _email_backend
-    EMAIL_HOST = _email_host
-    EMAIL_PORT = _email_port
-    EMAIL_HOST_USER = _email_host_user
-    EMAIL_HOST_PASSWORD = _email_host_password
-    EMAIL_USE_TLS = _email_use_tls
-    EMAIL_USE_SSL = _email_use_ssl
-    EMAIL_TIMEOUT = _email_timeout
 
 # Password reset
 PASSWORD_RESET_TIMEOUT = int(os.environ.get("PASSWORD_RESET_TIMEOUT", "3600") or 3600)
@@ -356,6 +329,22 @@ PASSWORD_RESET_BASE_URL = os.environ.get(
 # Absolute, externally reachable URL for the logo used in HTML emails.
 # Leave empty to render a text-only fallback instead of a broken image.
 EMAIL_LOGO_URL = os.environ.get("EMAIL_LOGO_URL", "").strip()
+
+# Named route for the public explanation/documentation page linked from the
+# welcome email. The link is omitted until this route exists, so a page that
+# is still being delivered can never produce a broken email link.
+DOCUMENTATION_URL_NAME = os.environ.get(
+    "DOCUMENTATION_URL_NAME", "core:documentation"
+).strip()
+
+# Canonical public origin used by SEO metadata, robots.txt and the sitemap.
+# It is intentionally independent from the request host so generated URLs
+# always use the production HTTPS domain, including behind a proxy.
+SITE_BASE_URL = (
+    os.environ.get("SITE_BASE_URL", "https://cashflow.gabsweb.com.ng")
+    .strip()
+    .rstrip("/")
+)
 
 # Google OAuth (django-allauth). Credentials are supplied only through the
 # environment. The application remains usable with email/password when these

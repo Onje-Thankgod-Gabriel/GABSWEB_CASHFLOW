@@ -359,6 +359,200 @@ test("shared sidebar loader is wired into every authenticated app page", functio
   );
 });
 
+test("dashboard greeting alternates every 20 seconds with a quicker fade", function () {
+  assert.ok(dashboardSource.indexOf("var GREETING_INTERVAL = 20000;") !== -1);
+  assert.ok(dashboardSource.indexOf("var GREETING_FADE_MS = 1100;") !== -1);
+  assert.ok(dashboardSource.indexOf("scheduleGreeting(GREETING_INTERVAL)") !== -1);
+  assert.ok(dashboardSource.indexOf("window.setTimeout(apply, GREETING_FADE_MS)") !== -1);
+  assert.ok(dashboardCss.indexOf("transition: opacity 1100ms") !== -1);
+  assert.strictEqual(dashboardCss.indexOf("transition: opacity 1380ms"), -1);
+  assert.ok(dashboardSource.indexOf("prefers-reduced-motion: reduce") !== -1);
+  assert.ok(dashboardSource.indexOf("window.clearTimeout(state.greeting.timer)") !== -1);
+});
+
+test("footer attribution keeps its icon with the adjacent text", function () {
+  var indexCss = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "css", "index.css"),
+    "utf8"
+  );
+  var insightsCss = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "css", "insights.css"),
+    "utf8"
+  );
+  var dbFootnote = dashboardCss.match(/\.db-footnote\s*\{([^}]*)\}/);
+  var riFootnote = insightsCss.match(/\.ri-footnote\s*\{([^}]*)\}/);
+  assert.ok(dbFootnote && /align-items:\s*flex-start;/.test(dbFootnote[1]));
+  assert.ok(riFootnote && /align-items:\s*flex-start;/.test(riFootnote[1]));
+  assert.ok(
+    /\.db-footnote i,\s*\.db-footnote svg\s*\{[^}]*flex:\s*0 0 auto;/.test(
+      dashboardCss
+    ),
+    "The dashboard footnote icon must not shrink beside the text"
+  );
+  assert.ok(
+    /\.ri-footnote i,\s*\.ri-footnote svg\s*\{[^}]*flex:\s*0 0 auto;/.test(
+      insightsCss
+    ),
+    "The insights footnote icon must not shrink beside the text"
+  );
+  assert.ok(
+    /\.db-footnote > span\s*\{[^}]*min-width:\s*0;/.test(dashboardCss),
+    "The dashboard footnote text must be allowed to wrap"
+  );
+  assert.ok(
+    /\.ri-footnote > span\s*\{[^}]*min-width:\s*0;/.test(insightsCss),
+    "The insights footnote text must be allowed to wrap"
+  );
+  assert.ok(indexCss.indexOf(".app-portfolio-footer") !== -1);
+  assert.ok(indexCss.indexOf(".auth-portfolio-footer") !== -1);
+});
+
+test("every layout ends with the shared Gabsweb portfolio footer", function () {
+  ["app_base.html", "auth_base.html", "error_base.html"].forEach(function (name) {
+    var source = fs.readFileSync(
+      path.join(rootDir, "core", "templates", "layouts", name),
+      "utf8"
+    );
+    assert.ok(
+      source.indexOf('include "partials/portfolio_footer.html"') !== -1,
+      name + " must include the shared portfolio footer"
+    );
+  });
+});
+
+test("login success notices auto-dismiss within three seconds", function () {
+  var noticesSource = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "js", "app-notices.js"),
+    "utf8"
+  );
+  assert.ok(noticesSource.indexOf("Successfully signed in as") !== -1);
+  assert.ok(noticesSource.indexOf("Logged in as") !== -1);
+
+  var timer = noticesSource.match(
+    /setTimeout\(function \(\) \{\s*dismissMessage\(element\);\s*\}, (\d+)\)/
+  );
+  assert.ok(timer, "Login notices must be dismissed on a timer");
+  assert.ok(
+    Number(timer[1]) <= 3000,
+    "Login notices must disappear within three seconds"
+  );
+  assert.ok(
+    noticesSource.indexOf("element.remove();") !== -1,
+    "Dismissed notices must leave the layout without a page refresh"
+  );
+  assert.ok(
+    appBaseTemplate.indexOf(
+      "{% static 'assets/js/app-notices.js' %}"
+    ) !== -1,
+    "app-notices.js must load on every authenticated app page"
+  );
+});
+
+test("pending workplace notice collapses to a compact line after five seconds", function () {
+  var noticesSource = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "js", "app-notices.js"),
+    "utf8"
+  );
+  var noticesCss = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "css", "account-notices.css"),
+    "utf8"
+  );
+  var noticesTemplate = fs.readFileSync(
+    path.join(
+      rootDir,
+      "core",
+      "templates",
+      "partials",
+      "app_account_notices.html"
+    ),
+    "utf8"
+  );
+
+  assert.ok(noticesTemplate.indexOf("data-pending-notice") !== -1);
+  assert.ok(noticesTemplate.indexOf("Workplace Access Pending") !== -1);
+  assert.ok(
+    noticesSource.indexOf(
+      '[data-pending-notice][data-pending-expanded="true"]'
+    ) !== -1,
+    "The collapse timer must target the expanded pending notice"
+  );
+
+  var timer = noticesSource.match(
+    /setTimeout\(function \(\) \{[\s\S]*?pendingNotice[\s\S]*?\}, (\d+)\)/
+  );
+  assert.ok(timer, "The pending notice must collapse on a timer");
+  assert.strictEqual(Number(timer[1]), 5000);
+  assert.ok(noticesSource.indexOf('classList.add("is-compact")') !== -1);
+  assert.ok(
+    noticesSource.indexOf('pendingNotice.removeAttribute("data-pending-expanded")') !== -1
+  );
+  assert.ok(
+    /\.app-pending-notice\.is-compact \.app-pending-title-full,[\s\S]*?\.app-pending-help\s*\{[^}]*display:\s*none;/.test(
+      noticesCss
+    ),
+    "Compact mode must hide the full explanation"
+  );
+  assert.ok(
+    /\.app-pending-notice\.is-compact \.app-pending-title-compact\s*\{[^}]*display:\s*inline;/.test(
+      noticesCss
+    ),
+    "Compact mode must show the one-line title"
+  );
+});
+
+test("notification panel Clear button clears persisted notifications", function () {
+  var notificationsSource = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "js", "notifications.js"),
+    "utf8"
+  );
+  var notificationsTemplate = fs.readFileSync(
+    path.join(rootDir, "core", "templates", "partials", "app_header_controls.html"),
+    "utf8"
+  );
+  var notificationsCss = fs.readFileSync(
+    path.join(rootDir, "static", "assets", "css", "notifications.css"),
+    "utf8"
+  );
+
+  assert.ok(notificationsTemplate.indexOf('id="clear-notifications"') !== -1);
+  assert.ok(
+    notificationsTemplate.indexOf('aria-label="Clear all notifications"') !== -1
+  );
+  assert.ok(notificationsTemplate.indexOf('data-lucide="trash-2"') !== -1);
+  assert.ok(
+    notificationsTemplate.indexOf("app-notification-head-actions") !== -1,
+    "Clear must sit in its own header actions group"
+  );
+  assert.ok(
+    notificationsTemplate.indexOf("app-notification-mark-all") <
+      notificationsTemplate.indexOf('id="clear-notifications"'),
+    "Clear must be separate from the mark-all control"
+  );
+
+  assert.ok(notificationsSource.indexOf('API_URL + "clear/"') !== -1);
+  assert.ok(notificationsSource.indexOf("method: \"POST\"") !== -1);
+  assert.ok(notificationsSource.indexOf("function clearNotifications()") !== -1);
+  assert.ok(notificationsSource.indexOf("state.clearing") !== -1);
+  assert.ok(
+    notificationsSource.indexOf("clearAll.disabled = state.clearing") !== -1,
+    "Clear must be disabled while a request is in flight"
+  );
+  assert.ok(
+    notificationsSource.indexOf(
+      "clearAll.hidden = state.serverItems.length === 0"
+    ) !== -1,
+    "Clear must not be offered when there is nothing stored to clear"
+  );
+  assert.ok(
+    notificationsSource.indexOf('dropdown.querySelector("#clear-notifications")') !==
+      -1
+  );
+
+  assert.ok(notificationsCss.indexOf(".app-notification-head-actions") !== -1);
+  assert.ok(notificationsCss.indexOf(".app-notification-clear") !== -1);
+  assert.ok(notificationsCss.indexOf(".app-notification-clear:focus-visible") !== -1);
+});
+
 Promise.all(pendingTests)
   .then(function () {
     console.log("All UI correction regression tests passed.");

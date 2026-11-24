@@ -3,7 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <script>
+      (function () {
+        window.__gabswebDeferredInstallPrompt = null;
+        window.addEventListener("beforeinstallprompt", function (event) {
+          if (event && typeof event.preventDefault === "function") {
+            event.preventDefault();
+          }
+          window.__gabswebDeferredInstallPrompt = event;
+          if (typeof window.__gabswebHandleInstallPrompt === "function") {
+            window.__gabswebHandleInstallPrompt(event);
+          }
+        });
+      })();
+    </script>
     <title>{% block title %}Gabsweb CashFlow{% endblock %}</title>
+    {% block seo_meta %}<meta name="robots" content="noindex, nofollow, noarchive" />{% endblock %}
     <meta name="theme-color" content="#0c0d11" />
     {% block theme_scripts %}{% endblock %}
     <script src="{% static 'assets/js/theme-color.js' %}"></script>

@@ -39,7 +39,8 @@
   var INITIAL_PROJECT_COUNT = 6;
   var GOALS_API = "/goals-api/";
   var BUDGET_API = "/budget-api/";
-  var GREETING_INTERVAL = 12000;
+  var GREETING_INTERVAL = 20000;
+  var GREETING_FADE_MS = 1100;
 
   var PRIORITY_META = {
     low: "Low priority",
@@ -164,7 +165,7 @@
     window.clearTimeout(greeting.fadeTimer);
     if (animate && !reduced) {
       node.classList.add("is-fading");
-      greeting.fadeTimer = window.setTimeout(apply, 1380);
+      greeting.fadeTimer = window.setTimeout(apply, GREETING_FADE_MS);
     } else {
       apply();
     }

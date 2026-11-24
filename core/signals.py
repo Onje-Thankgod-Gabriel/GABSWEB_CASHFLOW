@@ -51,6 +51,14 @@ def notify_membership_approval(sender, instance, created, **kwargs):
 @receiver(user_logged_in)
 def notify_user_login(sender, request, user, **kwargs):
     """Create one in-app notification for an actual login event."""
+    if request is not None:
+        # Every authentication path (password login, registration and Google
+        # OAuth) emits this signal. The flag is consumed by the first rendered
+        # app page so the installation prompt appears once per login session,
+        # not on ordinary refreshes.
+        request.session["gabsweb_pwa_prompt"] = True
+        if getattr(user, "account_status", None) == User.AccountStatus.PENDING:
+            request.session["gabsweb_pending_notice_full"] = True
     if request is not None and request.session.pop(
         "suppress_login_notification", False
     ):

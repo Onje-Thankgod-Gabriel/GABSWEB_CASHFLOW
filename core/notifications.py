@@ -14,7 +14,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
 from .models import Notification, User
@@ -83,6 +83,24 @@ def email_logo_url():
     return url
 
 
+def documentation_url():
+    """Return the public explanation page URL when its named route exists.
+
+    The welcome email must never contain a broken help link. The documentation
+    page is being delivered separately, so the link is rendered only after the
+    configured named route resolves.
+    """
+    name = getattr(settings, "DOCUMENTATION_URL_NAME", "")
+    if not name:
+        return ""
+    try:
+        path = reverse(name)
+    except NoReverseMatch:
+        return ""
+    base = _public_base_url()
+    return f"{base}{path}" if base else path
+
+
 def email_context(user):
     base = _public_base_url()
     login_path = reverse("core:login")
@@ -91,6 +109,7 @@ def email_context(user):
         "first_name": user.get_first_display_name(),
         "membership_label": membership_label_for(user),
         "login_url": f"{base}{login_path}" if base else login_path,
+        "documentation_url": documentation_url(),
         "email_logo_url": email_logo_url(),
     }
 

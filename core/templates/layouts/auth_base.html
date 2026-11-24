@@ -24,6 +24,7 @@
 
   <main class="auth-card {% block auth_card_class %}auth-card-login{% endblock %} px-10 py-12"{% block auth_main_attributes %}{% endblock %}>
     {% block auth_content %}{% endblock %}
+    {% include "partials/portfolio_footer.html" with footer_class="auth-portfolio-footer" %}
   </main>
 {% endblock %}
 

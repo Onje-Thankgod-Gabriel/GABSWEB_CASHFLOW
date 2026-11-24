@@ -1739,10 +1739,16 @@
   display: none;
 }
 
-.ws-field label {
+.ws-field label,
+.ws-shift-time-title {
   color: var(--text);
   font-size: 0.64rem;
   font-weight: 650;
+}
+
+.ws-shift-time-heading {
+  gap: 3px;
+  margin-top: 2px;
 }
 
 .ws-field .form-input,

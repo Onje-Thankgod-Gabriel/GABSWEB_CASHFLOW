@@ -170,6 +170,53 @@ class NotificationApiTests(TestCase):
         other.refresh_from_db()
         self.assertFalse(other.is_read)
 
+    def test_clear_removes_all_own_notifications_only(self):
+        self.create_notification()
+        self.create_notification(title="Second")
+        other = self.create_notification(owner=self.other, title="Other user")
+
+        response = self.client.post(reverse("core:notifications_clear"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["cleared"], 2)
+        self.assertEqual(response.json()["unreadCount"], 0)
+        self.assertEqual(
+            Notification.objects.filter(owner=self.user).count(), 0
+        )
+        self.assertTrue(Notification.objects.filter(pk=other.pk).exists())
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+    def test_clear_empty_list_is_safe(self):
+        response = self.client.post(reverse("core:notifications_clear"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["cleared"], 0)
+        self.assertEqual(response.json()["unreadCount"], 0)
+
+    def test_cleared_notifications_stay_cleared_on_reload(self):
+        self.create_notification()
+        self.client.post(reverse("core:notifications_clear"))
+        response = self.client.get(reverse("core:notifications_api"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["notifications"], [])
+        self.assertEqual(response.json()["unreadCount"], 0)
+
+    def test_clear_requires_post(self):
+        response = self.client.get(reverse("core:notifications_clear"))
+        self.assertEqual(response.status_code, 405)
+
+    def test_clear_requires_csrf(self):
+        from django.test import Client
+
+        self.create_notification()
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        before = Notification.objects.filter(owner=self.user).count()
+        response = client.post(reverse("core:notifications_clear"))
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            Notification.objects.filter(owner=self.user).count(), before
+        )
+
     def test_read_endpoints_require_post(self):
         notification = self.create_notification()
         response = self.client.get(

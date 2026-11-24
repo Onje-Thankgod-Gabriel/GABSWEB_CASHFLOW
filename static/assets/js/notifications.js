@@ -7,6 +7,7 @@
     serverItems: [],
     unread: 0,
     loading: false,
+    clearing: false,
     refreshQueued: false,
     request: null
   };
@@ -257,6 +258,7 @@
     var list = byId("notification-list");
     var badge = byId("notification-badge");
     var markAll = byId("mark-all-notifications");
+    var clearAll = byId("clear-notifications");
     if (!list) return;
 
     var items = buildLocalAlerts().concat(state.serverItems);
@@ -282,6 +284,14 @@
       }
     }
     if (markAll) markAll.hidden = state.unread <= 0;
+    if (clearAll) {
+      clearAll.hidden = state.serverItems.length === 0;
+      clearAll.disabled = state.clearing;
+      clearAll.setAttribute(
+        "aria-busy",
+        state.clearing ? "true" : "false"
+      );
+    }
 
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       window.lucide.createIcons();
@@ -355,6 +365,34 @@
       })
       .catch(function () {
         return load();
+      });
+  }
+
+  function clearNotifications() {
+    if (state.clearing) return Promise.resolve();
+    if (!state.serverItems.length) {
+      render();
+      return Promise.resolve();
+    }
+
+    var previousItems = state.serverItems;
+    var previousUnread = state.unread;
+    state.clearing = true;
+    state.serverItems = [];
+    state.unread = 0;
+    render();
+
+    return request(API_URL + "clear/", { method: "POST" })
+      .then(function () {
+        return load();
+      })
+      .catch(function () {
+        state.serverItems = previousItems;
+        state.unread = previousUnread;
+      })
+      .finally(function () {
+        state.clearing = false;
+        render();
       });
   }
 
@@ -458,6 +496,15 @@
         event.preventDefault();
         event.stopPropagation();
         markAllRead();
+      });
+    }
+
+    var clearAll = dropdown.querySelector("#clear-notifications");
+    if (clearAll) {
+      clearAll.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearNotifications();
       });
     }
 

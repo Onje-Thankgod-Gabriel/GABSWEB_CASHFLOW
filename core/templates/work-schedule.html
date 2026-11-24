@@ -428,18 +428,30 @@
               <label for="ws-entry-shift">Shift</label>
               <select id="ws-entry-shift" class="form-select" required>
                 <option value="">Choose shift</option>
+                {% if can_access_workplace_schedule %}
                 <option value="morning">Morning · 7:00 AM – 1:00 PM</option>
                 <option value="afternoon">Afternoon · 1:00 PM – 7:00 PM</option>
                 <option value="night">Night · 7:00 PM – 7:00 AM</option>
+                {% else %}
+                <option value="morning">Morning</option>
+                <option value="afternoon">Afternoon</option>
+                <option value="night">Night</option>
+                {% endif %}
                 <option value="off">Day off</option>
               </select>
             </div>
+            {% if not can_access_workplace_schedule %}
+            <div class="ws-field is-span-2 ws-shift-time-heading" id="ws-shift-time-heading">
+              <span class="ws-shift-time-title">Shift time</span>
+              <small class="ws-field-hint">Enter the actual start and end time for the shift you selected.</small>
+            </div>
+            {% endif %}
             <div class="ws-field" id="ws-start-field">
-              <label for="ws-entry-start">Start time</label>
+              <label for="ws-entry-start">{% if can_access_workplace_schedule %}Start time{% else %}Shift start time{% endif %}</label>
               <input type="time" id="ws-entry-start" class="form-input" />
             </div>
             <div class="ws-field" id="ws-end-field">
-              <label for="ws-entry-end">End time</label>
+              <label for="ws-entry-end">{% if can_access_workplace_schedule %}End time{% else %}Shift end time{% endif %}</label>
               <input type="time" id="ws-entry-end" class="form-input" />
             </div>
             <div class="ws-field is-span-2">

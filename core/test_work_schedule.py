@@ -446,6 +446,51 @@ class WorkScheduleApiTests(TestCase):
         self.assertEqual(record.source, WorkScheduleRecord.Source.MANUAL)
         self.assertEqual(record.shift_type, "night")
 
+    def test_general_and_pending_users_can_save_their_own_shift_times(self):
+        for status, email in (
+            (User.AccountStatus.GENERAL, "general-times@example.com"),
+            (User.AccountStatus.PENDING, "pending-times@example.com"),
+        ):
+            user = make_user(email, status)
+            self.client.force_login(user)
+
+            created = self.create_entry(
+                "2026-11-12", "afternoon", "14:15", "22:45"
+            )
+            self.assertEqual(created.status_code, 201, created.content)
+            record = WorkScheduleRecord.objects.get(owner=user)
+            self.assertEqual(record.shift_type, "afternoon")
+            self.assertEqual(record.start_time, time(14, 15))
+            self.assertEqual(record.end_time, time(22, 45))
+
+            edited = post_json(
+                self.client,
+                reverse("core:work_schedule_record_detail", args=[record.pk]),
+                {
+                    "shiftType": "night",
+                    "startTime": "21:30",
+                    "endTime": "05:15",
+                },
+                "patch",
+            )
+            self.assertEqual(edited.status_code, 200, edited.content)
+            record.refresh_from_db()
+            self.assertEqual(record.shift_type, "night")
+            self.assertEqual(record.start_time, time(21, 30))
+            self.assertEqual(record.end_time, time(5, 15))
+
+    def test_general_user_entry_requires_a_valid_time(self):
+        user = make_user("general-invalid@example.com", User.AccountStatus.GENERAL)
+        self.client.force_login(user)
+
+        missing = self.create_entry("2026-11-13", "morning", "", "")
+        self.assertEqual(missing.status_code, 400)
+        same = self.create_entry("2026-11-13", "morning", "08:00", "08:00")
+        self.assertEqual(same.status_code, 400)
+        self.assertFalse(
+            WorkScheduleRecord.objects.filter(owner=user, date=date(2026, 11, 13)).exists()
+        )
+
     def test_night_times_are_preserved(self):
         created = self.create_entry(
             "2026-11-05", "night", "19:00", "07:00"
@@ -547,4 +592,29 @@ class WorkSchedulePageTests(TestCase):
         response = self.client.get(reverse("core:work_schedule"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse("core:work_schedule_api"))
+
+    def test_approved_page_keeps_predefined_shift_times(self):
+        user = make_user("page-approved-times@example.com")
+        self.client.force_login(user)
+        response = self.client.get(reverse("core:work_schedule"))
+        self.assertContains(response, "Morning · 7:00 AM – 1:00 PM")
+        self.assertContains(response, "Afternoon · 1:00 PM – 7:00 PM")
+        self.assertContains(response, "Night · 7:00 PM – 7:00 AM")
+        self.assertNotContains(response, "Shift time</span>")
+
+    def test_general_and_pending_pages_use_shift_names_with_separate_time(self):
+        for status, email in (
+            (User.AccountStatus.GENERAL, "page-general-times@example.com"),
+            (User.AccountStatus.PENDING, "page-pending-times@example.com"),
+        ):
+            user = make_user(email, status)
+            self.client.force_login(user)
+            response = self.client.get(reverse("core:work_schedule"))
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, "Morning · 7:00 AM – 1:00 PM")
+            self.assertNotContains(response, "Afternoon · 1:00 PM – 7:00 PM")
+            self.assertNotContains(response, "Night · 7:00 PM – 7:00 AM")
+            self.assertContains(response, '<option value="morning">Morning</option>')
+            self.assertContains(response, "Shift time</span>")
+            self.assertContains(response, "Shift start time")
         self.assertNotContains(response, "Automatic schedule generation")

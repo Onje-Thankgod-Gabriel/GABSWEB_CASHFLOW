@@ -15,4 +15,4 @@ media/
 private_media/
 
 # Private database backups and recovery files
-backups/
+backups/.venv_old/

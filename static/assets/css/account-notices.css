@@ -1,6 +1,6 @@
 .app-notices {
   width: 100%;
-  max-width: 1624px;
+  max-width: 1464px;
   margin: 0 auto;
   padding: 12px 12px 0;
 }
@@ -32,7 +32,6 @@
   align-items: flex-start;
   gap: 12px;
   width: 100%;
-  max-width: 720px;
   padding: 14px 16px;
   border: 1px solid color-mix(in srgb, #6366f1 26%, var(--border));
   border-radius: 16px;
@@ -115,10 +114,72 @@
   line-height: 1.5;
 }
 
+.app-pending-title-compact {
+  display: none;
+}
+
+.app-pending-notice.is-compact {
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.app-pending-notice.is-compact .app-pending-icon {
+  flex-basis: 26px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.app-pending-notice.is-compact .app-pending-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-pending-notice.is-compact .app-pending-content {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.app-pending-notice.is-compact .app-pending-heading {
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: 8px;
+}
+
+.app-pending-notice.is-compact .app-pending-title {
+  overflow: hidden;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app-pending-notice.is-compact .app-pending-title-full,
+.app-pending-notice.is-compact .app-pending-copy,
+.app-pending-notice.is-compact .app-pending-help {
+  display: none;
+}
+
+.app-pending-notice.is-compact .app-pending-title-compact {
+  display: inline;
+}
+
+.app-notices-message {
+  transition: opacity 240ms ease, transform 240ms ease;
+}
+
+.app-notices-message.is-dismissing {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 @media (max-width: 720px) {
   .app-notices {
-    padding-left: 22px;
-    padding-right: 22px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .app-pending-notice {
